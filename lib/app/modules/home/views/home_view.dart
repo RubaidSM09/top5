@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/app/modules/home/views/service_view.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 
@@ -87,7 +88,7 @@ class HomeView extends GetView<HomeController> {
 
                 SizedBox(height: 24.h,),
 
-                HomeSearchBar(),
+                HomeSearchBar(searchBarText: 'Inspire me',),
 
                 SizedBox(height: 16.38.h,),
 
@@ -170,30 +171,40 @@ class HomeView extends GetView<HomeController> {
                         image: 'assets/images/home/restaurant.jpg',
                         text: 'Restaurant',
                         rating: 4.6,
+                        selectedCategory: controller.selectedCategory,
+                        index: 0,
                       ),
 
                       QuickGlanceCard(
                         image: 'assets/images/home/cafes.jpg',
                         text: 'Cafes',
                         rating: 4.6,
+                        selectedCategory: controller.selectedCategory,
+                        index: 1,
                       ),
 
                       QuickGlanceCard(
                         image: 'assets/images/home/bar.jpg',
                         text: 'Bar',
                         rating: 4.6,
+                        selectedCategory: controller.selectedCategory,
+                        index: 2,
                       ),
 
                       QuickGlanceCard(
                         image: 'assets/images/home/services.jpg',
                         text: 'Services',
                         rating: 4.6,
+                        selectedCategory: controller.selectedCategory,
+                        index: 4,
                       ),
 
                       QuickGlanceCard(
                         image: 'assets/images/home/activities.jpg',
                         text: 'Activities',
                         rating: 4.6,
+                        selectedCategory: controller.selectedCategory,
+                        index: 3,
                       ),
                     ],
                   ),
@@ -459,7 +470,12 @@ class CategorySelectionCard extends StatelessWidget {
 
 
 class HomeSearchBar extends StatelessWidget {
-  const HomeSearchBar({super.key});
+  final String searchBarText;
+
+  const HomeSearchBar({
+    required this.searchBarText,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -489,7 +505,7 @@ class HomeSearchBar extends StatelessWidget {
               )
           ),
 
-          hintText: 'Inspire me',
+          hintText: searchBarText,
           hintStyle: h4.copyWith(
             color: AppColors.homeGray,
             fontSize: 14.sp,
@@ -596,11 +612,15 @@ class QuickGlanceCard extends StatelessWidget {
   final String image;
   final String text;
   final double rating;
+  final RxList<RxBool> selectedCategory;
+  final int index;
 
   const QuickGlanceCard({
     required this.image,
     required this.text,
     required this.rating,
+    required this.selectedCategory,
+    required this.index,
     super.key
   });
 
@@ -609,25 +629,39 @@ class QuickGlanceCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 96.w,
-          height: 88.h,
-          decoration: BoxDecoration(
+        GestureDetector(
+          onTap: () {
+            for (int i=0;i<5;i++) {
+              if (i==index) {
+                selectedCategory[i].value = true;
+              }
+              else {
+                selectedCategory[i].value = false;
+              }
+            }
+
+            Get.to(ServiceView(appBarTitle: text,));
+          },
+          child: Container(
+            width: 96.w,
+            height: 88.h,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.top5Black.withAlpha(64),
+                    blurRadius: 4.r,
+                    offset: Offset(1.w, 1.h),
+                  )
+                ]
+            ),
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.top5Black.withAlpha(64),
-                  blurRadius: 4.r,
-                  offset: Offset(1.w, 1.h),
-                )
-              ]
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.r),
-            child: Image.asset(
-              image,
-              scale: 4,
-              fit: BoxFit.cover,
+              child: Image.asset(
+                image,
+                scale: 4,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),

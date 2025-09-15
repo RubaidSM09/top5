@@ -33,6 +33,19 @@ class AppColors {
   static const Color homeSunnyIconColor = Color(0xFFF5A33D);
   static const Color homeSearchBarLineColor = Color(0xFF6B7280);
 
+  /// Service Screen Colors
+  static const Color serviceBottomNavbarTextColor = Color(0xFF007067);
+  static const Color serviceBlue = Color(0xFF05122C);
+  static const Color serviceWhite = Color(0xFFFFFFFF);
+  static const Color serviceBlack = Color(0xFF1B1B1B);
+  static const Color serviceGreen = Color(0xFF00A896);
+  static const Color serviceGray = Color(0xFF475467);
+  static const Color serviceSearchBg = Color(0xFFF0F6F4);
+  static const Color serviceInactiveBg = Color(0xFFF2F4F7);
+  static const Color serviceText = Color(0xFF475467);
+  static const Color servicePromoGreen = Color(0xFF09C302);
+  static const Color serviceText2 = Color(0xFF6B7280);
+
   /// MISC
   static const Color top5Transparent = Colors.transparent;
   static const Color top5Black = Colors.black;

@@ -7,6 +7,7 @@ import 'package:top5/common/custom_fonts.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final String icon;
+  final String prefixIcon;
   final void Function()? onTap;
   final double paddingLeft;
   final double paddingRight;
@@ -24,6 +25,7 @@ class CustomButton extends StatelessWidget {
     required this.text,
     required this.onTap,
     this.icon = '',
+    this.prefixIcon = '',
     this.paddingLeft = 10,
     this.paddingRight = 10,
     this.paddingTop = 10,
@@ -73,6 +75,33 @@ class CustomButton extends StatelessWidget {
                 fontSize: textSize.sp
               ),
             )
+          ],
+        )
+            :
+        prefixIcon != '' ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.w,
+          children: [
+            Text(
+              text,
+              style: h2.copyWith(
+                  color: textColor,
+                  fontSize: textSize.sp
+              ),
+            ),
+
+            SvgPicture.asset(
+                prefixIcon
+            ),
+          ],
+        )
+            :
+        text == '' ? Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+                icon
+            ),
           ],
         )
             :
