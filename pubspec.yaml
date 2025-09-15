@@ -38,6 +38,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_svg: ^2.2.1
   google_fonts: ^6.3.1
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,8 @@ flutter:
   assets:
     - assets/images/splash/
     - assets/images/authentication/
+    - assets/images/bottom_navigation_bar/
+    - assets/images/home/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

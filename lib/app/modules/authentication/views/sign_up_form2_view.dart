@@ -3,17 +3,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
-import 'package:top5/app/modules/authentication/controllers/authentication_controller.dart';
-import 'package:top5/app/modules/authentication/views/mail_verification_view.dart';
-import 'package:top5/app/modules/authentication/views/sign_up_view.dart';
+import 'package:top5/app/modules/authentication/views/sign_up_form3_view.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_text_field.dart';
+import '../controllers/authentication_controller.dart';
 
-class SignUpFormView extends GetView<AuthenticationController> {
-  const SignUpFormView({super.key});
+class SignUpForm2View extends GetView<AuthenticationController> {
+  const SignUpForm2View({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +44,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'What’s your email address?',
+                          'What’s your name?',
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -55,52 +54,12 @@ class SignUpFormView extends GetView<AuthenticationController> {
                         SizedBox(height: 24.h,),
 
                         CustomTextField(
-                          hintText: 'abc@email.com',
-                          prefixIcon: 'assets/images/authentication/mail.png',
+                          hintText: 'Full name',
+                          prefixIcon: 'assets/images/authentication/full_name.png',
                           isObscureText: false.obs,
                         ),
 
-                        SizedBox(height: 24.h,),
-
-                        Row(
-                          spacing: 12.w,
-                          children: [
-                            Obx(() {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.tppCheckboxController.value = !controller.tppCheckboxController.value;
-                                },
-                                child: Icon(
-                                  controller.tppCheckboxController.value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                                  color: AppColors.authenticationGreen,
-                                  size: 24.r,
-                                ),
-                              );
-                            }),
-
-                            Row(
-                              children: [
-                                Text(
-                                  'I agree to ',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationButtonBorderColor,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-
-                                Text(
-                                  'Terms and Privacy Policy.',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationGreen,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-
-                        SizedBox(height: 412.h,),
+                        SizedBox(height: 444.h,),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -119,7 +78,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(MailVerificationView()),
+                              onTap: () => Get.to(SignUpForm3View()),
                             ),
                           ],
                         )

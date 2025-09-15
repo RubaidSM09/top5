@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
-import 'package:top5/app/modules/authentication/controllers/authentication_controller.dart';
-import 'package:top5/app/modules/authentication/views/mail_verification_view.dart';
-import 'package:top5/app/modules/authentication/views/sign_up_view.dart';
+import 'package:top5/app/modules/authentication/views/sign_up_form2_view.dart';
+import 'package:top5/common/widgets/custom_otp_field.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_text_field.dart';
+import '../controllers/authentication_controller.dart';
 
-class SignUpFormView extends GetView<AuthenticationController> {
-  const SignUpFormView({super.key});
+class MailVerificationView extends GetView<AuthenticationController> {
+  const MailVerificationView({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +46,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'What’s your email address?',
+                          'Enter 6-digit code sent to your email',
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -54,53 +55,40 @@ class SignUpFormView extends GetView<AuthenticationController> {
 
                         SizedBox(height: 24.h,),
 
-                        CustomTextField(
-                          hintText: 'abc@email.com',
-                          prefixIcon: 'assets/images/authentication/mail.png',
-                          isObscureText: false.obs,
+                        CustomOtpField(
+                          otpControllers: controller.otpControllers,
+                          focusNodes: controller.focusNodes,
+                          updateOTP: controller.updateOTP,
                         ),
 
-                        SizedBox(height: 24.h,),
+                        SizedBox(height: 16.h,),
+
+                        Text(
+                          'Tip : Make sure check your inbox and spam folders',
+                          style: h4.copyWith(
+                            color: AppColors.authenticationButtonBorderColor,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+
+                        SizedBox(height: 30.h,),
 
                         Row(
-                          spacing: 12.w,
                           children: [
-                            Obx(() {
-                              return GestureDetector(
-                                onTap: () {
-                                  controller.tppCheckboxController.value = !controller.tppCheckboxController.value;
-                                },
-                                child: Icon(
-                                  controller.tppCheckboxController.value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded,
-                                  color: AppColors.authenticationGreen,
-                                  size: 24.r,
-                                ),
-                              );
-                            }),
-
-                            Row(
-                              children: [
-                                Text(
-                                  'I agree to ',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationButtonBorderColor,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-
-                                Text(
-                                  'Terms and Privacy Policy.',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationGreen,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                              ],
-                            )
+                            CustomButton(
+                              text: 'Resend',
+                              color: AppColors.authenticationResendButtonColor,
+                              textColor: AppColors.authenticationButtonTextColor2,
+                              paddingTop: 5,
+                              paddingBottom: 5,
+                              textSize: 14,
+                              borderRadius: 24,
+                              onTap: () {  },
+                            ),
                           ],
                         ),
 
-                        SizedBox(height: 412.h,),
+                        SizedBox(height: 341.h,),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -119,7 +107,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(MailVerificationView()),
+                              onTap: () => Get.to(SignUpForm2View()),
                             ),
                           ],
                         )

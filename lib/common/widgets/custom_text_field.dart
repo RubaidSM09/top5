@@ -50,18 +50,26 @@ class CustomTextField extends StatelessWidget {
           fontSize: 14.sp,
         ),
 
-        prefixIcon: prefixIcon != '' ? Image.asset(
-          prefixIcon,
-          scale: 4,
+        prefixIcon: prefixIcon != '' ? SizedBox(
+          width: 22.w,
+          height: 22.h,
+          child: Image.asset(
+            prefixIcon,
+            scale: 4,
+          ),
         ) : SizedBox.shrink(),
 
         suffixIcon: suffixIcon != '' ? GestureDetector(
           onTap: () {
             isObscureText.value = !isObscureText.value;
           },
-          child: Image.asset(
-            suffixIcon,
-            scale: 4,
+          child: SizedBox(
+            child: Image.asset(
+              width: 24.w,
+              height: 24.h,
+              suffixIcon,
+              scale: 4,
+            ),
           ),
         ) : SizedBox.shrink(),
       ),

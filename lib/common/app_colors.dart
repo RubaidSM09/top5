@@ -15,9 +15,25 @@ class AppColors {
   static const Color authenticationGray = Color(0xFF475467);
   static const Color authenticationButtonBorderColor = Color(0xFF6B7280);
   static const Color authenticationButtonTextColor = Color(0xFF34312F);
+  static const Color authenticationButtonTextColor2 = Color(0xFF1B1B1B);
   static const Color authenticationRememberMeTextColor = Color(0xFF1C1C1C);
+  static const Color authenticationResendButtonColor = Color(0xFFD5D5D5);
+
+  /// Home Screen Colors
+  static const Color homeBottomNavbarTextColor = Color(0xFF007067);
+  static const Color homeBlue = Color(0xFF05122C);
+  static const Color homeWhite = Color(0xFFFFFFFF);
+  static const Color homeBlack = Color(0xFF1B1B1B);
+  static const Color homeGreen = Color(0xFF00A896);
+  static const Color homeGray = Color(0xFF475467);
+  static const Color homeSearchBg = Color(0xFFF0F6F4);
+  static const Color homeInactiveBg = Color(0xFFF2F4F7);
+  static const Color homeText = Color(0xFF475467);
+  static const Color homeProfileBorderColor = Color(0xFF018C8B);
+  static const Color homeSunnyIconColor = Color(0xFFF5A33D);
+  static const Color homeSearchBarLineColor = Color(0xFF6B7280);
 
   /// MISC
   static const Color top5Transparent = Colors.transparent;
-  static const Color top5Black = Colors.transparent;
+  static const Color top5Black = Colors.black;
 }

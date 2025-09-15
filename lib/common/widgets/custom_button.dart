@@ -16,6 +16,8 @@ class CustomButton extends StatelessWidget {
   final Color borderColor;
   final Color textColor;
   final double borderWidth;
+  final double borderRadius;
+  final double textSize;
   final List<BoxShadow>? boxShadow;
 
   const CustomButton({
@@ -30,6 +32,8 @@ class CustomButton extends StatelessWidget {
     this.borderColor = AppColors.top5Transparent,
     this.textColor = AppColors.authenticationWhite,
     this.borderWidth = 1,
+    this.borderRadius = 12,
+    this.textSize = 18,
     this.boxShadow = const [],
     super.key
   });
@@ -47,28 +51,41 @@ class CustomButton extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(borderRadius.r),
           border: Border.all(
             color: borderColor,
             width: borderWidth.r,
           ),
           boxShadow: boxShadow,
         ),
-        child: Row(
+        child: icon != '' ? Row(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 16.w,
           children: [
-            icon != '' ? SvgPicture.asset(
+            SvgPicture.asset(
                   icon
-                ) : SizedBox.shrink(),
+            ),
 
             Text(
               text,
               style: h2.copyWith(
                 color: textColor,
-                fontSize: 18.sp
+                fontSize: textSize.sp
               ),
             )
+          ],
+        )
+            :
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              text,
+              style: h2.copyWith(
+                  color: textColor,
+                  fontSize: textSize.sp
+              ),
+            ),
           ],
         ),
       ),

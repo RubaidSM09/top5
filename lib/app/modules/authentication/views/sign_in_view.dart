@@ -4,7 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/authentication/controllers/authentication_controller.dart';
+import 'package:top5/app/modules/authentication/views/forgot_password_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_view.dart';
+import 'package:top5/app/modules/dashboard/views/dashboard_view.dart';
 import 'package:top5/common/widgets/custom_text_field.dart';
 
 import '../../../../common/app_colors.dart';
@@ -66,8 +68,8 @@ class SignInView extends GetView<AuthenticationController> {
                           return CustomTextField(
                             hintText: 'Enter you password',
                             prefixIcon: 'assets/images/authentication/password.png',
-                            suffixIcon: controller.isObscureText.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
-                            isObscureText: controller.isObscureText,
+                            suffixIcon: controller.isSignInPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
+                            isObscureText: controller.isSignInPasswordVisible,
                           );
                         }),
 
@@ -75,7 +77,7 @@ class SignInView extends GetView<AuthenticationController> {
 
                         CustomButton(
                           text: 'Sign In',
-                          onTap: () {  },
+                          onTap: () => Get.to(DashboardView()),
                         ),
 
                         SizedBox(height: 30.h,),
@@ -124,17 +126,15 @@ class SignInView extends GetView<AuthenticationController> {
                             ),
 
 
-
-                            Row(
-                              children: [
-                                Text(
-                                  'Forgot Password?',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationGreen,
-                                    fontSize: 14.sp,
-                                  ),
-                                )
-                              ],
+                            GestureDetector(
+                              onTap: () => Get.to(ForgotPasswordView()),
+                              child: Text(
+                                'Forgot Password?',
+                                style: h4.copyWith(
+                                  color: AppColors.authenticationGreen,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
                             ),
                           ],
                         ),

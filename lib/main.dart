@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/common/app_colors.dart';
 
 import 'app/core/dependency_injection.dart';
 import 'app/routes/app_pages.dart';
@@ -25,6 +26,16 @@ void main() {
           initialRoute: AppPages.INITIAL,
           getPages: AppPages.routes,
           debugShowCheckedModeBanner: false,
+          defaultTransition: Transition.rightToLeft,
+          transitionDuration: Duration(milliseconds: 300),
+          theme: ThemeData(
+            scaffoldBackgroundColor: AppColors.homeWhite,
+
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.homeWhite,
+              foregroundColor: AppColors.homeWhite,
+            ),
+          ),
         );
         },
     ),
