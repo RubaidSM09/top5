@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +11,13 @@ class HomeController extends GetxController {
 
   RxList<RxBool> selectedCategory = [true.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxList<RxBool> selectedFilter = [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+
+  RxBool isListView = true.obs;
+
+  RxList<RxBool> selectedLocations = [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+
+  final double dragSensitivity = 600;
+  final RxDouble sheetPosition = 0.48.obs;
 
   @override
   void onInit() {
@@ -45,4 +54,18 @@ class HomeController extends GetxController {
   }
 
   void _tick() => now.value = DateTime.now();
+
+  bool get isOnDesktopAndWeb =>
+      kIsWeb ||
+          switch (defaultTargetPlatform) {
+            TargetPlatform.macOS || TargetPlatform.linux || TargetPlatform.windows => true,
+            TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.fuchsia => false,
+          };
+
+  void onDragUpdate(DragUpdateDetails details) {
+    double next = sheetPosition.value - details.delta.dy / dragSensitivity;
+    if (next < 0.25) next = 0.25;
+    if (next > 1.0) next = 1.0;
+    sheetPosition.value = next;
+  }
 }

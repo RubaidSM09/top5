@@ -45,6 +45,7 @@ class AppColors {
   static const Color serviceText = Color(0xFF475467);
   static const Color servicePromoGreen = Color(0xFF09C302);
   static const Color serviceText2 = Color(0xFF6B7280);
+  static const Color serviceGrabColor = Color(0xFFDCDDDC);
 
   /// MISC
   static const Color top5Transparent = Colors.transparent;
