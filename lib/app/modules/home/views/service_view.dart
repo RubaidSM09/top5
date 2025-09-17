@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
+import 'package:top5/app/modules/home/views/details_view.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -37,8 +38,7 @@ class ServiceView extends GetView<HomeController> {
                         children: [
                           SizedBox(height: 12.62.h),
 
-                          Obx(() {
-                            return SingleChildScrollView(
+                          SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 spacing: 10.w,
@@ -119,8 +119,7 @@ class ServiceView extends GetView<HomeController> {
                                   ),
                                 ],
                               ),
-                            );
-                          }),
+                            ),
 
                           SizedBox(height: 24.h),
 
@@ -130,8 +129,7 @@ class ServiceView extends GetView<HomeController> {
 
                           SizedBox(height: 16.38.h),
 
-                          Obx(() {
-                            return SingleChildScrollView(
+                          SingleChildScrollView(
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 spacing: 10.w,
@@ -215,8 +213,7 @@ class ServiceView extends GetView<HomeController> {
                                   ),
                                 ],
                               ),
-                            );
-                          }),
+                            ),
 
                           SizedBox(height: 34.h),
                         ],
@@ -293,6 +290,13 @@ class ServiceView extends GetView<HomeController> {
                                   distance: '450m',
                                   time: 6,
                                   type: 'Italian',
+                                  primeReason: 'Best value within 1 km, sunny terrace',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
+                                  selectedLocations: controller.selectedLocations,
                                 ),
 
                                 Top5NearYouListCard(
@@ -305,6 +309,13 @@ class ServiceView extends GetView<HomeController> {
                                   distance: '700m',
                                   time: 10,
                                   type: 'Korean',
+                                  primeReason: 'Best value within 1 km, sunny terrace',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
+                                  selectedLocations: controller.selectedLocations,
                                 ),
 
                                 Top5NearYouListCard(
@@ -318,6 +329,13 @@ class ServiceView extends GetView<HomeController> {
                                   distance: '900m',
                                   time: 20,
                                   type: 'Korean',
+                                  primeReason: 'Best value within 1 km, sunny terrace',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
+                                  selectedLocations: controller.selectedLocations,
                                 ),
 
                                 Top5NearYouListCard(
@@ -331,6 +349,13 @@ class ServiceView extends GetView<HomeController> {
                                   distance: '1.km',
                                   time: 25,
                                   type: 'Indian',
+                                  primeReason: 'Best value within 1 km, sunny terrace',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
+                                  selectedLocations: controller.selectedLocations,
                                 ),
 
                                 Top5NearYouListCard(
@@ -344,6 +369,13 @@ class ServiceView extends GetView<HomeController> {
                                   distance: '1.1km',
                                   time: 30,
                                   type: 'France',
+                                  primeReason: 'Best value within 1 km, sunny terrace',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
+                                  selectedLocations: controller.selectedLocations,
                                 ),
                               ],
                             ),
@@ -640,6 +672,10 @@ class Top5NearYouListCard extends StatelessWidget {
   final String distance;
   final double time;
   final String type;
+  final String primeReason;
+  final List<String> reasons;
+  final RxBool isSaved;
+  final RxList<RxBool> selectedLocations;
 
   const Top5NearYouListCard({
     required this.serialNo,
@@ -651,79 +687,129 @@ class Top5NearYouListCard extends StatelessWidget {
     required this.distance,
     required this.time,
     required this.type,
+    required this.primeReason,
+    required this.reasons,
+    required this.isSaved,
+    required this.selectedLocations,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AppColors.serviceGray, width: 0.5.r),
-      ),
-      child: Column(
-        spacing: 16.h,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: EdgeInsets.all(7.r),
-                decoration: BoxDecoration(
-                  color: AppColors.serviceGreen,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '$serialNo',
-                  style: h4.copyWith(
-                    color: AppColors.serviceWhite,
-                    fontSize: 10.sp,
+    return GestureDetector(
+      onTap: () {
+        int index = serialNo - 1;
+        if (!selectedLocations[index].value) {
+          for (int i = 0; i < 5; i++) {
+            if (i == index) {
+              selectedLocations[i] = true.obs;
+            } else {
+              selectedLocations[i] = false.obs;
+            }
+          }
+        }
+        Get.to(
+          DetailsView(
+            serialNo: serialNo,
+            title: title,
+            rating: rating,
+            image: image,
+            isPromo: isPromo,
+            status: status,
+            distance: distance,
+            time: time,
+            type: type,
+            reasons: reasons,
+            isSaved: isSaved,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+          color: AppColors.serviceWhite,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.top5Black.withAlpha(38),
+              blurRadius: 10.r,
+              offset: Offset(2.w, 3.h),
+            )
+          ],
+        ),
+        child: Column(
+          spacing: 16.h,
+          children: [
+            Container(
+              padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 8.h, bottom: 156.h),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6.r),
+                image: DecorationImage(
+                  image: AssetImage(
+                    image,
                   ),
+                  fit: BoxFit.cover,
                 ),
               ),
-
-              Container(
-                padding: EdgeInsets.only(
-                  left: 8.w,
-                  right: 7.w,
-                  top: 5.h,
-                  bottom: 42.h,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.r),
-                  image: DecorationImage(
-                    image: AssetImage(image),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: isPromo
-                        ? AppColors.servicePromoGreen
-                        : AppColors.top5Transparent,
-                    borderRadius: BorderRadius.circular(16.r),
-                  ),
-                  child: Text(
-                    'Promo',
-                    style: h4.copyWith(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    decoration: BoxDecoration(
                       color: isPromo
-                          ? AppColors.serviceWhite
+                          ? AppColors.servicePromoGreen
                           : AppColors.top5Transparent,
-                      fontSize: 10.sp,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Text(
+                      'Promo',
+                      style: h4.copyWith(
+                        color: isPromo
+                            ? AppColors.serviceWhite
+                            : AppColors.top5Transparent,
+                        fontSize: 10.sp,
+                      ),
                     ),
                   ),
-                ),
-              ),
 
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 8.h,
+                  Container(
+                    padding: EdgeInsets.all(9.33.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.serviceWhite,
+                    ),
+                    child: SvgPicture.asset(
+                      'assets/images/home/save.svg'
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.only(left: 9.w, right: 9.w, bottom: 25.h),
+              child: Column(
+                spacing: 7.h,
                 children: [
                   Row(
                     children: [
+                      Container(
+                        padding: EdgeInsets.all(7.r),
+                        decoration: BoxDecoration(
+                          color: AppColors.serviceGreen,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$serialNo',
+                          style: h4.copyWith(
+                            color: AppColors.serviceWhite,
+                            fontSize: 10.sp,
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(width: 16.w),
+
                       Text(
                         title,
                         style: h2.copyWith(
@@ -743,19 +829,17 @@ class Top5NearYouListCard extends StatelessWidget {
                       SizedBox(width: 4.w),
 
                       Text(
-                        '$rating',
+                        '$rating ',
                         style: h2.copyWith(
                           color: AppColors.top5Black,
                           fontSize: 14.sp,
                         ),
                       ),
 
-                      SizedBox(width: 10.w),
-
                       Text(
-                        '€€.',
-                        style: h2.copyWith(
-                          color: AppColors.top5Black,
+                        '($rating)',
+                        style: h4.copyWith(
+                          color: AppColors.serviceGray,
                           fontSize: 14.sp,
                         ),
                       ),
@@ -763,8 +847,74 @@ class Top5NearYouListCard extends StatelessWidget {
                   ),
 
                   Row(
-                    spacing: 10.w,
+                    spacing: 15.w,
                     children: [
+                      Text(
+                        '€€',
+                        style: h2.copyWith(
+                          color: AppColors.top5Black,
+                          fontSize: 14.sp,
+                        ),
+                      ),
+
+                      Text(
+                        '•',
+                        style: h4.copyWith(
+                          color: AppColors.serviceText2,
+                          fontSize: 11.9.sp,
+                        ),
+                      ),
+
+                      Row(
+                        spacing: 4.w,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/images/home/clock.svg'
+                          ),
+
+                          Text(
+                            '${time.toStringAsFixed(0)} min walk',
+                            style: h4.copyWith(
+                              color: AppColors.serviceGray,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Text(
+                        '•',
+                        style: h4.copyWith(
+                          color: AppColors.serviceText2,
+                          fontSize: 11.9.sp,
+                        ),
+                      ),
+
+                      Row(
+                        spacing: 4.w,
+                        children: [
+                          SvgPicture.asset(
+                              'assets/images/home/location.svg'
+                          ),
+
+                          Text(
+                            distance,
+                            style: h4.copyWith(
+                              color: AppColors.serviceGray,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Text(
+                        '•',
+                        style: h4.copyWith(
+                          color: AppColors.serviceText2,
+                          fontSize: 11.9.sp,
+                        ),
+                      ),
+
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 8.w,
@@ -782,85 +932,79 @@ class Top5NearYouListCard extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+
+                  Row(
+                    children: [
+                      Text(
+                        'Why this pick: ',
+                        style: h2.copyWith(
+                          color: AppColors.serviceGray,
+                          fontSize: 11.9.sp,
+                        ),
+                      ),
 
                       Text(
-                        '$distance / ${time.toStringAsFixed(0)} min walk',
+                        primeReason,
                         style: h4.copyWith(
                           color: AppColors.serviceGray,
                           fontSize: 12.sp,
                         ),
                       ),
+                    ],
+                  ),
 
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 6.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.serviceSearchBg,
-                          borderRadius: BorderRadius.circular(50.r),
-                        ),
-                        child: Text(
-                          type,
-                          style: h4.copyWith(
-                            color: AppColors.serviceText2,
-                            fontSize: 10.sp,
-                          ),
-                        ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CustomButton(
+                        text: 'Directions',
+                        prefixIcon: 'assets/images/home/directions.svg',
+                        paddingLeft: 12,
+                        paddingRight: 12,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        borderRadius: 6,
+                        textSize: 12,
+                        onTap: () {},
+                      ),
+
+                      CustomButton(
+                        text: 'Book',
+                        paddingLeft: 35,
+                        paddingRight: 35,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        borderRadius: 6,
+                        color: AppColors.top5Transparent,
+                        borderColor: AppColors.serviceGray,
+                        textColor: AppColors.serviceGray,
+                        textSize: 12,
+                        onTap: () {},
+                      ),
+
+                      CustomButton(
+                        text: '',
+                        icon: 'assets/images/home/call.svg',
+                        paddingLeft: 40,
+                        paddingRight: 20,
+                        paddingTop: 8,
+                        paddingBottom: 8,
+                        borderRadius: 6,
+                        color: AppColors.top5Transparent,
+                        borderColor: AppColors.serviceGray,
+                        textColor: AppColors.serviceGray,
+                        textSize: 12,
+                        onTap: () {},
                       ),
                     ],
                   ),
                 ],
               ),
-            ],
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CustomButton(
-                text: 'Directions',
-                prefixIcon: 'assets/images/home/directions.svg',
-                paddingLeft: 12,
-                paddingRight: 12,
-                paddingTop: 8,
-                paddingBottom: 8,
-                borderRadius: 6,
-                textSize: 12,
-                onTap: () {},
-              ),
-
-              CustomButton(
-                text: 'Book',
-                paddingLeft: 35,
-                paddingRight: 35,
-                paddingTop: 8,
-                paddingBottom: 8,
-                borderRadius: 6,
-                color: AppColors.top5Transparent,
-                borderColor: AppColors.serviceGray,
-                textColor: AppColors.serviceGray,
-                textSize: 12,
-                onTap: () {},
-              ),
-
-              CustomButton(
-                text: '',
-                icon: 'assets/images/home/call.svg',
-                paddingLeft: 40,
-                paddingRight: 20,
-                paddingTop: 8,
-                paddingBottom: 8,
-                borderRadius: 6,
-                color: AppColors.top5Transparent,
-                borderColor: AppColors.serviceGray,
-                textColor: AppColors.serviceGray,
-                textSize: 12,
-                onTap: () {},
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
