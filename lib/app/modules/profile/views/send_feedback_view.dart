@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:get/get.dart';
+import 'package:top5/app/modules/profile/views/personal_info_view.dart';
+
+import '../../../../common/app_colors.dart';
+import '../../../../common/custom_fonts.dart';
+import '../../../../common/widgets/custom_button.dart';
+import '../../../../common/widgets/custom_text_field.dart';
+
+class SendFeedbackView extends GetView {
+  const SendFeedbackView({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: ProfileAppBar(appBarTitle: 'Send Feedback'),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 21.w),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 21.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.profileSearchBg,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            'E-mail',
+                            style: h2.copyWith(
+                              color: AppColors.profileBlack,
+                              fontSize: 16.sp,
+                            ),
+                          )
+                        ],
+                      ),
+
+                      SizedBox(height: 5.h,),
+
+                      CustomTextField(
+                        hintText: 'Enter Email',
+                        hintTextColor: AppColors.profileGray,
+                        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
+                        borderColor: AppColors.profileGray,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.top5Black.withAlpha(64),
+                            blurRadius: 2.r,
+                          )
+                        ],
+                        isObscureText: false.obs,
+                      ),
+
+                      SizedBox(height: 15.h,),
+
+                      Row(
+                        children: [
+                          Text(
+                            'Feedback',
+                            style: h2.copyWith(
+                              color: AppColors.profileBlack,
+                              fontSize: 16.sp,
+                            ),
+                          )
+                        ],
+                      ),
+
+                      SizedBox(height: 5.h,),
+
+                      CustomTextField(
+                        hintText: 'Describe Your feedback',
+                        hintTextColor: AppColors.profileGray,
+                        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
+                        borderColor: AppColors.profileGray,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.top5Black.withAlpha(64),
+                            blurRadius: 2.r,
+                          )
+                        ],
+                        isObscureText: false.obs,
+                        maxLine: 6,
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 30.h,),
+
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 5.w),
+                  child: CustomButton(
+                    text: 'Send',
+                    onTap: () {  },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

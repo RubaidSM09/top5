@@ -4,7 +4,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
+import 'package:top5/app/modules/profile/views/change_password_view.dart';
+import 'package:top5/app/modules/profile/views/delete_account_view.dart';
+import 'package:top5/app/modules/profile/views/edit_personal_info_view.dart';
+import 'package:top5/app/modules/profile/views/help_n_support_view.dart';
 import 'package:top5/app/modules/profile/views/log_out_view.dart';
+import 'package:top5/app/modules/profile/views/personal_info_view.dart';
+import 'package:top5/app/modules/profile/views/privacy_policy_view.dart';
+import 'package:top5/app/modules/profile/views/recent_list_view.dart';
+import 'package:top5/app/modules/profile/views/report_a_place_view.dart';
+import 'package:top5/app/modules/profile/views/reservation_list_view.dart';
+import 'package:top5/app/modules/profile/views/saved_list_view.dart';
+import 'package:top5/app/modules/profile/views/send_feedback_view.dart';
+import 'package:top5/app/modules/profile/views/terms_of_services_view.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -74,7 +86,7 @@ class ProfileView extends GetView<ProfileController> {
                       textColor: AppColors.profileGray,
                       textSize: 12,
                       borderRadius: 6,
-                      onTap: () {},
+                      onTap: () => Get.to(EditPersonalInfoView()),
                     ),
                   ],
                 ),
@@ -132,19 +144,19 @@ class ProfileView extends GetView<ProfileController> {
                     ProfileQuickActionButton(
                       text: 'Saved',
                       icon: 'assets/images/profile/saved.svg',
-                      onTap: () {},
+                      onTap: () => Get.to(SavedListView()),
                     ),
 
                     ProfileQuickActionButton(
                       text: 'Recents',
                       icon: 'assets/images/profile/recents.svg',
-                      onTap: () {},
+                      onTap: () => Get.to(RecentListView()),
                     ),
 
                     ProfileQuickActionButton(
                       text: 'Reservations',
                       icon: 'assets/images/profile/reservations.svg',
-                      onTap: () {},
+                      onTap: () => Get.to(ReservationListView()),
                     ),
                   ],
                 ),
@@ -176,7 +188,7 @@ class ProfileView extends GetView<ProfileController> {
                         textSize: 14,
                         borderRadius: 6,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        onTap: () {},
+                        onTap: () => Get.to(PersonalInfoView()),
                       ),
                     ),
 
@@ -191,7 +203,7 @@ class ProfileView extends GetView<ProfileController> {
                         textColor: AppColors.profileBlack,
                         textSize: 14,
                         borderRadius: 6,
-                        onTap: () {},
+                        onTap: () => Get.to(ChangePasswordView()),
                       ),
                     ),
                   ],
@@ -767,7 +779,7 @@ class ProfileView extends GetView<ProfileController> {
                   paddingBottom: 10,
                   color: AppColors.profileDeleteButtonColor,
                   textColor: AppColors.profileDeleteButtonTextColor,
-                  onTap: () {  },
+                  onTap: () => Get.dialog(DeleteAccountView()),
                 ),
 
                 SizedBox(height: 24.h),
@@ -792,7 +804,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () {  },
+                  onTap: () => Get.to(HelpNSupportView()),
                 ),
 
                 SizedBox(height: 16.h),
@@ -807,7 +819,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () {  },
+                  onTap: () => Get.to(ReportAPlaceView()),
                 ),
 
                 SizedBox(height: 16.h),
@@ -822,7 +834,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () {  },
+                  onTap: () => Get.to(SendFeedbackView()),
                 ),
 
                 SizedBox(height: 16.h),
@@ -837,7 +849,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () {  },
+                  onTap: () => Get.to(TermsOfServicesView()),
                 ),
 
                 SizedBox(height: 16.h),
@@ -852,7 +864,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () {  },
+                  onTap: () => Get.to(PrivacyPolicyView()),
                 ),
 
                 SizedBox(height: 24.h),

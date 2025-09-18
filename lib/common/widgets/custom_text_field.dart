@@ -10,71 +10,99 @@ class CustomTextField extends StatelessWidget {
   final String prefixIcon;
   final String suffixIcon;
   final RxBool isObscureText;
+  final Color color;
+  final EdgeInsetsGeometry? padding;
+  final Color borderColor;
+  final double borderRadius;
+  final List<BoxShadow>? boxShadow;
+  final Color hintTextColor;
+  final int maxLine;
 
   const CustomTextField({
     required this.hintText,
     this.prefixIcon = '',
     this.suffixIcon = '',
     required this.isObscureText,
+    this.color = AppColors.top5Transparent,
+    this.padding = const EdgeInsets.symmetric(horizontal: 15.47, vertical: 17),
+    this.borderColor = AppColors.authenticationButtonBorderColor,
+    this.borderRadius = 12,
+    this.boxShadow = const [
+      BoxShadow()
+    ],
+    this.hintTextColor = AppColors.authenticationButtonBorderColor,
+    this.maxLine = 1,
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 15.47.w, vertical: 17.h),
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(
-            color: AppColors.authenticationButtonBorderColor,
-          )
-        ),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
+        ]
+      ),
+      child: TextFormField(
+        decoration: InputDecoration(
+          contentPadding: padding,
+
+          filled: true,
+          fillColor: color,
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius.r),
             borderSide: BorderSide(
-              color: AppColors.authenticationButtonBorderColor,
+              color: borderColor,
             )
-        ),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.r),
-            borderSide: BorderSide(
-              color: AppColors.authenticationButtonBorderColor,
-            )
-        ),
-
-        hintText: hintText,
-        hintStyle: h4.copyWith(
-          color: AppColors.authenticationButtonBorderColor,
-          fontSize: 14.sp,
-        ),
-
-        prefixIcon: prefixIcon != '' ? SizedBox(
-          width: 22.w,
-          height: 22.h,
-          child: Image.asset(
-            prefixIcon,
-            scale: 4,
           ),
-        ) : SizedBox.shrink(),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius.r),
+              borderSide: BorderSide(
+                color: borderColor,
+              )
+          ),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(borderRadius.r),
+              borderSide: BorderSide(
+                color: borderColor,
+              )
+          ),
 
-        suffixIcon: suffixIcon != '' ? GestureDetector(
-          onTap: () {
-            isObscureText.value = !isObscureText.value;
-          },
-          child: SizedBox(
+          hintText: hintText,
+          hintStyle: h4.copyWith(
+            color: hintTextColor,
+            fontSize: 14.sp,
+          ),
+
+          prefixIcon: prefixIcon != '' ? SizedBox(
+            width: 22.w,
+            height: 22.h,
             child: Image.asset(
-              width: 24.w,
-              height: 24.h,
-              suffixIcon,
+              prefixIcon,
               scale: 4,
             ),
-          ),
-        ) : SizedBox.shrink(),
-      ),
+          ) : null,
 
-      obscureText: isObscureText.value,
+          suffixIcon: suffixIcon != '' ? GestureDetector(
+            onTap: () {
+              isObscureText.value = !isObscureText.value;
+            },
+            child: SizedBox(
+              child: Image.asset(
+                width: 24.w,
+                height: 24.h,
+                suffixIcon,
+                scale: 4,
+              ),
+            ),
+          ) : null,
+        ),
+
+        obscureText: isObscureText.value,
+
+        maxLines: maxLine,
+      ),
     );
   }
 }
