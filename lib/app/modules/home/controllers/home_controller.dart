@@ -19,6 +19,8 @@ class HomeController extends GetxController {
   final double dragSensitivity = 600;
   final RxDouble sheetPosition = 0.48.obs;
 
+  final RxBool isMoreDetails = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -67,5 +69,37 @@ class HomeController extends GetxController {
     if (next < 0.25) next = 0.25;
     if (next > 1.0) next = 1.0;
     sheetPosition.value = next;
+  }
+
+  double convertToMiles(String input) {
+    // Conversion factors
+    const double metersInKm = 1000;
+    const double metersInMile = 1609.34;
+
+    // Split the string into value and unit
+    final parts = input.trim().split(' ');
+    if (parts.length != 2) {
+      throw FormatException("Invalid input format. Example: '1 km' or '20 m'");
+    }
+
+    final double value = double.tryParse(parts[0]) ??
+        (throw FormatException("Invalid number"));
+    final String unit = parts[1].toLowerCase();
+
+    // Convert input to meters
+    double meters;
+    switch (unit) {
+      case 'km':
+        meters = value * metersInKm;
+        break;
+      case 'm':
+        meters = value;
+        break;
+      default:
+        throw FormatException("Unsupported unit. Use 'm' or 'km'");
+    }
+
+    // Convert meters to miles
+    return meters / metersInMile;
   }
 }

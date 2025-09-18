@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/app/modules/home/views/contact_us_view.dart';
 import 'package:top5/app/modules/home/views/service_view.dart';
 
 import '../../../../common/app_colors.dart';
@@ -235,7 +236,7 @@ class DetailsView extends GetView<HomeController> {
                             paddingBottom: 8,
                             borderRadius: 6,
                             textSize: 12,
-                            onTap: () {},
+                            onTap: () => Get.dialog(ContactUsView()),
                           ),
 
                           CustomButton(
@@ -277,23 +278,28 @@ class DetailsView extends GetView<HomeController> {
 
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 151.w),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.serviceGreen,
-                      borderRadius: BorderRadius.circular(20.r),
-                    ),
-                    child: Text(
-                      'More Details',
-                      style: h3.copyWith(
-                        color: AppColors.serviceWhite,
-                        fontSize: 12.sp,
+                  child: GestureDetector(
+                    onTap: () {
+                      controller.isMoreDetails.value = !controller.isMoreDetails.value;
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.serviceGreen,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        controller.isMoreDetails.value ? 'See Less' : 'More Details',
+                        style: h3.copyWith(
+                          color: AppColors.serviceWhite,
+                          fontSize: 12.sp,
+                        ),
                       ),
                     ),
                   ),
                 ),
 
-                Padding(
+                controller.isMoreDetails.value ? Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,6 +356,7 @@ class DetailsView extends GetView<HomeController> {
                         children: [
                           DetailsTagCard(
                             text: 'Best time',
+                            isActive: true,
                           ),
 
                           DetailsTagCard(
@@ -365,9 +372,72 @@ class DetailsView extends GetView<HomeController> {
                           ),
                         ],
                       ),
+
+                      SizedBox(height: 24.h,),
+
+                      Text(
+                        'Top dishes / Amenities',
+                        style: h2.copyWith(
+                          color: AppColors.serviceBlack,
+                          fontSize: 16.sp,
+                        ),
+                      ),
+
+                      SizedBox(height: 12.h,),
+
+                      Wrap(
+                        spacing: 12.w,
+                        runSpacing: 12.h,
+                        children: [
+                          DetailsTagCard(
+                            text: 'Margherita',
+                          ),
+
+                          DetailsTagCard(
+                            text: 'Tiramisu',
+                          ),
+
+                          DetailsTagCard(
+                            text: 'Veg-friendly',
+                          ),
+
+                          DetailsTagCard(
+                            text: 'Outdoor',
+                          ),
+
+                          DetailsTagCard(
+                            text: 'Wi-Fi',
+                          ),
+                        ],
+                      ),
+
+                      Text(
+                        'Hours & contact',
+                        style: h2.copyWith(
+                          color: AppColors.serviceBlack,
+                          fontSize: 16.sp,
+                        ),
+                      ),
+
+                      SizedBox(height: 12.h,),
+
+                      Wrap(
+                        spacing: 12.w,
+                        runSpacing: 12.h,
+                        children: [
+                          DetailsTagCard(
+                            text: 'Today 12:00–23:00',
+                          ),
+
+                          DetailsTagCard(
+                            text: 'Website',
+                            icon: 'assets/images/home/website.svg',
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                ),
+                ) : SizedBox.shrink(),
 
                 Column(
                   children: [
@@ -605,10 +675,12 @@ class DetailsLocationPointer extends StatelessWidget {
 
 class DetailsTagCard extends StatelessWidget {
   final String text;
+  final String icon;
   final bool isActive;
 
   const DetailsTagCard({
     required this.text,
+    this.icon = '',
     this.isActive = false,
     super.key
   });
@@ -623,6 +695,7 @@ class DetailsTagCard extends StatelessWidget {
       ),
       child: Row(
         spacing: 4.w,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             text,
@@ -632,13 +705,15 @@ class DetailsTagCard extends StatelessWidget {
             ),
           ),
 
-          Container(
+          isActive ? Container(
             padding: EdgeInsets.all(3.r),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.serviceGreen,
             ),
-          )
+          ) : icon != '' ? SvgPicture.asset(
+            'assets/images/home/website.svg'
+          ) : SizedBox.shrink()
         ],
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
 import 'package:top5/app/modules/home/views/details_view.dart';
+import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -17,6 +18,8 @@ class ServiceView extends GetView<HomeController> {
   const ServiceView({required this.appBarTitle, super.key});
   @override
   Widget build(BuildContext context) {
+    ProfileController profileController = Get.put(ProfileController());
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -161,7 +164,7 @@ class ServiceView extends GetView<HomeController> {
                                   ),
 
                                   FilterSelectionCard(
-                                    text: '1 km',
+                                    text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
                                     selectedFilter: controller.selectedFilter,
                                     index: 2,
                                     color: controller.selectedFilter[2].value
@@ -287,7 +290,7 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/bella_italia.jpg',
                                   isPromo: true,
                                   status: 'Open',
-                                  distance: '450m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${controller.convertToMiles('450 m').toStringAsFixed(2)} miles",
                                   time: 6,
                                   type: 'Italian',
                                   primeReason: 'Best value within 1 km, sunny terrace',
@@ -306,7 +309,7 @@ class ServiceView extends GetView<HomeController> {
                                   image: 'assets/images/home/sushi_zen.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '700m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${controller.convertToMiles('700 m').toStringAsFixed(2)} miles",
                                   time: 10,
                                   type: 'Korean',
                                   primeReason: 'Best value within 1 km, sunny terrace',
@@ -326,7 +329,7 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/the_green_bistro.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '900m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${controller.convertToMiles('900 m').toStringAsFixed(2)} miles",
                                   time: 20,
                                   type: 'Korean',
                                   primeReason: 'Best value within 1 km, sunny terrace',
@@ -346,7 +349,7 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/spice_route.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '1.km',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
                                   time: 25,
                                   type: 'Indian',
                                   primeReason: 'Best value within 1 km, sunny terrace',
@@ -366,7 +369,7 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/le_petit_cafe.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '1.1km',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${controller.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
                                   time: 30,
                                   type: 'France',
                                   primeReason: 'Best value within 1 km, sunny terrace',
@@ -534,9 +537,14 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/bella_italia.jpg',
                                   isPromo: true,
                                   status: 'Open',
-                                  distance: '450m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${controller.convertToMiles('450 m').toStringAsFixed(2)} miles",
                                   time: 6,
                                   type: 'Italian',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
                                   selectedLocations: controller.selectedLocations,
                                 ),
 
@@ -547,9 +555,14 @@ class ServiceView extends GetView<HomeController> {
                                   image: 'assets/images/home/sushi_zen.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '700m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${controller.convertToMiles('700 m').toStringAsFixed(2)} miles",
                                   time: 10,
                                   type: 'Korean',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
                                   selectedLocations: controller.selectedLocations,
                                 ),
 
@@ -561,9 +574,14 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/the_green_bistro.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '900m',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${controller.convertToMiles('900 m').toStringAsFixed(2)} miles",
                                   time: 20,
                                   type: 'Korean',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
                                   selectedLocations: controller.selectedLocations,
                                 ),
 
@@ -575,9 +593,14 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/spice_route.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '1.km',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
                                   time: 25,
                                   type: 'Indian',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
                                   selectedLocations: controller.selectedLocations,
                                 ),
 
@@ -589,9 +612,14 @@ class ServiceView extends GetView<HomeController> {
                                   'assets/images/home/le_petit_cafe.jpg',
                                   isPromo: false,
                                   status: 'Open',
-                                  distance: '1.1km',
+                                  distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${controller.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
                                   time: 30,
                                   type: 'France',
+                                  reasons: [
+                                    'Wood-fired pizza, 1k+ reviews',
+                                    '6-min walk, sunny terrace',
+                                  ],
+                                  isSaved: false.obs,
                                   selectedLocations: controller.selectedLocations,
                                 ),
                               ],
@@ -1020,6 +1048,8 @@ class Top5NearYouMapCard extends StatelessWidget {
   final String distance;
   final double time;
   final String type;
+  final List<String> reasons;
+  final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   
   const Top5NearYouMapCard({
@@ -1032,6 +1062,8 @@ class Top5NearYouMapCard extends StatelessWidget {
     required this.distance,
     required this.time,
     required this.type,
+    required this.reasons,
+    required this.isSaved,
     required this.selectedLocations,
     super.key,
   });
@@ -1050,6 +1082,22 @@ class Top5NearYouMapCard extends StatelessWidget {
             }
           }
         }
+
+        Get.to(
+          DetailsView(
+            serialNo: serialNo,
+            title: title,
+            rating: rating,
+            image: image,
+            isPromo: isPromo,
+            status: status,
+            distance: distance,
+            time: time,
+            type: type,
+            reasons: reasons,
+            isSaved: isSaved,
+          ),
+        );
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
@@ -1178,66 +1226,69 @@ class Top5NearYouMapCard extends StatelessWidget {
                       ],
                     ),
 
-                    Row(
-                      spacing: 10.w,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 6.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.serviceSearchBg,
-                            borderRadius: BorderRadius.circular(50.r),
-                          ),
-                          child: Text(
-                            status,
-                            style: h3.copyWith(
-                              color: AppColors.servicePromoGreen,
-                              fontSize: 12.sp,
+                    SizedBox(
+                      width: 255.w,
+                      child: Wrap(
+                        spacing: 10.w,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 6.h,
                             ),
-                          ),
-                        ),
-
-                        Text(
-                          '$distance / ${time.toStringAsFixed(0)} min walk',
-                          style: h4.copyWith(
-                            color: AppColors.serviceGray,
-                            fontSize: 12.sp,
-                          ),
-                        ),
-
-                        Row(
-                          spacing: 4.w,
-                          children: [
-                            Text(
-                              'Cuisine',
-                              style: h4.copyWith(
-                                color: AppColors.serviceGray,
+                            decoration: BoxDecoration(
+                              color: AppColors.serviceSearchBg,
+                              borderRadius: BorderRadius.circular(50.r),
+                            ),
+                            child: Text(
+                              status,
+                              style: h3.copyWith(
+                                color: AppColors.servicePromoGreen,
                                 fontSize: 12.sp,
                               ),
                             ),
+                          ),
 
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.w,
-                                vertical: 6.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.serviceSearchBg,
-                                borderRadius: BorderRadius.circular(50.r),
-                              ),
-                              child: Text(
-                                type,
+                          Text(
+                            '$distance / ${time.toStringAsFixed(0)} min walk',
+                            style: h4.copyWith(
+                              color: AppColors.serviceGray,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+
+                          Row(
+                            spacing: 4.w,
+                            children: [
+                              Text(
+                                'Cuisine',
                                 style: h4.copyWith(
-                                  color: AppColors.serviceText2,
-                                  fontSize: 10.sp,
+                                  color: AppColors.serviceGray,
+                                  fontSize: 12.sp,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 6.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.serviceSearchBg,
+                                  borderRadius: BorderRadius.circular(50.r),
+                                ),
+                                child: Text(
+                                  type,
+                                  style: h4.copyWith(
+                                    color: AppColors.serviceText2,
+                                    fontSize: 10.sp,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/views/service_view.dart';
+import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 
@@ -14,6 +15,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     Get.put(HomeController());
+    ProfileController profileController = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
@@ -115,7 +117,7 @@ class HomeView extends GetView<HomeController> {
                         ),
 
                         FilterSelectionCard(
-                          text: '1 km',
+                          text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
                           selectedFilter: controller.selectedFilter,
                           index: 2,
                           color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,

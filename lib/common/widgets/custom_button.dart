@@ -20,6 +20,8 @@ class CustomButton extends StatelessWidget {
   final double borderRadius;
   final double textSize;
   final List<BoxShadow>? boxShadow;
+  final double spaceBetweenIconText;
+  final MainAxisAlignment mainAxisAlignment;
 
   const CustomButton({
     required this.text,
@@ -37,6 +39,8 @@ class CustomButton extends StatelessWidget {
     this.borderRadius = 12,
     this.textSize = 18,
     this.boxShadow = const [],
+    this.spaceBetweenIconText = 16,
+    this.mainAxisAlignment = MainAxisAlignment.center,
     super.key
   });
 
@@ -61,8 +65,8 @@ class CustomButton extends StatelessWidget {
           boxShadow: boxShadow,
         ),
         child: icon != '' ? Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 16.w,
+          mainAxisAlignment: mainAxisAlignment,
+          spacing: spaceBetweenIconText.w,
           children: [
             SvgPicture.asset(
                   icon
@@ -79,7 +83,7 @@ class CustomButton extends StatelessWidget {
         )
             :
         prefixIcon != '' ? Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: mainAxisAlignment,
           spacing: 16.w,
           children: [
             Text(

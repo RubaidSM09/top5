@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
-  //TODO: Implement ProfileController
+  RxList<RxBool> selectedDefaultFilters = [true.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedDietary = [true.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedDistanceUnit = [true.obs, false.obs, false.obs].obs;
 
   final count = 0.obs;
   @override

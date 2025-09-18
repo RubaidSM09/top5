@@ -47,6 +47,19 @@ class AppColors {
   static const Color serviceText2 = Color(0xFF6B7280);
   static const Color serviceGrabColor = Color(0xFFDCDDDC);
 
+  /// Profile Screen Colors
+  static const Color profileBlue = Color(0xFF05122C);
+  static const Color profileWhite = Color(0xFFFFFFFF);
+  static const Color profileBlack = Color(0xFF1B1B1B);
+  static const Color profileGreen = Color(0xFF00A896);
+  static const Color profileGray = Color(0xFF475467);
+  static const Color profileSearchBg = Color(0xFFF0F6F4);
+  static const Color profileInactiveBg = Color(0xFFF2F4F7);
+  static const Color profileTextLight = Color(0xFF9E9E9E);
+  static const Color profileBorderColor = Color(0xFFC8C8C8);
+  static const Color profileDeleteButtonColor = Color(0xFFFFC4C4);
+  static const Color profileDeleteButtonTextColor = Color(0xFFE43636);
+
   /// MISC
   static const Color top5Transparent = Colors.transparent;
   static const Color top5Black = Colors.black;
