@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -21,6 +21,7 @@ import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
+import '../../search/controllers/search_controller.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -29,6 +30,7 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     ProfileController profileController = Get.put(ProfileController());
     HomeController homeController = Get.put(HomeController());
+    SearchController searchController = Get.put(SearchController());
 
     return Scaffold(
       body: SafeArea(
@@ -336,6 +338,11 @@ class ProfileView extends GetView<ProfileController> {
                                       homeController.selectedFilter[2].value = false;
                                       homeController.selectedFilter[3].value = false;
                                       homeController.selectedFilter[4].value = false;
+                                      searchController.selectedFilter[0].value = true;
+                                      searchController.selectedFilter[1].value = false;
+                                      searchController.selectedFilter[2].value = false;
+                                      searchController.selectedFilter[3].value = false;
+                                      searchController.selectedFilter[4].value = false;
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
@@ -372,6 +379,11 @@ class ProfileView extends GetView<ProfileController> {
                                       homeController.selectedFilter[2].value = true;
                                       homeController.selectedFilter[3].value = false;
                                       homeController.selectedFilter[4].value = false;
+                                      searchController.selectedFilter[0].value = false;
+                                      searchController.selectedFilter[1].value = false;
+                                      searchController.selectedFilter[2].value = true;
+                                      searchController.selectedFilter[3].value = false;
+                                      searchController.selectedFilter[4].value = false;
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(

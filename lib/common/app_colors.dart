@@ -60,6 +60,15 @@ class AppColors {
   static const Color profileDeleteButtonColor = Color(0xFFFFC4C4);
   static const Color profileDeleteButtonTextColor = Color(0xFFE43636);
 
+  /// Search Screen Colors
+  static const Color searchBlue = Color(0xFF05122C);
+  static const Color searchWhite = Color(0xFFFFFFFF);
+  static const Color searchBlack = Color(0xFF1B1B1B);
+  static const Color searchGreen = Color(0xFF00A896);
+  static const Color searchGray = Color(0xFF475467);
+  static const Color searchSearchBg = Color(0xFFF0F6F4);
+  static const Color searchInactiveBg = Color(0xFFF2F4F7);
+
   /// MISC
   static const Color top5Transparent = Colors.transparent;
   static const Color top5Black = Colors.black;
