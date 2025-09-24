@@ -32,6 +32,7 @@ class AppColors {
   static const Color homeProfileBorderColor = Color(0xFF018C8B);
   static const Color homeSunnyIconColor = Color(0xFFF5A33D);
   static const Color homeSearchBarLineColor = Color(0xFF6B7280);
+  static const Color homeBgColorGradient = Color(0xFFEBFFFD);
 
   /// Service Screen Colors
   static const Color serviceBottomNavbarTextColor = Color(0xFF007067);

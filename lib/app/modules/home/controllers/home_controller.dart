@@ -21,6 +21,8 @@ class HomeController extends GetxController {
 
   final RxBool isMoreDetails = false.obs;
 
+  final RxBool isMapClicked = false.obs;
+
   @override
   void onInit() {
     super.onInit();
