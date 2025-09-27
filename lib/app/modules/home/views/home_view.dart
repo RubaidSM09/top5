@@ -605,14 +605,7 @@ class FilterSelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        for (int i=0;i<6;i++) {
-          if (i==index) {
-            selectedFilter[i].value = true;
-          }
-          else {
-            selectedFilter[i].value = false;
-          }
-        }
+        selectedFilter[index].value = !selectedFilter[index].value;
       },
       child: Container(
         width: 90.w,
