@@ -12,7 +12,48 @@ import '../../../../common/widgets/custom_text_field.dart';
 import '../controllers/authentication_controller.dart';
 
 class CreateNewPasswordView extends GetView<AuthenticationController> {
-  const CreateNewPasswordView({super.key});
+  final String email;
+
+  CreateNewPasswordView({
+    required this.email,
+    super.key
+  });
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  Future<void> _handleResetPassword() async {
+    if (_passwordController.text.trim().isEmpty || _confirmPasswordController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please fill in every field',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
+      Get.snackbar(
+        'Error',
+        'Password and Confirm Password must be same',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.resetPassword(email,_passwordController.text.trim(),_confirmPasswordController.text.trim());
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to reset password. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +114,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                         Obx(() {
                           return CustomTextField(
                             hintText: 'New password',
+                            controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isNewPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
                             isObscureText: controller.isNewPasswordVisible,
@@ -84,6 +126,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                         Obx(() {
                           return CustomTextField(
                             hintText: 'Confirm password',
+                            controller: _confirmPasswordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isConfirmNewPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
                             isObscureText: controller.isConfirmNewPasswordVisible,
@@ -96,7 +139,9 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                           text: 'Save',
                           paddingLeft: 60,
                           paddingRight: 60,
-                          onTap: () => Get.to(PasswordChangeView()),
+                          onTap: () {
+                            _handleResetPassword();
+                          },
                         )
                       ],
                     ),

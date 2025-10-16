@@ -14,11 +14,39 @@ import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
 
 class SignInView extends GetView<AuthenticationController> {
-  const SignInView({super.key});
+  SignInView({super.key});
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _handleLogin() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please fill in all fields',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to login. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Get.put(AuthenticationController());
-
     return Scaffold(
       backgroundColor: AppColors.authenticationBlue,
       body: SafeArea(
@@ -58,6 +86,7 @@ class SignInView extends GetView<AuthenticationController> {
 
                         CustomTextField(
                           hintText: 'abc@email.com',
+                          controller: _emailController,
                           prefixIcon: 'assets/images/authentication/mail.png',
                           isObscureText: false.obs,
                         ),
@@ -67,6 +96,7 @@ class SignInView extends GetView<AuthenticationController> {
                         Obx(() {
                           return CustomTextField(
                             hintText: 'Enter you password',
+                            controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isSignInPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
                             isObscureText: controller.isSignInPasswordVisible,
@@ -77,7 +107,9 @@ class SignInView extends GetView<AuthenticationController> {
 
                         CustomButton(
                           text: 'Sign In',
-                          onTap: () => Get.to(DashboardView()),
+                          onTap: () {
+                            _handleLogin();
+                          },
                         ),
 
                         SizedBox(height: 30.h,),

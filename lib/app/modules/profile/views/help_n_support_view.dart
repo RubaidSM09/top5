@@ -8,9 +8,37 @@ import 'package:top5/common/widgets/custom_button.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_text_field.dart';
+import '../controllers/profile_controller.dart';
 
 class HelpNSupportView extends GetView {
-  const HelpNSupportView({super.key});
+  HelpNSupportView({super.key});
+
+  final ProfileController _controller = Get.put(ProfileController());
+  final TextEditingController _supportEmailController = TextEditingController();
+  final TextEditingController _problemController = TextEditingController();
+
+  Future<void> _handleSubmitProblem() async {
+    if (_supportEmailController.text.trim().isEmpty || _problemController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please fill in every field',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.submitProblem(_supportEmailController.text.trim(),_problemController.text.trim(),);
+    } catch (e) {
+      print('Error submitting problem: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to submit problem. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +77,7 @@ class HelpNSupportView extends GetView {
 
                       CustomTextField(
                         hintText: 'Enter Email',
+                        controller: _supportEmailController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
                         borderColor: AppColors.profileGray,
@@ -79,6 +108,7 @@ class HelpNSupportView extends GetView {
 
                       CustomTextField(
                         hintText: 'Describe Your Problem',
+                        controller: _problemController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
                         borderColor: AppColors.profileGray,
@@ -101,7 +131,9 @@ class HelpNSupportView extends GetView {
                   padding: EdgeInsets.symmetric(horizontal: 5.w),
                   child: CustomButton(
                     text: 'Send',
-                    onTap: () {  },
+                    onTap: () {
+                      _handleSubmitProblem();
+                    },
                   ),
                 ),
               ],

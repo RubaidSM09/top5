@@ -14,7 +14,37 @@ import '../../../../common/widgets/custom_text_field.dart';
 import '../controllers/authentication_controller.dart';
 
 class MailVerificationView extends GetView<AuthenticationController> {
-  const MailVerificationView({super.key});
+  final String email;
+
+  MailVerificationView({
+    required this.email,
+    super.key
+  });
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+
+  Future<void> _handleSignUpOtpVerification() async {
+    if (_controller.otp.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Incorrect OTP',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.signUpOtpVerification(email, _controller.otp);
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to sign up. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,7 +137,9 @@ class MailVerificationView extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(SignUpForm2View()),
+                              onTap: () {
+                                _handleSignUpOtpVerification();
+                              },
                             ),
                           ],
                         )

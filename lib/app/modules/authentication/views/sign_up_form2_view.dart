@@ -12,7 +12,30 @@ import '../../../../common/widgets/custom_text_field.dart';
 import '../controllers/authentication_controller.dart';
 
 class SignUpForm2View extends GetView<AuthenticationController> {
-  const SignUpForm2View({super.key});
+  final String email;
+
+  SignUpForm2View({
+    required this.email,
+    super.key
+  });
+
+  final TextEditingController _fullNameController = TextEditingController();
+
+  Future<void> _handleSignUp() async {
+    if (_fullNameController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please provide full name',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    print(_fullNameController.text.trim());
+
+    Get.to(() => SignUpForm3View(email: email, fullName: _fullNameController.text.trim(),));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +78,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
 
                         CustomTextField(
                           hintText: 'Full name',
+                          controller: _fullNameController,
                           prefixIcon: 'assets/images/authentication/full_name.png',
                           isObscureText: false.obs,
                         ),
@@ -78,7 +102,9 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(SignUpForm3View()),
+                              onTap: () {
+                                _handleSignUp();
+                              },
                             ),
                           ],
                         )

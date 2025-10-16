@@ -12,7 +12,50 @@ import '../../../../common/widgets/custom_text_field.dart';
 import '../controllers/authentication_controller.dart';
 
 class SignUpForm3View extends GetView<AuthenticationController> {
-  const SignUpForm3View({super.key});
+  final String email;
+  final String fullName;
+
+  SignUpForm3View({
+    required this.email,
+    required this.fullName,
+    super.key
+  });
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  Future<void> _handleSignUp() async {
+    if (_passwordController.text.trim().isEmpty || _confirmPasswordController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please fill in every field',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
+      Get.snackbar(
+        'Error',
+        'Password and Confirm Password must be same',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.signUp(fullName,email,_passwordController.text.trim(),_confirmPasswordController.text.trim());
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to sign up. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +99,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                         Obx(() {
                           return CustomTextField(
                             hintText: 'Type you password',
+                            controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password2.png',
                             suffixIcon: controller.isSignUpPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
                             isObscureText: controller.isSignUpPasswordVisible,
@@ -77,6 +121,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                         Obx(() {
                           return CustomTextField(
                             hintText: 'Type you password again',
+                            controller: _confirmPasswordController,
                             prefixIcon: 'assets/images/authentication/password2.png',
                             suffixIcon: controller.isSignUpConfirmPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
                             isObscureText: controller.isSignUpConfirmPasswordVisible,
@@ -102,7 +147,9 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(DashboardView()),
+                              onTap: () {
+                                _handleSignUp();
+                              },
                             ),
                           ],
                         )

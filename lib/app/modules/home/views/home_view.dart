@@ -261,34 +261,24 @@ class HomeView extends GetView<HomeController> {
                             ),
                           ),
 
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 10.w,
-                              vertical: 6.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.homeInactiveBg,
-                              borderRadius: BorderRadius.circular(50.r),
-                            ),
+                          Obx(() => Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                            decoration: BoxDecoration(color: AppColors.homeInactiveBg, borderRadius: BorderRadius.circular(50.r)),
                             child: Row(
                               spacing: 4.w,
                               children: [
                                 Icon(
-                                  Icons.sunny,
-                                  color: AppColors.homeSunnyIconColor,
-                                  size: 15.r,
+                                  Get.find<HomeController>().weatherIcon,
+                                  color: Get.find<HomeController>().weatherIconColor,
+                                  size: 15,
                                 ),
-
                                 Text(
-                                  '23°C',
-                                  style: h4.copyWith(
-                                    color: AppColors.homeGreen,
-                                    fontSize: 12.sp,
-                                  ),
+                                  Get.find<HomeController>().tempText,
+                                  style: h4.copyWith(color: AppColors.homeGreen, fontSize: 12.sp),
                                 ),
                               ],
                             ),
-                          ),
+                          )),
                         ],
                       ),
                     ],
@@ -296,29 +286,34 @@ class HomeView extends GetView<HomeController> {
 
                   SizedBox(height: 20.h,),
 
-                  Wrap(
-                    spacing: 10.w,
-                    runSpacing: 16.h,
-                    children: [
-                      IdeasToTryCard(text: 'Open now within 1 km',),
+                  Obx(() {
+                    final c = Get.find<HomeController>();
+                    if (c.ideasLoading.value) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.h),
+                        child: Row(
+                          children: [
+                            const CircularProgressIndicator(strokeWidth: 2),
+                            SizedBox(width: 8.w),
+                            Text('Finding ideas...', style: h4.copyWith(color: AppColors.homeGray))
+                          ],
+                        ),
+                      );
+                    }
 
-                      IdeasToTryCard(text: 'Top cafés with outdoor seating',),
+                    if (c.ideas.isEmpty) {
+                      return Text(
+                        'No ideas yet. Try changing category or wait a moment.',
+                        style: h4.copyWith(color: AppColors.homeGray),
+                      );
+                    }
 
-                      IdeasToTryCard(text: 'Where to take a guest for a drink',),
-
-                      IdeasToTryCard(text: 'Afterwork drinks',),
-
-                      IdeasToTryCard(text: 'Lunch near you',),
-
-                      IdeasToTryCard(text: 'Bookable restaurants nearby',),
-
-                      IdeasToTryCard(text: 'Got 10 minutes for coffee',),
-
-                      IdeasToTryCard(text: 'Sunny terrace cafés',),
-
-                      IdeasToTryCard(text: 'Cheap eats tonight',),
-                    ],
-                  ),
+                    return Wrap(
+                      spacing: 10.w,
+                      runSpacing: 16.h,
+                      children: c.ideas.map((txt) => IdeasToTryCard(text: txt)).toList(),
+                    );
+                  }),
 
                   SizedBox(height: 10.h,),
                 ],
@@ -334,88 +329,68 @@ class HomeView extends GetView<HomeController> {
 
 class HomeAppBar extends StatelessWidget {
   final RxString time;
-
-  const HomeAppBar({
-    required this.time,
-    super.key
-  });
+  const HomeAppBar({required this.time, super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.find<HomeController>();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        SvgPicture.asset(
-          'assets/images/home/top_5_green_logo.svg',
-        ),
+        SvgPicture.asset('assets/images/home/top_5_green_logo.svg'),
 
         Row(
           spacing: 6.w,
           children: [
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.w,
-                vertical: 6.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               decoration: BoxDecoration(
                 color: AppColors.homeInactiveBg,
                 borderRadius: BorderRadius.circular(50.r),
               ),
               child: Obx(() => Text(
-                  time.value,
-                  style: h4.copyWith(
-                    color: AppColors.homeGreen,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ),
+                time.value,
+                style: h4.copyWith(color: AppColors.homeGreen, fontSize: 12.sp),
+              )),
             ),
 
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10.w,
-                vertical: 6.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
               decoration: BoxDecoration(
                 color: AppColors.homeInactiveBg,
                 borderRadius: BorderRadius.circular(50.r),
               ),
-              child: Row(
-                spacing: 4.w,
-                children: [
-                  Icon(
-                    Icons.sunny,
-                    color: AppColors.homeSunnyIconColor,
-                    size: 15.r,
-                  ),
-
-                  Text(
-                    '23°C',
-                    style: h4.copyWith(
-                      color: AppColors.homeGreen,
-                      fontSize: 12.sp,
+              child: Obx(() {
+                final c = Get.find<HomeController>();
+                return Row(
+                  spacing: 4.w,
+                  children: [
+                    Icon(
+                      c.weatherIcon,               // 🌤 dynamic icon
+                      color: c.weatherIconColor,   // 🎨 matching color
+                      size: 15.r,
                     ),
-                  ),
-                ],
-              ),
+                    Text(
+                      c.tempText, // "31°C"
+                      style: h4.copyWith(
+                        color: AppColors.homeGreen,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ),
           ],
         ),
 
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.homeProfileBorderColor,
-                width: 2,
-              )
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
           ),
-          child: CircleAvatar(
-            radius: 16.r,
-            backgroundImage: AssetImage(
-              'assets/images/home/profile_pic.jpg',
-            ),
-          ),
+          child: CircleAvatar(radius: 16.r, backgroundImage: const AssetImage('assets/images/home/profile_pic.jpg')),
         )
       ],
     );
@@ -445,14 +420,8 @@ class CategorySelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        for (int i=0;i<5;i++) {
-          if (i==index) {
-            selectedCategory[i].value = true;
-          }
-          else {
-            selectedCategory[i].value = false;
-          }
-        }
+        final c = Get.find<HomeController>();
+        c.onCategoryChanged(index); // will toggle + refresh
       },
       child: Container(
         padding: EdgeInsets.symmetric(

@@ -8,9 +8,37 @@ import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_text_field.dart';
+import '../controllers/profile_controller.dart';
 
 class SendFeedbackView extends GetView {
-  const SendFeedbackView({super.key});
+  SendFeedbackView({super.key});
+
+  final ProfileController _controller = Get.put(ProfileController());
+  final TextEditingController _supportEmailController = TextEditingController();
+  final TextEditingController _feedbackController = TextEditingController();
+
+  Future<void> _handleSubmitFeedback() async {
+    if (_supportEmailController.text.trim().isEmpty || _feedbackController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please fill in every field',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.submitFeedback(_supportEmailController.text.trim(),_feedbackController.text.trim(),);
+    } catch (e) {
+      print('Error submitting feedback: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to submit feedback. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +77,7 @@ class SendFeedbackView extends GetView {
 
                       CustomTextField(
                         hintText: 'Enter Email',
+                        controller: _supportEmailController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
                         borderColor: AppColors.profileGray,
@@ -79,6 +108,7 @@ class SendFeedbackView extends GetView {
 
                       CustomTextField(
                         hintText: 'Describe Your feedback',
+                        controller: _feedbackController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
                         borderColor: AppColors.profileGray,
@@ -101,7 +131,9 @@ class SendFeedbackView extends GetView {
                   padding: EdgeInsets.symmetric(horizontal: 5.w),
                   child: CustomButton(
                     text: 'Send',
-                    onTap: () {  },
+                    onTap: () {
+                      _handleSubmitFeedback();
+                    },
                   ),
                 ),
               ],

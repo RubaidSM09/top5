@@ -13,7 +13,37 @@ import '../../../../common/widgets/custom_text_field.dart';
 import '../controllers/authentication_controller.dart';
 
 class OtpVerificationsView extends GetView<AuthenticationController> {
-  const OtpVerificationsView({super.key});
+  final String email;
+
+  OtpVerificationsView({
+    required this.email,
+    super.key
+  });
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+
+  Future<void> _handleResetPasswordOtpVerification() async {
+    if (_controller.otp.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Incorrect OTP',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.resetPasswordOtpVerification(email, _controller.otp);
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to sign up. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +113,9 @@ class OtpVerificationsView extends GetView<AuthenticationController> {
                           text: 'Send',
                           paddingLeft: 60,
                           paddingRight: 60,
-                          onTap: () => Get.to(CreateNewPasswordView()),
+                          onTap: () {
+                            _handleResetPasswordOtpVerification();
+                          },
                         )
                       ],
                     ),

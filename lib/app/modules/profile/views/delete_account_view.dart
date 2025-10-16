@@ -6,11 +6,14 @@ import 'package:get/get.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
+import '../controllers/profile_controller.dart';
 
 class DeleteAccountView extends GetView {
   const DeleteAccountView({super.key});
   @override
   Widget build(BuildContext context) {
+    final profileController = Get.put(ProfileController());
+
     return Dialog(
       backgroundColor: AppColors.profileWhite,
       child: Padding(
@@ -67,7 +70,7 @@ class DeleteAccountView extends GetView {
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
                     borderRadius: 6,
-                    onTap: () {  },
+                    onTap: () => Get.back(),
                   ),
                 ),
 
@@ -77,7 +80,9 @@ class DeleteAccountView extends GetView {
                     color: AppColors.profileDeleteButtonTextColor,
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,
-                    onTap: () {  },
+                    onTap: () {
+                      profileController.deleteAccount();
+                    },
                   ),
                 ),
               ],

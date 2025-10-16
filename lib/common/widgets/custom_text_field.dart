@@ -17,6 +17,9 @@ class CustomTextField extends StatelessWidget {
   final List<BoxShadow>? boxShadow;
   final Color hintTextColor;
   final int maxLine;
+  final TextEditingController? controller;
+  final void Function(String)? onChanged;
+  final TextInputType? keyboardType;
 
   const CustomTextField({
     required this.hintText,
@@ -32,6 +35,9 @@ class CustomTextField extends StatelessWidget {
     ],
     this.hintTextColor = AppColors.authenticationButtonBorderColor,
     this.maxLine = 1,
+    this.controller,
+    this.onChanged,
+    this.keyboardType,
     super.key
   });
 
@@ -44,6 +50,12 @@ class CustomTextField extends StatelessWidget {
         ]
       ),
       child: TextFormField(
+        controller: controller,
+
+        onChanged: onChanged,
+
+        keyboardType: keyboardType,
+
         decoration: InputDecoration(
           contentPadding: padding,
 

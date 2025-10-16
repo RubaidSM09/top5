@@ -1,4 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ✅ Top-level permissions (before <application>) -->
+    <!-- Location (foreground) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- If you truly need location while app is in the background (usually NOT needed):
+         For Android 10 (API 29) only; on 11+ you must show a special prompt. -->
+    <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" android:maxSdkVersion="29" /> -->
+
+    <!-- Networking for API calls -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Optional but handy for detecting connectivity -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Optional: declare GPS hardware if your app really requires it -->
+    <!-- <uses-feature android:name="android.hardware.location.gps" android:required="false" /> -->
+
     <application
         android:label="top5"
         android:name="${applicationName}"

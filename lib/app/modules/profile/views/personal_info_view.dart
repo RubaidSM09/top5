@@ -2,13 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/common/widgets/custom_text_field.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 
 class PersonalInfoView extends GetView {
-  const PersonalInfoView({super.key});
+  final ProfileController profileController;
+
+  const PersonalInfoView({
+    required this.profileController,
+    super.key
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,16 +37,21 @@ class PersonalInfoView extends GetView {
               child: Column(
                 children: [
                   CircleAvatar(
-                    backgroundImage: AssetImage(
-                      'assets/images/home/profile_pic.jpg'
+                    radius: 32.r,
+                    backgroundImage: profileController.image.value == '' ?
+                    AssetImage(
+                      'assets/images/home/profile_pic.jpg',
+                    )
+                        :
+                    NetworkImage(
+                      'http://10.10.13.99:9001${profileController.image.value}',
                     ),
-                    radius: 35.r,
                   ),
                     
                   SizedBox(height: 8.h,),
 
                   Text(
-                    'Alex Martin',
+                    profileController.fullName.value,
                     style: h2.copyWith(
                       fontSize: 20.sp,
                       color: AppColors.profileBlack,
@@ -50,21 +62,21 @@ class PersonalInfoView extends GetView {
 
                   ProfileInfoSection(
                     title: 'Name',
-                    info: 'Alex Martin',
+                    info: profileController.fullName.value,
                   ),
 
                   SizedBox(height: 8.h,),
 
                   ProfileInfoSection(
                     title: 'E-mail',
-                    info: 'danmith1234@gmail.com',
+                    info: profileController.email.value,
                   ),
 
                   SizedBox(height: 8.h,),
 
                   ProfileInfoSection(
                     title: 'Phone',
-                    info: '+1 123745689',
+                    info: profileController.phone.value,
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -10,6 +11,8 @@ class LogOutView extends GetView {
   const LogOutView({super.key});
   @override
   Widget build(BuildContext context) {
+    final profileController = Get.put(ProfileController());
+
     return Dialog(
       backgroundColor: AppColors.profileWhite,
       child: Padding(
@@ -47,7 +50,7 @@ class LogOutView extends GetView {
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
                     borderRadius: 6,
-                    onTap: () {  },
+                    onTap: () => Get.back(),
                   ),
                 ),
 
@@ -57,7 +60,9 @@ class LogOutView extends GetView {
                     color: AppColors.profileDeleteButtonTextColor,
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,
-                    onTap: () {  },
+                    onTap: () {
+                      profileController.userLogout();
+                    },
                   ),
                 ),
               ],

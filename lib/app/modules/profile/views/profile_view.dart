@@ -48,8 +48,13 @@ class ProfileView extends GetView<ProfileController> {
                       children: [
                         CircleAvatar(
                           radius: 32.r,
-                          backgroundImage: AssetImage(
+                          backgroundImage: profileController.image.value == '' ?
+                          AssetImage(
                             'assets/images/home/profile_pic.jpg',
+                          )
+                          :
+                          NetworkImage(
+                            'http://10.10.13.99:9001${profileController.image.value}',
                           ),
                         ),
 
@@ -58,7 +63,7 @@ class ProfileView extends GetView<ProfileController> {
                           spacing: 12.h,
                           children: [
                             Text(
-                              'Alex Martin',
+                              profileController.fullName.value,
                               style: h1.copyWith(
                                 color: AppColors.profileBlack,
                                 fontSize: 22.sp,
@@ -66,7 +71,7 @@ class ProfileView extends GetView<ProfileController> {
                             ),
 
                             Text(
-                              'user123@gmail.com',
+                              profileController.email.value,
                               style: h4.copyWith(
                                 color: AppColors.profileTextLight,
                                 fontSize: 14.sp,
@@ -190,7 +195,7 @@ class ProfileView extends GetView<ProfileController> {
                         textSize: 14,
                         borderRadius: 6,
                         mainAxisAlignment: MainAxisAlignment.start,
-                        onTap: () => Get.to(PersonalInfoView()),
+                        onTap: () => Get.to(PersonalInfoView(profileController: profileController,)),
                       ),
                     ),
 

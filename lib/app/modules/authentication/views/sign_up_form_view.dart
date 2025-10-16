@@ -13,7 +13,33 @@ import '../../../../common/widgets/custom_button.dart';
 import '../../../../common/widgets/custom_text_field.dart';
 
 class SignUpFormView extends GetView<AuthenticationController> {
-  const SignUpFormView({super.key});
+  SignUpFormView({super.key});
+
+  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final TextEditingController _emailController = TextEditingController();
+
+  Future<void> _handleSignUpSendOtp() async {
+    if (_emailController.text.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please provide email address',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      await _controller.signUpSendOtp(_emailController.text.trim());
+    } catch (e) {
+      print('Error logging in: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to sign up. Please try again',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +82,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
 
                         CustomTextField(
                           hintText: 'abc@email.com',
+                          controller: _emailController,
                           prefixIcon: 'assets/images/authentication/mail.png',
                           isObscureText: false.obs,
                         ),
@@ -119,7 +146,9 @@ class SignUpFormView extends GetView<AuthenticationController> {
                               text: 'Next',
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.to(MailVerificationView()),
+                              onTap: () {
+                                _handleSignUpSendOtp();
+                              },
                             ),
                           ],
                         )
