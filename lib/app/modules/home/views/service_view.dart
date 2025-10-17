@@ -20,6 +20,13 @@ class ServiceView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     ProfileController profileController = Get.put(ProfileController());
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final c = Get.find<HomeController>();
+      if (!c.top5Loading.value && c.top5Places.isEmpty) {
+        c.fetchTop5Places(); // <-- now dynamic by selected pill
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -282,104 +289,52 @@ class ServiceView extends GetView<HomeController> {
                             Column(
                               spacing: 16.h,
                               children: [
-                                Top5NearYouListCard(
-                                  serialNo: 1,
-                                  title: 'Bella Italia',
-                                  rating: 4.7,
-                                  image:
-                                  'assets/images/home/bella_italia.jpg',
-                                  isPromo: true,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${controller.convertToMiles('450 m').toStringAsFixed(2)} miles",
-                                  time: 6,
-                                  type: 'Italian',
-                                  primeReason: 'Best value within 1 km, sunny terrace',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                Obx(() {
+                                  final c = Get.find<HomeController>();
+                                  if (c.top5Loading.value) {
+                                    return Row(
+                                      children: [
+                                        const CircularProgressIndicator(strokeWidth: 2),
+                                        SizedBox(width: 8.w),
+                                        Text('Fetching top picks...', style: h4.copyWith(color: AppColors.serviceGray)),
+                                      ],
+                                    );
+                                  }
+                                  if (c.top5Places.isEmpty) {
+                                    return Text(
+                                      'No ${c.currentCategoryLabel.toLowerCase()} found nearby.',
+                                      style: h4.copyWith(color: AppColors.serviceGray),
+                                    );
+                                  }
 
-                                Top5NearYouListCard(
-                                  serialNo: 2,
-                                  title: 'Sushi Zen',
-                                  rating: 4.6,
-                                  image: 'assets/images/home/sushi_zen.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${controller.convertToMiles('700 m').toStringAsFixed(2)} miles",
-                                  time: 10,
-                                  type: 'Korean',
-                                  primeReason: 'Best value within 1 km, sunny terrace',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                  return Column(
+                                    spacing: 16.h,
+                                    children: c.top5Places.asMap().entries.map((entry) {
+                                      final i = entry.key + 1;
+                                      final p = entry.value;
 
-                                Top5NearYouListCard(
-                                  serialNo: 3,
-                                  title: 'The Green Bistro',
-                                  rating: 4.5,
-                                  image:
-                                  'assets/images/home/the_green_bistro.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${controller.convertToMiles('900 m').toStringAsFixed(2)} miles",
-                                  time: 20,
-                                  type: 'Korean',
-                                  primeReason: 'Best value within 1 km, sunny terrace',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
-
-                                Top5NearYouListCard(
-                                  serialNo: 4,
-                                  title: 'Spice Route',
-                                  rating: 4.4,
-                                  image:
-                                  'assets/images/home/spice_route.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                                  time: 25,
-                                  type: 'Indian',
-                                  primeReason: 'Best value within 1 km, sunny terrace',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
-
-                                Top5NearYouListCard(
-                                  serialNo: 5,
-                                  title: 'Le Petit Cafe',
-                                  rating: 4.3,
-                                  image:
-                                  'assets/images/home/le_petit_cafe.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${controller.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
-                                  time: 30,
-                                  type: 'France',
-                                  primeReason: 'Best value within 1 km, sunny terrace',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                      return Top5NearYouListCard(
+                                        serialNo: i,
+                                        title: p.name ?? 'Unknown',
+                                        rating: (p.rating ?? 0).toDouble(),
+                                        reviewCount: (p.reviewsCount ?? 0),
+                                        image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // will render as NetworkImage if URL
+                                        isPromo: false,
+                                        status: (p.openNow ?? false) ? 'Open' : 'Closed',
+                                        distance: p.distanceText ?? '—',
+                                        time: c.parseMinutes(p.durationText),
+                                        type: c.currentCategoryLabel,
+                                        primeReason: '${(p.reviewsCount ?? 0)} reviews • ${p.distanceText ?? ''}',
+                                        reasons: [
+                                          '${p.rating?.toStringAsFixed(1) ?? '—'} rating',
+                                          p.durationText ?? '',
+                                        ],
+                                        isSaved: false.obs,
+                                        selectedLocations: controller.selectedLocations,
+                                      );
+                                    }).toList(),
+                                  );
+                                }),
                               ],
                             ),
 
@@ -529,99 +484,50 @@ class ServiceView extends GetView<HomeController> {
                             child: Column(
                               spacing: 20.h,
                               children: [
-                                Top5NearYouMapCard(
-                                  serialNo: 1,
-                                  title: 'Bella Italia',
-                                  rating: 4.7,
-                                  image:
-                                  'assets/images/home/bella_italia.jpg',
-                                  isPromo: true,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${controller.convertToMiles('450 m').toStringAsFixed(2)} miles",
-                                  time: 6,
-                                  type: 'Italian',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                Obx(() {
+                                  final c = Get.find<HomeController>();
+                                  if (c.top5Loading.value) {
+                                    return Row(
+                                      children: [
+                                        const CircularProgressIndicator(strokeWidth: 2),
+                                        SizedBox(width: 8.w),
+                                        Text('Fetching top picks...', style: h4.copyWith(color: AppColors.serviceGray)),
+                                      ],
+                                    );
+                                  }
+                                  if (c.top5Places.isEmpty) {
+                                    return Text(
+                                      'No ${c.currentCategoryLabel.toLowerCase()} found nearby.',
+                                      style: h4.copyWith(color: AppColors.serviceGray),
+                                    );
+                                  }
 
-                                Top5NearYouMapCard(
-                                  serialNo: 2,
-                                  title: 'Sushi Zen',
-                                  rating: 4.6,
-                                  image: 'assets/images/home/sushi_zen.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${controller.convertToMiles('700 m').toStringAsFixed(2)} miles",
-                                  time: 10,
-                                  type: 'Korean',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                  return Column(
+                                    spacing: 20.h,
+                                    children: c.top5Places.asMap().entries.map((entry) {
+                                      final i = entry.key + 1;
+                                      final p = entry.value;
 
-                                Top5NearYouMapCard(
-                                  serialNo: 3,
-                                  title: 'The Green Bistro',
-                                  rating: 4.5,
-                                  image:
-                                  'assets/images/home/the_green_bistro.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${controller.convertToMiles('900 m').toStringAsFixed(2)} miles",
-                                  time: 20,
-                                  type: 'Korean',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
-
-                                Top5NearYouMapCard(
-                                  serialNo: 4,
-                                  title: 'Spice Route',
-                                  rating: 4.4,
-                                  image:
-                                  'assets/images/home/spice_route.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                                  time: 25,
-                                  type: 'Indian',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
-
-                                Top5NearYouMapCard(
-                                  serialNo: 5,
-                                  title: 'Le Petit Cafe',
-                                  rating: 4.3,
-                                  image:
-                                  'assets/images/home/le_petit_cafe.jpg',
-                                  isPromo: false,
-                                  status: 'Open',
-                                  distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${controller.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
-                                  time: 30,
-                                  type: 'France',
-                                  reasons: [
-                                    'Wood-fired pizza, 1k+ reviews',
-                                    '6-min walk, sunny terrace',
-                                  ],
-                                  isSaved: false.obs,
-                                  selectedLocations: controller.selectedLocations,
-                                ),
+                                      return Top5NearYouMapCard(
+                                        serialNo: i,
+                                        title: p.name ?? 'Unknown',
+                                        rating: (p.rating ?? 0).toDouble(),
+                                        image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // Network/Asset compatible
+                                        isPromo: false,
+                                        status: (p.openNow ?? false) ? 'Open' : 'Closed',
+                                        distance: p.distanceText ?? '—',
+                                        type: c.currentCategoryLabel,
+                                        time: c.parseMinutes(p.durationText),
+                                        reasons: [
+                                          '${(p.reviewsCount ?? 0)} reviews',
+                                          p.durationText ?? '',
+                                        ],
+                                        isSaved: false.obs,
+                                        selectedLocations: controller.selectedLocations,
+                                      );
+                                    }).toList(),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -694,6 +600,7 @@ class Top5NearYouListCard extends StatelessWidget {
   final int serialNo;
   final String title;
   final double rating;
+  final int reviewCount;
   final String image;
   final bool isPromo;
   final String status;
@@ -709,6 +616,7 @@ class Top5NearYouListCard extends StatelessWidget {
     required this.serialNo,
     required this.title,
     required this.rating,
+    required this.reviewCount,
     required this.image,
     required this.isPromo,
     required this.status,
@@ -724,6 +632,8 @@ class Top5NearYouListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ImageProvider imgProvider = image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider;
+
     return GestureDetector(
       onTap: () {
         int index = serialNo - 1;
@@ -772,9 +682,7 @@ class Top5NearYouListCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6.r),
                 image: DecorationImage(
-                  image: AssetImage(
-                    image,
-                  ),
+                  image: imgProvider,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -820,6 +728,7 @@ class Top5NearYouListCard extends StatelessWidget {
                 spacing: 7.h,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: EdgeInsets.all(7.r),
@@ -838,11 +747,14 @@ class Top5NearYouListCard extends StatelessWidget {
 
                       SizedBox(width: 16.w),
 
-                      Text(
-                        title,
-                        style: h2.copyWith(
-                          color: AppColors.serviceBlack,
-                          fontSize: 16.sp,
+                      SizedBox(
+                        width: 200.w,
+                        child: Text(
+                          title,
+                          style: h2.copyWith(
+                            color: AppColors.serviceBlack,
+                            fontSize: 16.sp,
+                          ),
                         ),
                       ),
 
@@ -865,7 +777,7 @@ class Top5NearYouListCard extends StatelessWidget {
                       ),
 
                       Text(
-                        '($rating)',
+                        '($reviewCount)',
                         style: h4.copyWith(
                           color: AppColors.serviceGray,
                           fontSize: 14.sp,
@@ -1051,7 +963,7 @@ class Top5NearYouMapCard extends StatelessWidget {
   final List<String> reasons;
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
-  
+
   const Top5NearYouMapCard({
     required this.serialNo,
     required this.title,
@@ -1070,6 +982,8 @@ class Top5NearYouMapCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ImageProvider imgProvider = image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider;
+
     return GestureDetector(
       onTap: () {
         int index = serialNo - 1;
@@ -1161,7 +1075,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.r),
                     image: DecorationImage(
-                      image: AssetImage(image),
+                      image: imgProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -1188,11 +1102,14 @@ class Top5NearYouMapCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          title,
-                          style: h2.copyWith(
-                            color: AppColors.serviceBlack,
-                            fontSize: 16.sp,
+                        SizedBox(
+                          width: 175.w,
+                          child: Text(
+                            title,
+                            style: h2.copyWith(
+                              color: AppColors.serviceBlack,
+                              fontSize: 16.sp,
+                            ),
                           ),
                         ),
 

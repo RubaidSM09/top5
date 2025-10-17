@@ -410,4 +410,93 @@ class ApiService {
       body: jsonEncode(body),
     );
   }
+
+  Future<http.Response> top5PlaceList (double latitude, double longitude, double radius, String placeType, String? maxTime, String? mode) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('${baseUrl}/api/v1/home/top-five-place-list/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "latitude": latitude,
+      "longitude": longitude,
+      "radius": radius,
+      "place_type": placeType,
+      if (maxTime != null) "max_time": maxTime,  // Optional
+      if (mode != null) "mode": mode,   // Optional
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> placeDetails (String placeId,) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('${baseUrl}/api/v1/home/place-details/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "place_id": placeId,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> mapUrls (List<String> placeIds,) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('${baseUrl}/api/v1/home/maps-urls/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "place_ids": placeIds,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> placeDetailsWithAi (String placeId,) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('${baseUrl}/api/v1/home/place-details-with-ai/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "place_id": placeId,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
 }

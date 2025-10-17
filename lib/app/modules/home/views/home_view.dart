@@ -22,7 +22,7 @@ class HomeView extends GetView<HomeController> {
       appBar: AppBar(
         backgroundColor: AppColors.homeBgColorGradient,
         automaticallyImplyLeading: false,
-        title: HomeAppBar(time: controller.formatted,),
+        title: Obx(() => HomeAppBar(time: controller.formatted,)),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),

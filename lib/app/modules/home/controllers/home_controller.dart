@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 import '../../../data/model/time_date.dart';
+import '../../../data/model/top_5_place_list.dart';
 import '../../../data/services/api_services.dart';
 
 class HomeController extends GetxController {
@@ -38,6 +39,10 @@ class HomeController extends GetxController {
   // If you want to show API’s formatted day/time too:
   final RxString serverDay = ''.obs;
   final RxString serverTimeStr = ''.obs;
+
+  // Top 5 Lists variables
+  final RxBool top5Loading = false.obs;
+  final RxList<Places> top5Places = <Places>[].obs;
 
   IconData get weatherIcon {
     final w = weather.value.toLowerCase();
@@ -133,6 +138,7 @@ class HomeController extends GetxController {
     }
     // Re-generate ideas for the new category
     refreshIdeas();
+    fetchTop5Places();
   }
 
   @override
@@ -301,5 +307,82 @@ class HomeController extends GetxController {
 
     // Convert meters to miles
     return meters / metersInMile;
+  }
+
+
+
+  // Service
+  // UI label (for chips/titles)
+  String get currentCategoryLabel {
+    final i = selectedCategory.indexWhere((e) => e.value);
+    switch (i) {
+      case 0: return 'Restaurant';
+      case 1: return 'Cafes';
+      case 2: return 'Bars';
+      case 3: return 'Activities';
+      case 4: return 'Services';
+      default: return 'Services';
+    }
+  }
+
+// API place_type expected by backend
+  String get _apiPlaceType {
+    final i = selectedCategory.indexWhere((e) => e.value);
+    switch (i) {
+      case 0: return 'restaurant';
+      case 1: return 'cafe';
+      case 2: return 'bar';
+      case 3: return 'activity';
+      case 4: return 'service';
+      default: return 'service';
+    }
+  }
+
+  // Helper to parse "6 mins" -> 6.0
+  double parseMinutes(String? s) {
+    if (s == null) return 0;
+    final m = RegExp(r'(\d+)').firstMatch(s);
+    if (m == null) return 0;
+    return double.tryParse(m.group(1)!) ?? 0.0;
+  }
+
+// Call backend to fetch Top 5 restaurants
+  Future<void> fetchTop5Places({double radius = 3000, String? maxTime, String? mode}) async {
+    top5Loading.value = true;
+    try {
+      final hasLoc = await _ensureLocationPermission();
+      if (!hasLoc) {
+        Get.snackbar('Location', 'Permission denied. Unable to fetch nearby places.');
+        top5Loading.value = false;
+        return;
+      }
+
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+      final res = await _service.top5PlaceList(
+        pos.latitude,
+        pos.longitude,
+        radius,
+        _apiPlaceType, // <-- dynamic by selected category
+        maxTime,
+        mode,
+      );
+
+      if (res.statusCode == 200) {
+        final map = jsonDecode(res.body) as Map<String, dynamic>;
+        final list = Top5PlaceList.fromJson(map);
+        top5Places.assignAll(list.places ?? <Places>[]);
+      } else {
+        final msg = _safeMsg(res.body) ?? 'Failed to fetch places.';
+        Get.snackbar('Top 5', msg);
+        top5Places.clear();
+      }
+    } catch (e) {
+      Get.snackbar('Top 5', 'Unexpected error occurred');
+      if (kDebugMode) print('Top5 error: $e');
+      top5Places.clear();
+    } finally {
+      top5Loading.value = false;
+    }
   }
 }
