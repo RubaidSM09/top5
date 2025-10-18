@@ -10,6 +10,7 @@ import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
+import 'google_map_webview.dart';
 import 'home_view.dart';
 
 class ServiceView extends GetView<HomeController> {
@@ -342,15 +343,39 @@ class ServiceView extends GetView<HomeController> {
                           ],
                         ),
                       )
-                          : Stack(
+                          : SizedBox(
+                      height: 360.h, // or any height you like
+                      width: double.infinity,
+                      child: GoogleMapWebView(
+                        googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY",
+                        originLat: controller.top5Places.isNotEmpty
+                            ? (controller.top5Places.first.latitude ?? 23.7809063)
+                            : 23.7809063,
+                        originLng: controller.top5Places.isNotEmpty
+                            ? (controller.top5Places.first.longitude ?? 90.4075592)
+                            : 90.4075592,
+                      ),
+                    ),
+                    /*Stack(
                         children: [
-                          Image.asset(
-                            'assets/images/home/map_bg.jpg',
-                            fit: BoxFit.cover,
-                            scale: 4,
-                          ),
+                          Obx(() {
+                            final c = Get.find<HomeController>();
+                            final origin = c.top5Places.isNotEmpty
+                                ? c.top5Places.first // fallback center near first result
+                                : null;
 
-                          LocationPointer(
+                            // If you prefer user location, you can store it when fetching weather or top5
+                            final double originLat = c.top5Places.isNotEmpty ? (c.top5Places.first.latitude ?? 23.7809063) : 23.7809063;
+                            final double originLng = c.top5Places.isNotEmpty ? (c.top5Places.first.longitude ?? 90.4075592) : 90.4075592;
+
+                            return GoogleMapWebView(
+                              googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY", // you already provided
+                              originLat: originLat,
+                              originLng: originLng,
+                            );
+                          }),
+
+                          *//*LocationPointer(
                             serialNo: 1,
                             latitude: 218.33,
                             longitude: 45.67,
@@ -394,9 +419,9 @@ class ServiceView extends GetView<HomeController> {
                             name: 'Le Petit Cafe',
                             image: 'assets/images/home/le_petit_cafe.jpg',
                             selectedLocations: controller.selectedLocations,
-                          ),
+                          ),*//*
                         ],
-                      ),
+                      ),*/
                   ],
                 ),
               ),
