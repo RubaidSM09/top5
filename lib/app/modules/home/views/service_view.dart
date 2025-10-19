@@ -24,7 +24,7 @@ class ServiceView extends GetView<HomeController> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final c = Get.find<HomeController>();
       if (!c.top5Loading.value && c.top5Places.isEmpty) {
-        c.fetchTop5Places(); // <-- now dynamic by selected pill
+        c.fetchTop5Places(search: c.searchText.value);
       }
     });
 

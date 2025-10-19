@@ -21,6 +21,8 @@ class ResultsView extends GetView<SearchController> {
   });
   @override
   Widget build(BuildContext context) {
+    Get.find<HomeController>().performSearch(searchText);
+
     Get.put(SearchController());
     ProfileController profileController = Get.put(ProfileController());
     HomeController homeController = Get.put(HomeController());

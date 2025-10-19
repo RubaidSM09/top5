@@ -311,7 +311,10 @@ class HomeView extends GetView<HomeController> {
                     return Wrap(
                       spacing: 10.w,
                       runSpacing: 16.h,
-                      children: c.ideas.map((txt) => IdeasToTryCard(text: txt)).toList(),
+                      children: c.ideas.map((txt) => GestureDetector(
+                        onTap: () => c.onIdeaClicked(txt),
+                        child: IdeasToTryCard(text: txt),
+                      )).toList(),
                     );
                   }),
 
@@ -465,7 +468,14 @@ class HomeSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController controller = TextEditingController(text: searchBarText);
+    final homeController = Get.find<HomeController>();
+
     return TextFormField(
+      controller: controller,
+      onFieldSubmitted: (value) {
+        homeController.performSearch(value);
+      },
       decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h,),
 
@@ -575,6 +585,7 @@ class FilterSelectionCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         selectedFilter[index].value = !selectedFilter[index].value;
+        Get.find<HomeController>().fetchTop5Places(search: Get.find<HomeController>().searchText.value);
       },
       child: Container(
         width: 90.w,

@@ -1,3 +1,4 @@
+// Updated HomeController.dart
 import 'dart:async';
 import 'dart:convert';
 
@@ -18,9 +19,9 @@ class HomeController extends GetxController {
   Timer? _minuteTicker;
   Timer? _weatherTicker;
 
-  // UI state (you already had these)
+  // UI state
   RxList<RxBool> selectedCategory = [true.obs, false.obs, false.obs, false.obs, false.obs].obs;
-  RxList<RxBool> selectedFilter   = [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedFilter   = [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxBool isListView = true.obs;
   RxList<RxBool> selectedLocations = [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   final double dragSensitivity = 600;
@@ -30,13 +31,11 @@ class HomeController extends GetxController {
 
   final ApiService _service = ApiService();
 
-  // NEW: Weather/time data
+  // Weather/time data
   final RxBool weatherLoading = false.obs;
   final RxString weather = ''.obs;
   final RxString weatherDesc = ''.obs;
   final RxDouble tempC = 0.0.obs;
-
-  // If you want to show API’s formatted day/time too:
   final RxString serverDay = ''.obs;
   final RxString serverTimeStr = ''.obs;
 
@@ -44,38 +43,37 @@ class HomeController extends GetxController {
   final RxBool top5Loading = false.obs;
   final RxList<Places> top5Places = <Places>[].obs;
 
-  // --- Add these fields at the top (state) ---
+  // Manual location override
   final RxnDouble manualLat = RxnDouble(null);
   final RxnDouble manualLng = RxnDouble(null);
   final RxBool manualOverride = false.obs;
 
+  // Search state
+  final RxString searchText = ''.obs;
+
   IconData get weatherIcon {
     final w = weather.value.toLowerCase();
-
     if (w.contains('clear') || w.contains('sun')) {
       return Icons.wb_sunny;
     } else if (w.contains('cloud')) {
       return Icons.cloud;
     } else if (w.contains('rain') || w.contains('drizzle')) {
-      return Icons.grain; // raindrop
+      return Icons.grain;
     } else if (w.contains('storm') || w.contains('thunder')) {
       return Icons.flash_on;
     } else if (w.contains('snow')) {
       return Icons.ac_unit;
-    } else if (w.contains('fog') ||
-        w.contains('mist') ||
-        w.contains('haze') ||
-        w.contains('smoke')) {
+    } else if (w.contains('fog') || w.contains('mist') || w.contains('haze') || w.contains('smoke')) {
       return Icons.blur_on;
     } else {
-      return Icons.wb_cloudy; // default
+      return Icons.wb_cloudy;
     }
   }
 
   Color get weatherIconColor {
     final w = weather.value.toLowerCase();
     if (w.contains('clear') || w.contains('sun')) {
-      return const Color(0xFFFFD700); // golden sun
+      return const Color(0xFFFFD700);
     } else if (w.contains('rain') || w.contains('storm')) {
       return Colors.blueGrey;
     } else if (w.contains('snow')) {
@@ -83,16 +81,14 @@ class HomeController extends GetxController {
     } else if (w.contains('fog') || w.contains('haze')) {
       return Colors.grey;
     } else {
-      return Colors.lightBlue; // default sky tone
+      return Colors.lightBlue;
     }
   }
 
   final RxBool ideasLoading = false.obs;
   final RxList<String> ideas = <String>[].obs;
 
-// Helper: map selected pill → backend category string
   String get _currentCategory {
-    // index order in your UI: 0-restaurant,1-cafes,2-bars,3-activities,4-services
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
       case 0: return 'restaurant';
@@ -100,21 +96,18 @@ class HomeController extends GetxController {
       case 2: return 'bar';
       case 3: return 'activities';
       case 4:
-      default: return 'services'; // API sample uses "service"
+      default: return 'services';
     }
   }
 
-// Format fallback when serverDay/serverTimeStr are empty
   String get _fallbackDayName => DateFormat('EEEE').format(DateTime.now());
   String get _fallbackTimeStr => DateFormat('hh:mm a').format(DateTime.now());
 
-// Call backend to generate ideas
   Future<void> refreshIdeas() async {
-    // Need weather + time in place
     final wd = (weatherDesc.value.isNotEmpty ? weatherDesc.value : weather.value).toLowerCase();
     final day = (serverDay.value.isNotEmpty ? serverDay.value : _fallbackDayName);
     final tStr = (serverTimeStr.value.isNotEmpty ? serverTimeStr.value : _fallbackTimeStr);
-    final temp = tempC.value; // double
+    final temp = tempC.value;
 
     ideasLoading.value = true;
     try {
@@ -136,21 +129,17 @@ class HomeController extends GetxController {
     }
   }
 
-// Call this when a category pill is tapped
   void onCategoryChanged(int index) {
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
-    // Re-generate ideas for the new category
     refreshIdeas();
-    fetchTop5Places();
+    fetchTop5Places(search: searchText.value); // Refresh with current search
   }
 
   @override
   void onInit() {
     super.onInit();
-
-    // Device time ticker (updates every minute)
     _tick();
     final firstDelay = Duration(seconds: 60 - DateTime.now().second);
     _minuteTicker = Timer(firstDelay, () {
@@ -159,17 +148,10 @@ class HomeController extends GetxController {
         now.value = DateTime.now();
       });
     });
-
-    // Immediately fetch weather, then refresh every 10 minutes
     _fetchAndSetWeather();
     _weatherTicker = Timer.periodic(const Duration(minutes: 10), (_) {
       _fetchAndSetWeather();
     });
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
   }
 
   @override
@@ -179,49 +161,37 @@ class HomeController extends GetxController {
     super.onClose();
   }
 
-  // --------- PUBLIC READ-ONLY BINDINGS FOR UI ---------
   RxString get formatted {
     final d = DateFormat('EEE', 'en_US').format(now.value);
     final t = DateFormat('h:mma', 'en_US').format(now.value).replaceAll(' ', '').toLowerCase();
     return '$d, $t'.obs;
   }
 
-  String get tempText => tempC.value == 0.0 && weather.isEmpty
-      ? '—'
-      : '${tempC.value.toStringAsFixed(0)}°C';
+  String get tempText => tempC.value == 0.0 && weather.isEmpty ? '—' : '${tempC.value.toStringAsFixed(0)}°C';
 
-  // --------- INTERNAL HELPERS ---------
   void _tick() => now.value = DateTime.now();
 
   Future<void> _fetchAndSetWeather() async {
-    // If user has already picked a manual location, respect it
     if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
       await _fetchWeatherFor(manualLat.value!, manualLng.value!);
       await refreshIdeas();
-      await fetchTop5Places();
+      await fetchTop5Places(search: searchText.value);
       return;
     }
-
-    // otherwise use device GPS
     final hasLocation = await _ensureLocationPermission();
     if (!hasLocation) {
       Get.snackbar('Location', 'Permission denied. Weather requires location.');
       return;
     }
-    final pos = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    print(pos.latitude);
-    print(pos.longitude);
+    final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     await _fetchWeatherFor(pos.latitude, pos.longitude);
     await refreshIdeas();
-    await fetchTop5Places();
+    await fetchTop5Places(search: searchText.value);
   }
 
   Future<bool> _ensureLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
-
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -256,21 +226,14 @@ class HomeController extends GetxController {
   }
 
   double convertToMiles(String input) {
-    // Conversion factors
     const double metersInKm = 1000;
     const double metersInMile = 1609.34;
-
-    // Split the string into value and unit
     final parts = input.trim().split(' ');
     if (parts.length != 2) {
       throw FormatException("Invalid input format. Example: '1 km' or '20 m'");
     }
-
-    final double value = double.tryParse(parts[0]) ??
-        (throw FormatException("Invalid number"));
+    final double value = double.tryParse(parts[0]) ?? (throw FormatException("Invalid number"));
     final String unit = parts[1].toLowerCase();
-
-    // Convert input to meters
     double meters;
     switch (unit) {
       case 'km':
@@ -282,15 +245,9 @@ class HomeController extends GetxController {
       default:
         throw FormatException("Unsupported unit. Use 'm' or 'km'");
     }
-
-    // Convert meters to miles
     return meters / metersInMile;
   }
 
-
-
-  // Service
-  // UI label (for chips/titles)
   String get currentCategoryLabel {
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
@@ -303,7 +260,6 @@ class HomeController extends GetxController {
     }
   }
 
-// API place_type expected by backend
   String get _apiPlaceType {
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
@@ -316,7 +272,6 @@ class HomeController extends GetxController {
     }
   }
 
-  // Helper to parse "6 mins" -> 6.0
   double parseMinutes(String? s) {
     if (s == null) return 0;
     final m = RegExp(r'(\d+)').firstMatch(s);
@@ -324,12 +279,11 @@ class HomeController extends GetxController {
     return double.tryParse(m.group(1)!) ?? 0.0;
   }
 
-// Call backend to fetch Top 5 restaurants
-  Future<void> fetchTop5Places({double radius = 1000, String? maxTime, String? mode}) async {
+  // Updated fetchTop5Places to include search and filters
+  Future<void> fetchTop5Places({String? search}) async {
     top5Loading.value = true;
     try {
       double lat, lng;
-
       if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
         lat = manualLat.value!;
         lng = manualLng.value!;
@@ -345,13 +299,25 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
+      // Apply filters
+      final bool openNow = selectedFilter[0].value;
+      final String? maxTime = selectedFilter[1].value ? '10m' : null;
+      final double? radius = selectedFilter[2].value ? 1000 : null; // 1 km in meters
+      final bool outdoor = selectedFilter[3].value;
+      final bool vegetarian = selectedFilter[4].value;
+      final bool bookable = selectedFilter[5].value;
+
       final res = await _service.top5PlaceList(
         lat,
         lng,
-        radius,
         _apiPlaceType,
-        maxTime,
-        mode,
+        search: search,
+        radius: radius,
+        maxTime: maxTime,
+        openNow: openNow,
+        outdoor: outdoor,
+        vegetarian: vegetarian,
+        bookable: bookable,
       );
 
       if (res.statusCode == 200) {
@@ -371,10 +337,6 @@ class HomeController extends GetxController {
     }
   }
 
-
-
-  /// Set your location
-  // --- Add this helper: fetch weather for any lat/lng ---
   Future<void> _fetchWeatherFor(double lat, double lng) async {
     weatherLoading.value = true;
     try {
@@ -402,8 +364,6 @@ class HomeController extends GetxController {
     }
   }
 
-
-// --- Call this when user confirms "Set my location" ---
   Future<void> overrideLocationAndRefresh(double lat, double lng) async {
     manualLat.value = lat;
     manualLng.value = lng;
@@ -411,6 +371,17 @@ class HomeController extends GetxController {
 
     await _fetchWeatherFor(lat, lng);
     await refreshIdeas();
-    await fetchTop5Places();
+    await fetchTop5Places(search: searchText.value);
+  }
+
+  // New: Handle search submission
+  void performSearch(String query) {
+    searchText.value = query;
+    fetchTop5Places(search: query);
+  }
+
+  // New: Handle idea click
+  void onIdeaClicked(String idea) {
+    Get.toNamed('/search', arguments: {'searchText': idea});
   }
 }

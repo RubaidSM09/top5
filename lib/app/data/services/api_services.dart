@@ -411,7 +411,19 @@ class ApiService {
     );
   }
 
-  Future<http.Response> top5PlaceList (double latitude, double longitude, double radius, String placeType, String? maxTime, String? mode) async {
+  Future<http.Response> top5PlaceList(
+      double latitude,
+      double longitude,
+      String placeType, {
+        String? search,
+        double? radius,
+        String? maxTime,
+        String? mode,
+        bool? openNow,
+        bool? outdoor,
+        bool? vegetarian,
+        bool? bookable,
+      }) async {
     String? accessToken = await _storage.read(key: 'access_token');
 
     final Uri url = Uri.parse('${baseUrl}/api/v1/home/top-five-place-list/');
@@ -424,10 +436,15 @@ class ApiService {
     final Map<String, dynamic> body = {
       "latitude": latitude,
       "longitude": longitude,
-      "radius": radius,
       "place_type": placeType,
-      if (maxTime != null) "max_time": maxTime,  // Optional
-      if (mode != null) "mode": mode,   // Optional
+      if (search != null && search.isNotEmpty) "search": search,
+      if (radius != null) "radius": radius,
+      if (maxTime != null) "max_time": maxTime,
+      if (mode != null) "mode": mode,
+      if (openNow != null) "open_now": openNow,
+      if (outdoor != null) "outdoor": outdoor,
+      if (vegetarian != null) "vegetarian": vegetarian,
+      if (bookable != null) "bookable": bookable,
     };
 
     return await http.post(

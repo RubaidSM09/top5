@@ -21,6 +21,12 @@ class SearchView extends GetView<SearchController> {
     ProfileController profileController = Get.put(ProfileController());
     HomeController homeController = Get.put(HomeController());
 
+    // Receive arguments if coming from idea click
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args != null && args['searchText'] != null) {
+      controller.setSearchQuery(args['searchText']);
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -436,8 +442,15 @@ class SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final searchController = Get.find<SearchController>();
+    final homeController = Get.find<HomeController>();
+
     return TextFormField(
       controller: searchBarText,
+      onFieldSubmitted: (value) {
+        searchController.setSearchQuery(value);
+        homeController.performSearch(value);
+      },
 
       decoration: InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h,),

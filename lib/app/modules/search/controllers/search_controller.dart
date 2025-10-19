@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
+import '../../home/controllers/home_controller.dart';
+
 class SearchController extends GetxController {
   TextEditingController searchBarTextController = TextEditingController(text: 'Italian restaurants');
 
@@ -10,7 +12,13 @@ class SearchController extends GetxController {
 
   late RxString searchText = ''.obs;
 
-  final count = 0.obs;
+  final RxString searchQuery = ''.obs;
+
+  void setSearchQuery(String query) {
+    searchQuery.value = query;
+    Get.find<HomeController>().performSearch(query);
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -30,6 +38,4 @@ class SearchController extends GetxController {
     searchBarTextController.dispose();
     super.onClose();
   }
-
-  void increment() => count.value++;
 }
