@@ -440,3 +440,105 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
 """;
   }
 }
+
+
+
+
+class GoogleMapPickerWebView extends StatefulWidget {
+  final String googleApiKey;
+  final double initialLat;
+  final double initialLng;
+  final ValueChanged<LatLng> onCenterChanged; // fires when map settles (idle)
+
+  const GoogleMapPickerWebView({
+    super.key,
+    required this.googleApiKey,
+    required this.initialLat,
+    required this.initialLng,
+    required this.onCenterChanged,
+  });
+
+  @override
+  State<GoogleMapPickerWebView> createState() => _GoogleMapPickerWebViewState();
+}
+
+class _GoogleMapPickerWebViewState extends State<GoogleMapPickerWebView> {
+  late final WebViewController _web;
+
+  // Small HTML with Google Maps JS; posts center lat/lng on 'idle'
+  String _buildHtml() {
+    final apiKey = widget.googleApiKey;
+    // Note: keep the page ultra-light. We rely on Flutter overlay for the pin.
+    return """
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1, width=device-width, height=device-height, user-scalable=no">
+  <style>
+    html, body, #map { margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=$apiKey&v=quarterly"></script>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    const initLat = ${widget.initialLat};
+    const initLng = ${widget.initialLng};
+    let map;
+
+    function init() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: initLat, lng: initLng},
+        zoom: 15,
+        disableDefaultUI: true,
+        clickableIcons: false,
+        gestureHandling: 'greedy',
+      });
+
+      // When user stops dragging/zooming, send center back to Flutter
+      map.addListener('idle', () => {
+        const c = map.getCenter();
+        const payload = JSON.stringify({ lat: c.lat(), lng: c.lng() });
+        if (window.FlutterChannel && window.FlutterChannel.postMessage) {
+          window.FlutterChannel.postMessage(payload);
+        }
+      });
+    }
+    window.onload = init;
+  </script>
+</body>
+</html>
+""";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _web = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..addJavaScriptChannel(
+        'FlutterChannel',
+        onMessageReceived: (msg) {
+          try {
+            final m = jsonDecode(msg.message) as Map<String, dynamic>;
+            final lat = (m['lat'] as num).toDouble();
+            final lng = (m['lng'] as num).toDouble();
+            widget.onCenterChanged(LatLng(lat, lng));
+          } catch (_) {}
+        },
+      )
+      ..loadHtmlString(_buildHtml());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WebViewWidget(controller: _web);
+  }
+}
+
+// Tiny LatLng helper to avoid importing external packages here
+class LatLng {
+  final double latitude;
+  final double longitude;
+  LatLng(this.latitude, this.longitude);
+}

@@ -9,29 +9,51 @@ import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 import 'package:top5/common/widgets/custom_text_field.dart';
 
+import 'google_map_webview.dart';
+
 class SetYourLocationView extends GetView<HomeController> {
   const SetYourLocationView({super.key});
+
   @override
   Widget build(BuildContext context) {
     Get.put(HomeController());
+
+    // local state: the current center from WebView
+    final RxDouble pickedLat = (controller.manualLat.value ?? 23.7809063).obs;
+    final RxDouble pickedLng = (controller.manualLng.value ?? 90.4075592).obs;
 
     return Scaffold(
       body: SafeArea(
         child: Obx(() {
           return Stack(
             children: [
+              // --- REPLACED background image with GoogleMapPickerWebView ---
               Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
-                    controller.isMapClicked.value = !controller.isMapClicked.value;
+                child: GoogleMapPickerWebView(
+                  googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY",
+                  initialLat: controller.manualLat.value ?? 23.7809063,
+                  initialLng: controller.manualLng.value ?? 90.4075592,
+                  onCenterChanged: (latLng) {
+                    pickedLat.value = latLng.latitude;
+                    pickedLng.value = latLng.longitude;
                   },
-                  child: Image.asset(
-                    'assets/images/home/set_your_location_map.jpg',
-                    fit: BoxFit.cover,
+                ),
+              ),
+
+              // --- Your custom center pin as a Flutter overlay ---
+              // It stays fixed while the map moves underneath
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Center(
+                    child: SizedBox(
+                      width: 28, height: 28,
+                      child: Image.asset('assets/images/home/location_pointer.png'),
+                    ),
                   ),
                 ),
               ),
 
+              // Back button
               Positioned(
                 top: 33.h,
                 left: 20.w,
@@ -43,40 +65,16 @@ class SetYourLocationView extends GetView<HomeController> {
                       color: AppColors.serviceBlack,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: AppColors.serviceWhite,
-                      size: 18.r,
-                    ),
+                    child: Icon(Icons.arrow_back, color: AppColors.serviceWhite, size: 18.r),
                   ),
                 ),
               ),
 
+              // Bottom Sheet
               Positioned(
-                top: controller.isMapClicked.value ? 281.h : 467.h,
-                left: controller.isMapClicked.value ? 201.w : 181.w,
+                bottom: 0, left: 0, right: 0,
                 child: Container(
-                  width: 20.w,
-                  height: 20.h,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(
-                        'assets/images/home/location_pointer.png',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              Positioned(
-                bottom: 0.h,
-                left: 0.w,
-                right: 0.w,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 20.w,
-                    vertical: 32.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 32.h),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(12.r),
@@ -90,49 +88,47 @@ class SetYourLocationView extends GetView<HomeController> {
                       Column(
                         spacing: 14.h,
                         children: [
-                          Text(
-                            'Set your location',
-                            style: h2.copyWith(
-                              color: AppColors.homeWhite,
-                              fontSize: 20.sp,
-                            ),
+                          Text('Set your location',
+                            style: h2.copyWith(color: AppColors.homeWhite, fontSize: 20.sp),
                           ),
-
-                          Text(
-                            'Drag map to move pin',
-                            style: h4.copyWith(
-                              color: AppColors.homeWhite,
-                              fontSize: 16.sp,
-                            ),
+                          Text('Drag map to move pin',
+                            style: h4.copyWith(color: AppColors.homeWhite, fontSize: 16.sp),
                           ),
                         ],
                       ),
 
-                      Divider(color: AppColors.homeWhite,),
+                      Divider(color: AppColors.homeWhite),
 
                       Column(
                         spacing: 12.h,
                         children: [
+                          // (optional) show current lat/lng, or a place name if you reverse-geocode
                           CustomTextField(
-                            hintText: controller.isMapClicked.value ? 'Bella Italia' : 'Where to?',
+                            hintText: 'Lat: ${pickedLat.value.toStringAsFixed(6)}, Lng: ${pickedLng.value.toStringAsFixed(6)}',
                             prefixIcon: 'assets/images/home/search.png',
                             color: AppColors.homeWhite,
                             borderRadius: 50,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 24.w, vertical: 10.h),
+                            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
                             isObscureText: false.obs,
+                            enabled: false,
                           ),
 
+                          // Confirm -> tell HomeController to override and refresh
                           CustomButton(
-                            text: controller.isMapClicked.value ? 'Confirm Destination' : 'Search Destination',
-                            onTap: () {},
-                          )
+                            text: 'Confirm Destination',
+                            onTap: () async {
+                              await controller.overrideLocationAndRefresh(
+                                pickedLat.value, pickedLng.value,
+                              );
+                              Get.back(); // return to previous screen
+                            },
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           );
         }),

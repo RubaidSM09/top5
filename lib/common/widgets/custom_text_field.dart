@@ -20,6 +20,7 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onChanged;
   final TextInputType? keyboardType;
+  final bool enabled;
 
   const CustomTextField({
     required this.hintText,
@@ -38,6 +39,7 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.onChanged,
     this.keyboardType,
+    this.enabled = true,
     super.key
   });
 
@@ -45,9 +47,7 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        boxShadow: [
-
-        ]
+        // boxShadow: boxShadow,
       ),
       child: TextFormField(
         controller: controller,
@@ -55,6 +55,8 @@ class CustomTextField extends StatelessWidget {
         onChanged: onChanged,
 
         keyboardType: keyboardType,
+
+        enabled: enabled,
 
         decoration: InputDecoration(
           contentPadding: padding,

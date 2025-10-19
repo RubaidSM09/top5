@@ -624,15 +624,8 @@ class QuickGlanceCard extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            for (int i=0;i<5;i++) {
-              if (i==index) {
-                selectedCategory[i].value = true;
-              }
-              else {
-                selectedCategory[i].value = false;
-              }
-            }
-
+            final c = Get.find<HomeController>();
+            c.onCategoryChanged(index);
             Get.to(ServiceView(appBarTitle: text,));
           },
           child: Container(

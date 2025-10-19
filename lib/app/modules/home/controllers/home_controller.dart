@@ -44,6 +44,11 @@ class HomeController extends GetxController {
   final RxBool top5Loading = false.obs;
   final RxList<Places> top5Places = <Places>[].obs;
 
+  // --- Add these fields at the top (state) ---
+  final RxnDouble manualLat = RxnDouble(null);
+  final RxnDouble manualLng = RxnDouble(null);
+  final RxBool manualOverride = false.obs;
+
   IconData get weatherIcon {
     final w = weather.value.toLowerCase();
 
@@ -91,11 +96,11 @@ class HomeController extends GetxController {
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
       case 0: return 'restaurant';
-      case 1: return 'cafes';
-      case 2: return 'bars';
+      case 1: return 'cafe';
+      case 2: return 'bar';
       case 3: return 'activities';
       case 4:
-      default: return 'service'; // API sample uses "service"
+      default: return 'services'; // API sample uses "service"
     }
   }
 
@@ -189,55 +194,28 @@ class HomeController extends GetxController {
   void _tick() => now.value = DateTime.now();
 
   Future<void> _fetchAndSetWeather() async {
-    weatherLoading.value = true;
-    try {
-      // 1) Check permissions / get current position
-      final hasLocation = await _ensureLocationPermission();
-      if (!hasLocation) {
-        Get.snackbar('Location', 'Permission denied. Weather requires location.');
-        weatherLoading.value = false;
-        return;
-      }
-
-      final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      print(pos.latitude);
-      print(pos.longitude);
-
-      // 2) Call API
-      final http.Response res = await _service.getTimeAndTemperature(
-        pos.latitude.toStringAsFixed(6),
-        pos.longitude.toStringAsFixed(6),
-      );
-
-      if (res.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(res.body);
-        final TimeDate td = TimeDate.fromJson(json);
-
-        print(td);
-
-        // 3) Push into observables
-        weather.value = td.data?.weather ?? '';
-        weatherDesc.value = td.data?.weatherDescription ?? '';
-        final double? t = td.data?.tempCelsius;
-        tempC.value = (t ?? 0).toDouble();
-
-        serverDay.value = td.data?.dayName ?? '';
-        serverTimeStr.value = td.data?.timeStr ?? '';
-
-        await refreshIdeas();
-      } else {
-        final msg = _safeMsg(res.body);
-        Get.snackbar('Weather', msg ?? 'Failed to fetch weather.');
-      }
-    } catch (e) {
-      Get.snackbar('Weather', 'Unexpected error occurred');
-      if (kDebugMode) print('Weather error: $e');
-    } finally {
-      weatherLoading.value = false;
+    // If user has already picked a manual location, respect it
+    if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
+      await _fetchWeatherFor(manualLat.value!, manualLng.value!);
+      await refreshIdeas();
+      await fetchTop5Places();
+      return;
     }
+
+    // otherwise use device GPS
+    final hasLocation = await _ensureLocationPermission();
+    if (!hasLocation) {
+      Get.snackbar('Location', 'Permission denied. Weather requires location.');
+      return;
+    }
+    final pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    print(pos.latitude);
+    print(pos.longitude);
+    await _fetchWeatherFor(pos.latitude, pos.longitude);
+    await refreshIdeas();
+    await fetchTop5Places();
   }
 
   Future<bool> _ensureLocationPermission() async {
@@ -332,9 +310,9 @@ class HomeController extends GetxController {
       case 0: return 'restaurant';
       case 1: return 'cafe';
       case 2: return 'bar';
-      case 3: return 'activity';
-      case 4: return 'service';
-      default: return 'service';
+      case 3: return 'activities';
+      case 4: return 'services';
+      default: return 'services';
     }
   }
 
@@ -347,23 +325,31 @@ class HomeController extends GetxController {
   }
 
 // Call backend to fetch Top 5 restaurants
-  Future<void> fetchTop5Places({double radius = 3000, String? maxTime, String? mode}) async {
+  Future<void> fetchTop5Places({double radius = 1000, String? maxTime, String? mode}) async {
     top5Loading.value = true;
     try {
-      final hasLoc = await _ensureLocationPermission();
-      if (!hasLoc) {
-        Get.snackbar('Location', 'Permission denied. Unable to fetch nearby places.');
-        top5Loading.value = false;
-        return;
+      double lat, lng;
+
+      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
+        lat = manualLat.value!;
+        lng = manualLng.value!;
+      } else {
+        final hasLoc = await _ensureLocationPermission();
+        if (!hasLoc) {
+          Get.snackbar('Location', 'Permission denied. Unable to fetch nearby places.');
+          top5Loading.value = false;
+          return;
+        }
+        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        lat = pos.latitude;
+        lng = pos.longitude;
       }
 
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
       final res = await _service.top5PlaceList(
-        pos.latitude,
-        pos.longitude,
+        lat,
+        lng,
         radius,
-        _apiPlaceType, // <-- dynamic by selected category
+        _apiPlaceType,
         maxTime,
         mode,
       );
@@ -379,10 +365,52 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Top 5', 'Unexpected error occurred');
-      if (kDebugMode) print('Top5 error: $e');
       top5Places.clear();
     } finally {
       top5Loading.value = false;
     }
+  }
+
+
+
+  /// Set your location
+  // --- Add this helper: fetch weather for any lat/lng ---
+  Future<void> _fetchWeatherFor(double lat, double lng) async {
+    weatherLoading.value = true;
+    try {
+      final http.Response res = await _service.getTimeAndTemperature(
+        lat.toStringAsFixed(6),
+        lng.toStringAsFixed(6),
+      );
+
+      if (res.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(res.body);
+        final TimeDate td = TimeDate.fromJson(json);
+
+        weather.value      = td.data?.weather ?? '';
+        weatherDesc.value  = td.data?.weatherDescription ?? '';
+        tempC.value        = (td.data?.tempCelsius ?? 0).toDouble();
+        serverDay.value    = td.data?.dayName ?? '';
+        serverTimeStr.value= td.data?.timeStr ?? '';
+      } else {
+        Get.snackbar('Weather', _safeMsg(res.body) ?? 'Failed to fetch weather.');
+      }
+    } catch (e) {
+      Get.snackbar('Weather', 'Unexpected error occurred');
+    } finally {
+      weatherLoading.value = false;
+    }
+  }
+
+
+// --- Call this when user confirms "Set my location" ---
+  Future<void> overrideLocationAndRefresh(double lat, double lng) async {
+    manualLat.value = lat;
+    manualLng.value = lng;
+    manualOverride.value = true;
+
+    await _fetchWeatherFor(lat, lng);
+    await refreshIdeas();
+    await fetchTop5Places();
   }
 }
