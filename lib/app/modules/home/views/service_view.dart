@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
 import 'package:top5/app/modules/home/views/details_view.dart';
 import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
+import 'package:top5/app/secrets/secrets.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -347,7 +348,7 @@ class ServiceView extends GetView<HomeController> {
                       height: 360.h, // or any height you like
                       width: double.infinity,
                       child: GoogleMapWebView(
-                        googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY",
+                        googleApiKey: googleApiKey,
                         originLat: controller.top5Places.isNotEmpty
                             ? (controller.top5Places.first.latitude ?? 23.7809063)
                             : 23.7809063,
@@ -356,72 +357,6 @@ class ServiceView extends GetView<HomeController> {
                             : 90.4075592,
                       ),
                     ),
-                    /*Stack(
-                        children: [
-                          Obx(() {
-                            final c = Get.find<HomeController>();
-                            final origin = c.top5Places.isNotEmpty
-                                ? c.top5Places.first // fallback center near first result
-                                : null;
-
-                            // If you prefer user location, you can store it when fetching weather or top5
-                            final double originLat = c.top5Places.isNotEmpty ? (c.top5Places.first.latitude ?? 23.7809063) : 23.7809063;
-                            final double originLng = c.top5Places.isNotEmpty ? (c.top5Places.first.longitude ?? 90.4075592) : 90.4075592;
-
-                            return GoogleMapWebView(
-                              googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY", // you already provided
-                              originLat: originLat,
-                              originLng: originLng,
-                            );
-                          }),
-
-                          *//*LocationPointer(
-                            serialNo: 1,
-                            latitude: 218.33,
-                            longitude: 45.67,
-                            name: 'Bella Italia',
-                            image: 'assets/images/home/bella_italia.jpg',
-                            selectedLocations: controller.selectedLocations,
-                          ),
-
-                          LocationPointer(
-                            serialNo: 2,
-                            latitude: 293.33,
-                            longitude: 73.67,
-                            name: 'Sushi Zen',
-                            image: 'assets/images/home/sushi_zen.jpg',
-                            selectedLocations: controller.selectedLocations,
-                          ),
-
-                          LocationPointer(
-                            serialNo: 3,
-                            latitude: 338.33,
-                            longitude: 133.67,
-                            name: 'The Green Bistro',
-                            image:
-                            'assets/images/home/the_green_bistro.jpg',
-                            selectedLocations: controller.selectedLocations,
-                          ),
-
-                          LocationPointer(
-                            serialNo: 4,
-                            latitude: 184.33,
-                            longitude: 155.67,
-                            name: 'Spice Route',
-                            image: 'assets/images/home/spice_route.jpg',
-                            selectedLocations: controller.selectedLocations,
-                          ),
-
-                          LocationPointer(
-                            serialNo: 5,
-                            latitude: 65.33,
-                            longitude: 153.67,
-                            name: 'Le Petit Cafe',
-                            image: 'assets/images/home/le_petit_cafe.jpg',
-                            selectedLocations: controller.selectedLocations,
-                          ),*//*
-                        ],
-                      ),*/
                   ],
                 ),
               ),
