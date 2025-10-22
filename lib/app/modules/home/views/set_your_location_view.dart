@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
+import 'package:top5/app/secrets/secrets.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -30,7 +31,7 @@ class SetYourLocationView extends GetView<HomeController> {
               // --- REPLACED background image with GoogleMapPickerWebView ---
               Positioned.fill(
                 child: GoogleMapPickerWebView(
-                  googleApiKey: "AIzaSyB4MZJDseWFVsSLRkfHuC8ucRn_djIhkrY",
+                  googleApiKey: googleApiKey,
                   initialLat: controller.manualLat.value ?? 23.7809063,
                   initialLng: controller.manualLng.value ?? 90.4075592,
                   onCenterChanged: (latLng) {
