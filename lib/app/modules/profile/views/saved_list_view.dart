@@ -127,6 +127,7 @@ class SavedListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
+            placeId: '',
           ),
         );
       },

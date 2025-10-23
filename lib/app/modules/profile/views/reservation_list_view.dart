@@ -108,6 +108,7 @@ class ReservationListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
+            placeId: '',
           ),
         );
       },

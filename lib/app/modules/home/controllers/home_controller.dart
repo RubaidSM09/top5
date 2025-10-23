@@ -384,4 +384,36 @@ class HomeController extends GetxController {
   void onIdeaClicked(String idea) {
     Get.toNamed('/search', arguments: {'searchText': idea});
   }
+
+  // New: Place details
+  final RxMap<dynamic, dynamic> placeDetails = {}.obs;
+  final RxMap<dynamic, dynamic> placeAiDetails = {}.obs;
+  final RxBool detailsLoading = false.obs;
+
+  Future<void> fetchPlaceDetails(String placeId) async {
+    if (placeId.isEmpty) return;
+    if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
+
+    detailsLoading.value = true;
+    try {
+      final res1 = await _service.placeDetails(placeId);
+      if (res1.statusCode == 200) {
+        placeDetails.value = jsonDecode(res1.body);
+        print(placeDetails.value);
+      } else {
+        Get.snackbar('Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
+      }
+
+      final res2 = await _service.placeDetailsWithAi(placeId);
+      if (res2.statusCode == 200) {
+        placeAiDetails.value = jsonDecode(res2.body);
+      } else {
+        Get.snackbar('Details', _safeMsg(res2.body) ?? 'Failed to fetch AI details.');
+      }
+    } catch (e) {
+      Get.snackbar('Details', 'Unexpected error occurred');
+    } finally {
+      detailsLoading.value = false;
+    }
+  }
 }

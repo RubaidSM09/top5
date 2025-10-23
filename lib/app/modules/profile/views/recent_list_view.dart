@@ -184,6 +184,7 @@ class RecentListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
+            placeId: '',
           ),
         );
       },

@@ -1,12 +1,12 @@
-class PlaceDetailsWithAi {
+class PlaceDetailsWithAI {
   String? placeId;
   String? name;
-  int? priceLevel;
+  Null priceLevel;
   List<String>? types;
   List<String>? aiSummary;
   AiRatings? aiRatings;
 
-  PlaceDetailsWithAi(
+  PlaceDetailsWithAI(
       {this.placeId,
         this.name,
         this.priceLevel,
@@ -14,7 +14,7 @@ class PlaceDetailsWithAi {
         this.aiSummary,
         this.aiRatings});
 
-  PlaceDetailsWithAi.fromJson(Map<String, dynamic> json) {
+  PlaceDetailsWithAI.fromJson(Map<String, dynamic> json) {
     placeId = json['place_id'];
     name = json['name'];
     priceLevel = json['price_level'];
@@ -42,8 +42,8 @@ class PlaceDetailsWithAi {
 class AiRatings {
   double? food;
   double? service;
-  int? atmosphere;
-  double? price;
+  double? atmosphere;
+  int? price;
 
   AiRatings({this.food, this.service, this.atmosphere, this.price});
 

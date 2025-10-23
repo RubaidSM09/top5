@@ -4,13 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
-import 'package:top5/app/modules/home/views/details_view.dart';
 import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/app/secrets/secrets.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
+import 'details_view.dart';
 import 'google_map_webview.dart';
 import 'home_view.dart';
 
@@ -51,87 +51,87 @@ class ServiceView extends GetView<HomeController> {
                           SizedBox(height: 12.62.h),
 
                           SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                spacing: 10.w,
-                                children: [
-                                  CategorySelectionCard(
-                                    text: 'Restaurant',
-                                    icon: 'assets/images/home/restaurant.svg',
-                                    selectedCategory: controller
-                                        .selectedCategory,
-                                    index: 0,
-                                    color: controller.selectedCategory[0].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor:
-                                    controller.selectedCategory[0].value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              spacing: 10.w,
+                              children: [
+                                CategorySelectionCard(
+                                  text: 'Restaurant',
+                                  icon: 'assets/images/home/restaurant.svg',
+                                  selectedCategory: controller
+                                      .selectedCategory,
+                                  index: 0,
+                                  color: controller.selectedCategory[0].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor:
+                                  controller.selectedCategory[0].value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  CategorySelectionCard(
-                                    text: 'Cafes',
-                                    icon: 'assets/images/home/coffee_x5F_cup.svg',
-                                    selectedCategory: controller
-                                        .selectedCategory,
-                                    index: 1,
-                                    color: controller.selectedCategory[1].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor:
-                                    controller.selectedCategory[1].value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                CategorySelectionCard(
+                                  text: 'Cafes',
+                                  icon: 'assets/images/home/coffee_x5F_cup.svg',
+                                  selectedCategory: controller
+                                      .selectedCategory,
+                                  index: 1,
+                                  color: controller.selectedCategory[1].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor:
+                                  controller.selectedCategory[1].value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  CategorySelectionCard(
-                                    text: 'Bars',
-                                    icon: 'assets/images/home/bars.svg',
-                                    selectedCategory: controller
-                                        .selectedCategory,
-                                    index: 2,
-                                    color: controller.selectedCategory[2].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor:
-                                    controller.selectedCategory[2].value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                CategorySelectionCard(
+                                  text: 'Bars',
+                                  icon: 'assets/images/home/bars.svg',
+                                  selectedCategory: controller
+                                      .selectedCategory,
+                                  index: 2,
+                                  color: controller.selectedCategory[2].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor:
+                                  controller.selectedCategory[2].value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  CategorySelectionCard(
-                                    text: 'Activities',
-                                    icon: 'assets/images/home/activities.svg',
-                                    selectedCategory: controller
-                                        .selectedCategory,
-                                    index: 3,
-                                    color: controller.selectedCategory[3].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor:
-                                    controller.selectedCategory[3].value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                CategorySelectionCard(
+                                  text: 'Activities',
+                                  icon: 'assets/images/home/activities.svg',
+                                  selectedCategory: controller
+                                      .selectedCategory,
+                                  index: 3,
+                                  color: controller.selectedCategory[3].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor:
+                                  controller.selectedCategory[3].value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  CategorySelectionCard(
-                                    text: 'Services',
-                                    icon: 'assets/images/home/services.svg',
-                                    selectedCategory: controller
-                                        .selectedCategory,
-                                    index: 4,
-                                    color: controller.selectedCategory[4].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor:
-                                    controller.selectedCategory[4].value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
-                                ],
-                              ),
+                                CategorySelectionCard(
+                                  text: 'Services',
+                                  icon: 'assets/images/home/services.svg',
+                                  selectedCategory: controller
+                                      .selectedCategory,
+                                  index: 4,
+                                  color: controller.selectedCategory[4].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor:
+                                  controller.selectedCategory[4].value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
+                              ],
                             ),
+                          ),
 
                           SizedBox(height: 24.h),
 
@@ -142,90 +142,90 @@ class ServiceView extends GetView<HomeController> {
                           SizedBox(height: 16.38.h),
 
                           SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                spacing: 10.w,
-                                children: [
-                                  FilterSelectionCard(
-                                    text: 'Open now',
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 0,
-                                    color: controller.selectedFilter[0].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[0]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              spacing: 10.w,
+                              children: [
+                                FilterSelectionCard(
+                                  text: 'Open now',
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 0,
+                                  color: controller.selectedFilter[0].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[0]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  FilterSelectionCard(
-                                    text: '10 min',
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 1,
-                                    color: controller.selectedFilter[1].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[1]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                FilterSelectionCard(
+                                  text: '10 min',
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 1,
+                                  color: controller.selectedFilter[1].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[1]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  FilterSelectionCard(
-                                    text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 2,
-                                    color: controller.selectedFilter[2].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[2]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                FilterSelectionCard(
+                                  text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 2,
+                                  color: controller.selectedFilter[2].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[2]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  FilterSelectionCard(
-                                    text: 'Outdoor',
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 3,
-                                    color: controller.selectedFilter[3].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[3]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                FilterSelectionCard(
+                                  text: 'Outdoor',
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 3,
+                                  color: controller.selectedFilter[3].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[3]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  FilterSelectionCard(
-                                    text: 'Vegetarian',
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 4,
-                                    color: controller.selectedFilter[4].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[4]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
+                                FilterSelectionCard(
+                                  text: 'Vegetarian',
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 4,
+                                  color: controller.selectedFilter[4].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[4]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
 
-                                  FilterSelectionCard(
-                                    text: 'Bookable',
-                                    selectedFilter: controller.selectedFilter,
-                                    index: 5,
-                                    color: controller.selectedFilter[5].value
-                                        ? AppColors.homeGreen
-                                        : AppColors.homeInactiveBg,
-                                    textColor: controller.selectedFilter[5]
-                                        .value
-                                        ? AppColors.homeWhite
-                                        : AppColors.homeGray,
-                                  ),
-                                ],
-                              ),
+                                FilterSelectionCard(
+                                  text: 'Bookable',
+                                  selectedFilter: controller.selectedFilter,
+                                  index: 5,
+                                  color: controller.selectedFilter[5].value
+                                      ? AppColors.homeGreen
+                                      : AppColors.homeInactiveBg,
+                                  textColor: controller.selectedFilter[5]
+                                      .value
+                                      ? AppColors.homeWhite
+                                      : AppColors.homeGray,
+                                ),
+                              ],
                             ),
+                          ),
 
                           SizedBox(height: 34.h),
                         ],
@@ -233,118 +233,119 @@ class ServiceView extends GetView<HomeController> {
                     ),
 
                     controller.isListView.value
-                          ? Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Top 5 near you',
-                                  style: h2.copyWith(
-                                    color: AppColors.serviceBlack,
-                                    fontSize: 24.sp,
-                                  ),
+                        ? Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Top 5 near you',
+                                style: h2.copyWith(
+                                  color: AppColors.serviceBlack,
+                                  fontSize: 24.sp,
                                 ),
+                              ),
 
-                                GestureDetector(
-                                  onTap: () {
-                                    controller.isListView.value =
-                                    !controller.isListView.value;
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 10.w,
-                                      vertical: 4.h,
+                              GestureDetector(
+                                onTap: () {
+                                  controller.isListView.value =
+                                  !controller.isListView.value;
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                    vertical: 4.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.serviceSearchBg,
+                                    borderRadius: BorderRadius.circular(
+                                      16.r,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.serviceSearchBg,
-                                      borderRadius: BorderRadius.circular(
-                                        16.r,
+                                  ),
+                                  child: Row(
+                                    spacing: 4.w,
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/images/home/map.svg',
                                       ),
-                                    ),
-                                    child: Row(
-                                      spacing: 4.w,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/images/home/map.svg',
-                                        ),
 
-                                        Text(
-                                          'Map',
-                                          style: h4.copyWith(
-                                            color: AppColors.serviceGray,
-                                            fontSize: 12.sp,
-                                          ),
+                                      Text(
+                                        'Map',
+                                        style: h4.copyWith(
+                                          color: AppColors.serviceGray,
+                                          fontSize: 12.sp,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
 
-                            SizedBox(height: 20.h),
+                          SizedBox(height: 20.h),
 
-                            Column(
-                              spacing: 16.h,
-                              children: [
-                                Obx(() {
-                                  final c = Get.find<HomeController>();
-                                  if (c.top5Loading.value) {
-                                    return Row(
-                                      children: [
-                                        const CircularProgressIndicator(strokeWidth: 2),
-                                        SizedBox(width: 8.w),
-                                        Text('Fetching top picks...', style: h4.copyWith(color: AppColors.serviceGray)),
-                                      ],
-                                    );
-                                  }
-                                  if (c.top5Places.isEmpty) {
-                                    return Text(
-                                      'No ${c.currentCategoryLabel.toLowerCase()} found nearby.',
-                                      style: h4.copyWith(color: AppColors.serviceGray),
-                                    );
-                                  }
-
-                                  return Column(
-                                    spacing: 16.h,
-                                    children: c.top5Places.asMap().entries.map((entry) {
-                                      final i = entry.key + 1;
-                                      final p = entry.value;
-
-                                      return Top5NearYouListCard(
-                                        serialNo: i,
-                                        title: p.name ?? 'Unknown',
-                                        rating: (p.rating ?? 0).toDouble(),
-                                        reviewCount: (p.reviewsCount ?? 0),
-                                        image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // will render as NetworkImage if URL
-                                        isPromo: false,
-                                        status: (p.openNow ?? false) ? 'Open' : 'Closed',
-                                        distance: p.distanceText ?? '—',
-                                        time: c.parseMinutes(p.durationText),
-                                        type: c.currentCategoryLabel,
-                                        primeReason: '${(p.reviewsCount ?? 0)} reviews • ${p.distanceText ?? ''}',
-                                        reasons: [
-                                          '${p.rating?.toStringAsFixed(1) ?? '—'} rating',
-                                          p.durationText ?? '',
-                                        ],
-                                        isSaved: false.obs,
-                                        selectedLocations: controller.selectedLocations,
-                                      );
-                                    }).toList(),
+                          Column(
+                            spacing: 16.h,
+                            children: [
+                              Obx(() {
+                                final c = Get.find<HomeController>();
+                                if (c.top5Loading.value) {
+                                  return Row(
+                                    children: [
+                                      const CircularProgressIndicator(strokeWidth: 2),
+                                      SizedBox(width: 8.w),
+                                      Text('Fetching top picks...', style: h4.copyWith(color: AppColors.serviceGray)),
+                                    ],
                                   );
-                                }),
-                              ],
-                            ),
+                                }
+                                if (c.top5Places.isEmpty) {
+                                  return Text(
+                                    'No ${c.currentCategoryLabel.toLowerCase()} found nearby.',
+                                    style: h4.copyWith(color: AppColors.serviceGray),
+                                  );
+                                }
 
-                            SizedBox(height: 20.h),
-                          ],
-                        ),
-                      )
-                          : SizedBox(
+                                return Column(
+                                  spacing: 16.h,
+                                  children: c.top5Places.asMap().entries.map((entry) {
+                                    final i = entry.key + 1;
+                                    final p = entry.value;
+
+                                    return Top5NearYouListCard(
+                                      serialNo: i,
+                                      title: p.name ?? 'Unknown',
+                                      rating: (p.rating ?? 0).toDouble(),
+                                      reviewCount: (p.reviewsCount ?? 0),
+                                      image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // will render as NetworkImage if URL
+                                      isPromo: false,
+                                      status: (p.openNow ?? false) ? 'Open' : 'Closed',
+                                      distance: p.distanceText ?? '—',
+                                      time: c.parseMinutes(p.durationText),
+                                      type: c.currentCategoryLabel,
+                                      primeReason: '${(p.reviewsCount ?? 0)} reviews • ${p.distanceText ?? ''}',
+                                      reasons: [
+                                        '${p.rating?.toStringAsFixed(1) ?? '—'} rating',
+                                        p.durationText ?? '',
+                                      ],
+                                      isSaved: false.obs,
+                                      selectedLocations: controller.selectedLocations,
+                                      placeId: p.placeId ?? '',  // New: pass placeId
+                                    );
+                                  }).toList(),
+                                );
+                              }),
+                            ],
+                          ),
+
+                          SizedBox(height: 20.h),
+                        ],
+                      ),
+                    )
+                        : SizedBox(
                       height: 360.h, // or any height you like
                       width: double.infinity,
                       child: GoogleMapWebView(
@@ -397,44 +398,44 @@ class ServiceView extends GetView<HomeController> {
                         SizedBox(height: 11.h,),
 
                         Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Top 5 near you',
-                                style: h2.copyWith(
-                                  color: AppColors.serviceBlack,
-                                  fontSize: 24.sp,
-                                ),
+                          mainAxisAlignment:
+                          MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Top 5 near you',
+                              style: h2.copyWith(
+                                color: AppColors.serviceBlack,
+                                fontSize: 24.sp,
                               ),
+                            ),
 
-                              GestureDetector(
-                                onTap: () {
-                                  controller.isListView.value =
-                                  !controller.isListView.value;
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10.w,
-                                    vertical: 4.h,
+                            GestureDetector(
+                              onTap: () {
+                                controller.isListView.value =
+                                !controller.isListView.value;
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.w,
+                                  vertical: 4.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.serviceSearchBg,
+                                  borderRadius: BorderRadius.circular(
+                                    16.r,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.serviceSearchBg,
-                                    borderRadius: BorderRadius.circular(
-                                      16.r,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'List View',
-                                    style: h4.copyWith(
-                                      color: AppColors.serviceGray,
-                                      fontSize: 12.sp,
-                                    ),
+                                ),
+                                child: Text(
+                                  'List View',
+                                  style: h4.copyWith(
+                                    color: AppColors.serviceGray,
+                                    fontSize: 12.sp,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
 
                         SizedBox(height: 16.h,),
 
@@ -484,6 +485,7 @@ class ServiceView extends GetView<HomeController> {
                                         ],
                                         isSaved: false.obs,
                                         selectedLocations: controller.selectedLocations,
+                                        placeId: p.placeId ?? '',  // New: pass placeId
                                       );
                                     }).toList(),
                                   );
@@ -571,6 +573,7 @@ class Top5NearYouListCard extends StatelessWidget {
   final List<String> reasons;
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
+  final String placeId;  // New
 
   const Top5NearYouListCard({
     required this.serialNo,
@@ -587,6 +590,7 @@ class Top5NearYouListCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
+    required this.placeId,  // New
     super.key,
   });
 
@@ -619,6 +623,7 @@ class Top5NearYouListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
+            placeId: placeId,  // New: pass placeId
           ),
         );
       },
@@ -675,7 +680,7 @@ class Top5NearYouListCard extends StatelessWidget {
                       color: AppColors.serviceWhite,
                     ),
                     child: SvgPicture.asset(
-                      'assets/images/home/save.svg'
+                        'assets/images/home/save.svg'
                     ),
                   ),
                 ],
@@ -769,7 +774,7 @@ class Top5NearYouListCard extends StatelessWidget {
                         spacing: 4.w,
                         children: [
                           SvgPicture.asset(
-                            'assets/images/home/clock.svg'
+                              'assets/images/home/clock.svg'
                           ),
 
                           Text(
@@ -923,6 +928,7 @@ class Top5NearYouMapCard extends StatelessWidget {
   final List<String> reasons;
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
+  final String placeId;  // New
 
   const Top5NearYouMapCard({
     required this.serialNo,
@@ -937,6 +943,7 @@ class Top5NearYouMapCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
+    required this.placeId,  // New
     super.key,
   });
 
@@ -970,6 +977,7 @@ class Top5NearYouMapCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
+            placeId: placeId,  // New: pass placeId
           ),
         );
       },
@@ -1292,42 +1300,42 @@ class LocationPointer extends StatelessWidget {
 
             selectedLocations[serialNo - 1].value
                 ? Positioned(
-                    bottom: 11.33.h,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 8.w,
-                        vertical: 6.h,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.r),
-                        color: AppColors.serviceGreen,
-                      ),
-                      child: Column(
-                        spacing: 6.h,
-                        children: [
-                          Text(
-                            name,
-                            style: h2.copyWith(
-                              color: AppColors.serviceWhite,
-                              fontSize: 10.sp,
-                            ),
-                          ),
-
-                          Container(
-                            width: 52.w,
-                            height: 32.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6.r),
-                              image: DecorationImage(
-                                image: AssetImage(image),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
+              bottom: 11.33.h,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8.w,
+                  vertical: 6.h,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6.r),
+                  color: AppColors.serviceGreen,
+                ),
+                child: Column(
+                  spacing: 6.h,
+                  children: [
+                    Text(
+                      name,
+                      style: h2.copyWith(
+                        color: AppColors.serviceWhite,
+                        fontSize: 10.sp,
                       ),
                     ),
-                  )
+
+                    Container(
+                      width: 52.w,
+                      height: 32.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.r),
+                        image: DecorationImage(
+                          image: AssetImage(image),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
                 : SizedBox.shrink(),
           ],
         );

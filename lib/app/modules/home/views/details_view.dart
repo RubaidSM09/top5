@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/views/contact_us_view.dart';
 import 'package:top5/app/modules/home/views/service_view.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
@@ -21,8 +22,9 @@ class DetailsView extends GetView<HomeController> {
   final String distance;
   final double time;
   final String type;
-  final List<String> reasons;
+  final List<dynamic> reasons;
   final RxBool isSaved;
+  final String placeId;  // New
 
   const DetailsView({
     required this.serialNo,
@@ -36,10 +38,16 @@ class DetailsView extends GetView<HomeController> {
     required this.type,
     required this.reasons,
     required this.isSaved,
+    required this.placeId,  // New
     super.key,
   });
+
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchPlaceDetails(placeId);
+    });
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -50,6 +58,9 @@ class DetailsView extends GetView<HomeController> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Obx(() {
+            final detailsReady = controller.placeDetails.isNotEmpty &&
+                controller.placeAiDetails.isNotEmpty &&
+                !controller.detailsLoading.value;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -68,7 +79,7 @@ class DetailsView extends GetView<HomeController> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6.r),
                           image: DecorationImage(
-                            image: AssetImage(image),
+                            image: NetworkImage(image),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -214,14 +225,22 @@ class DetailsView extends GetView<HomeController> {
 
                       SizedBox(height: 14.h,),
 
-                      Column(
-                        spacing: 12.h,
-                        children: [
-                          for (int i=0; i<reasons.length; i++) ...[
-                            WhyTop5Point(text: reasons[i]),
-                          ]
-                        ],
-                      ),
+                      if (controller.detailsLoading.value)
+                        const Center(child: CircularProgressIndicator())
+                      else if (detailsReady)
+                        Column(
+                          spacing: 12.h,
+                          children: (controller.placeAiDetails['ai_summary'] as List? ?? []).map((s) => WhyTop5Point(text: s.toString())).toList(),
+                        )
+                      else
+                        Column(
+                          spacing: 12.h,
+                          children: [
+                            for (int i=0; i<reasons.length; i++) ...[
+                              WhyTop5Point(text: reasons[i]),
+                            ]
+                          ],
+                        ),
 
                       SizedBox(height: 24.h,),
 
@@ -316,27 +335,17 @@ class DetailsView extends GetView<HomeController> {
 
                       SizedBox(height: 12.h,),
 
-                      Wrap(
-                        spacing: 12.w,
-                        runSpacing: 12.h,
-                        children: [
-                          DetailsTagCard(
-                            text: 'Food 4.6',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Service 4.6',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Atmosphere 4.6',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Price 4.6',
-                          ),
-                        ],
-                      ),
+                      Obx(() {
+                        if (!detailsReady) {
+                          return const SizedBox.shrink();
+                        }
+                        final ratings = controller.placeAiDetails['ai_ratings'] as Map<String, dynamic>? ?? {};
+                        return Wrap(
+                          spacing: 12.w,
+                          runSpacing: 12.h,
+                          children: ratings.entries.map((e) => DetailsTagCard(text: '${e.key.capitalizeFirst} ${e.value}')).toList(),
+                        );
+                      }),
 
                       SizedBox(height: 24.h,),
 
@@ -385,31 +394,19 @@ class DetailsView extends GetView<HomeController> {
 
                       SizedBox(height: 12.h,),
 
-                      Wrap(
-                        spacing: 12.w,
-                        runSpacing: 12.h,
-                        children: [
-                          DetailsTagCard(
-                            text: 'Margherita',
-                          ),
+                      Obx(() {
+                        if (!detailsReady) {
+                          return const SizedBox.shrink();
+                        }
+                        final types = controller.placeAiDetails['types'] as List? ?? [];
+                        return Wrap(
+                          spacing: 12.w,
+                          runSpacing: 12.h,
+                          children: types.map((t) => DetailsTagCard(text: t.toString().capitalizeFirst ?? t.toString())).toList(),
+                        );
+                      }),
 
-                          DetailsTagCard(
-                            text: 'Tiramisu',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Veg-friendly',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Outdoor',
-                          ),
-
-                          DetailsTagCard(
-                            text: 'Wi-Fi',
-                          ),
-                        ],
-                      ),
+                      SizedBox(height: 24.h,),
 
                       Text(
                         'Hours & contact',
@@ -421,20 +418,32 @@ class DetailsView extends GetView<HomeController> {
 
                       SizedBox(height: 12.h,),
 
-                      Wrap(
-                        spacing: 12.w,
-                        runSpacing: 12.h,
-                        children: [
-                          DetailsTagCard(
-                            text: 'Today 12:00–23:00',
-                          ),
+                      Obx(() {
+                        if (!detailsReady) {
+                          return const SizedBox.shrink();
+                        }
+                        var website = controller.placeDetails['website'] as String? ?? '';
+                        var contactTime = controller.placeDetails['contact_time'] as String? ?? '';
+                        return Wrap(
+                          spacing: 12.w,
+                          runSpacing: 12.h,
+                          children: [
+                            DetailsTagCard(
+                              text: contactTime,
+                            ),
 
-                          DetailsTagCard(
-                            text: 'Website',
-                            icon: 'assets/images/home/website.svg',
-                          ),
-                        ],
-                      ),
+                            website.isNotEmpty ? DetailsTagCard(
+                              text: 'Website',
+                              icon: 'assets/images/home/website.svg',
+                              onTap: () {
+                                website = website.startsWith('http://') ? website.replaceFirst('http://', 'https://') : website;
+                                print(website);
+                                Get.to(() => WebViewPage(url: website));
+                              },
+                            ) : SizedBox.shrink(),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ) : SizedBox.shrink(),
@@ -603,71 +612,71 @@ class DetailsLocationPointer extends StatelessWidget {
       top: longitude.h,
       left: latitude.w,
       child: Stack(
-          clipBehavior: Clip.none,
-          alignment: AlignmentDirectional.topCenter,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 4.67.w,
-                vertical: 5.33.h,
-              ),
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    'assets/images/home/location_pointer.png',
-                  ),
-                ),
-              ),
-              child: Text(
-                '$serialNo',
-                style: h3.copyWith(
-                  color: AppColors.serviceWhite,
-                  fontSize: 6.sp,
+        clipBehavior: Clip.none,
+        alignment: AlignmentDirectional.topCenter,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 4.67.w,
+              vertical: 5.33.h,
+            ),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/images/home/location_pointer.png',
                 ),
               ),
             ),
-
-            selectedLocations[serialNo - 1].value == false
-                ? Positioned(
-              bottom: 11.33.h,
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8.w,
-                  vertical: 6.h,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6.r),
-                  color: AppColors.serviceGreen,
-                ),
-                child: Column(
-                  spacing: 6.h,
-                  children: [
-                    Text(
-                      name,
-                      style: h2.copyWith(
-                        color: AppColors.serviceWhite,
-                        fontSize: 10.sp,
-                      ),
-                    ),
-
-                    Container(
-                      width: 52.w,
-                      height: 32.h,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.r),
-                        image: DecorationImage(
-                          image: AssetImage(image),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            child: Text(
+              '$serialNo',
+              style: h3.copyWith(
+                color: AppColors.serviceWhite,
+                fontSize: 6.sp,
               ),
-            )
-                : SizedBox.shrink(),
-          ],
-        ),
+            ),
+          ),
+
+          selectedLocations[serialNo - 1].value == false
+              ? Positioned(
+            bottom: 11.33.h,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 8.w,
+                vertical: 6.h,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6.r),
+                color: AppColors.serviceGreen,
+              ),
+              child: Column(
+                spacing: 6.h,
+                children: [
+                  Text(
+                    name,
+                    style: h2.copyWith(
+                      color: AppColors.serviceWhite,
+                      fontSize: 10.sp,
+                    ),
+                  ),
+
+                  Container(
+                    width: 52.w,
+                    height: 32.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.r),
+                      image: DecorationImage(
+                        image: AssetImage(image),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+              : SizedBox.shrink(),
+        ],
+      ),
     );
   }
 }
@@ -677,17 +686,19 @@ class DetailsTagCard extends StatelessWidget {
   final String text;
   final String icon;
   final bool isActive;
+  final VoidCallback? onTap;  // New
 
   const DetailsTagCard({
     required this.text,
     this.icon = '',
     this.isActive = false,
+    this.onTap,  // New
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final child = Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
         color: AppColors.serviceSearchBg,
@@ -712,9 +723,29 @@ class DetailsTagCard extends StatelessWidget {
               color: AppColors.serviceGreen,
             ),
           ) : icon != '' ? SvgPicture.asset(
-            'assets/images/home/website.svg'
+              'assets/images/home/website.svg'
           ) : SizedBox.shrink()
         ],
+      ),
+    );
+
+    return onTap != null ? GestureDetector(onTap: onTap, child: child) : child;
+  }
+}
+
+class WebViewPage extends StatelessWidget {
+  final String url;
+
+  const WebViewPage({required this.url, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Website')),
+      body: WebViewWidget(
+        controller: WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.disabled)
+          ..loadRequest(Uri.parse(url)),
       ),
     );
   }
