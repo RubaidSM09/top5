@@ -128,6 +128,8 @@ class SavedListCard extends StatelessWidget {
             reasons: reasons,
             isSaved: isSaved,
             placeId: '',
+            destLat: 0,
+            destLng: 0,
           ),
         );
       },

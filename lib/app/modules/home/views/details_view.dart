@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/views/contact_us_view.dart';
@@ -10,7 +11,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
+import '../../../secrets/secrest.dart';
 import '../controllers/home_controller.dart';
+import 'google_map_webview.dart';
 
 class DetailsView extends GetView<HomeController> {
   final int serialNo;
@@ -25,6 +28,8 @@ class DetailsView extends GetView<HomeController> {
   final List<dynamic> reasons;
   final RxBool isSaved;
   final String placeId;  // New
+  final double destLat;
+  final double destLng;
 
   const DetailsView({
     required this.serialNo,
@@ -39,8 +44,48 @@ class DetailsView extends GetView<HomeController> {
     required this.reasons,
     required this.isSaved,
     required this.placeId,  // New
+    required this.destLat,
+    required this.destLng,
     super.key,
   });
+
+  Future<void> _openDirections() async {
+    final c = Get.find<HomeController>();
+
+    double oLat, oLng;
+    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
+      oLat = c.manualLat.value!;
+      oLng = c.manualLng.value!;
+    } else {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar('Location', 'Location services disabled.');
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    Get.to(() => DirectionsMapWebView(
+      googleApiKey: googleApiKey,
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat,
+      destLng: destLng,
+      travelMode: 'WALKING',
+      destName: title,
+      destImgUrl: image,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +96,7 @@ class DetailsView extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: DetailsAppBar(),
+        title: const DetailsAppBar(),
         scrolledUnderElevation: 0,
         centerTitle: true,
       ),
@@ -61,6 +106,12 @@ class DetailsView extends GetView<HomeController> {
             final detailsReady = controller.placeDetails.isNotEmpty &&
                 controller.placeAiDetails.isNotEmpty &&
                 !controller.detailsLoading.value;
+
+            // Filter out the current place from top5 list
+            final otherPlaces = controller.top5Places
+                .where((p) => p.placeId != placeId)
+                .toList();
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -255,7 +306,7 @@ class DetailsView extends GetView<HomeController> {
                             paddingBottom: 8,
                             borderRadius: 6,
                             textSize: 12,
-                            onTap: () => Get.dialog(ContactUsView()),
+                            onTap: () => Get.dialog(const ContactUsView()),
                           ),
 
                           CustomButton(
@@ -270,7 +321,7 @@ class DetailsView extends GetView<HomeController> {
                             borderColor: AppColors.serviceGray,
                             textColor: AppColors.serviceGray,
                             textSize: 12,
-                            onTap: () {},
+                            onTap: _openDirections,
                           ),
 
                           CustomButton(
@@ -285,7 +336,7 @@ class DetailsView extends GetView<HomeController> {
                             borderColor: AppColors.serviceGray,
                             textColor: AppColors.serviceGray,
                             textSize: 12,
-                            onTap: () {},
+                            onTap: () {}, // kept unchanged intentionally
                           ),
                         ],
                       ),
@@ -362,7 +413,7 @@ class DetailsView extends GetView<HomeController> {
                       Wrap(
                         spacing: 12.w,
                         runSpacing: 12.h,
-                        children: [
+                        children: const [
                           DetailsTagCard(
                             text: 'Best time',
                             isActive: true,
@@ -440,72 +491,33 @@ class DetailsView extends GetView<HomeController> {
                                 print(website);
                                 Get.to(() => WebViewPage(url: website));
                               },
-                            ) : SizedBox.shrink(),
+                            ) : const SizedBox.shrink(),
                           ],
                         );
                       }),
                     ],
                   ),
-                ) : SizedBox.shrink(),
+                ) : const SizedBox.shrink(),
 
                 Column(
                   children: [
                     SizedBox(height: 22.h,),
 
-                    Stack(
-                      children: [
-                        Image.asset(
-                          'assets/images/home/map_bg.jpg',
-                          fit: BoxFit.cover,
-                          scale: 4,
-                        ),
-
-                        DetailsLocationPointer(
-                          serialNo: 1,
-                          latitude: 218.33,
-                          longitude: 45.67,
-                          name: 'Bella Italia',
-                          image: 'assets/images/home/bella_italia.jpg',
-                          selectedLocations: controller.selectedLocations,
-                        ),
-
-                        DetailsLocationPointer(
-                          serialNo: 2,
-                          latitude: 293.33,
-                          longitude: 73.67,
-                          name: 'Sushi Zen',
-                          image: 'assets/images/home/sushi_zen.jpg',
-                          selectedLocations: controller.selectedLocations,
-                        ),
-
-                        DetailsLocationPointer(
-                          serialNo: 3,
-                          latitude: 338.33,
-                          longitude: 133.67,
-                          name: 'The Green Bistro',
-                          image:
-                          'assets/images/home/the_green_bistro.jpg',
-                          selectedLocations: controller.selectedLocations,
-                        ),
-
-                        DetailsLocationPointer(
-                          serialNo: 4,
-                          latitude: 184.33,
-                          longitude: 155.67,
-                          name: 'Spice Route',
-                          image: 'assets/images/home/spice_route.jpg',
-                          selectedLocations: controller.selectedLocations,
-                        ),
-
-                        DetailsLocationPointer(
-                          serialNo: 5,
-                          latitude: 65.33,
-                          longitude: 153.67,
-                          name: 'Le Petit Cafe',
-                          image: 'assets/images/home/le_petit_cafe.jpg',
-                          selectedLocations: controller.selectedLocations,
-                        ),
-                      ],
+                    // ✅ Replaced static map_bg with live GoogleMapWebView
+                    SizedBox(
+                      height: 194.h,
+                      width: double.infinity,
+                      child: otherPlaces.isNotEmpty
+                          ? GoogleMapWebView(
+                        googleApiKey: googleApiKey,
+                        originLat: destLat,
+                        originLng: destLng,
+                        excludeLat: destLat,
+                        excludeLng: destLng,
+                      )
+                          : const Center(
+                        child: Text('No other nearby places to show on map'),
+                      ),
                     ),
                   ],
                 ),
@@ -547,7 +559,7 @@ class DetailsAppBar extends StatelessWidget {
           'assets/images/home/top_5_green_logo.svg',
         ),
 
-        SizedBox.shrink(),
+        const SizedBox.shrink(),
       ],
     );
   }
@@ -620,7 +632,7 @@ class DetailsLocationPointer extends StatelessWidget {
               horizontal: 4.67.w,
               vertical: 5.33.h,
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
                   'assets/images/home/location_pointer.png',
@@ -674,7 +686,7 @@ class DetailsLocationPointer extends StatelessWidget {
               ),
             ),
           )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
         ],
       ),
     );
@@ -718,13 +730,13 @@ class DetailsTagCard extends StatelessWidget {
 
           isActive ? Container(
             padding: EdgeInsets.all(3.r),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.serviceGreen,
             ),
           ) : icon != '' ? SvgPicture.asset(
               'assets/images/home/website.svg'
-          ) : SizedBox.shrink()
+          ) : const SizedBox.shrink()
         ],
       ),
     );

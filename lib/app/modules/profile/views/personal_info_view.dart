@@ -44,7 +44,7 @@ class PersonalInfoView extends GetView {
                     )
                         :
                     NetworkImage(
-                      'http://10.10.13.99:9001${profileController.image.value}',
+                      'https://doctorless-stopperless-turner.ngrok-free.dev${profileController.image.value}',
                     ),
                   ),
                     

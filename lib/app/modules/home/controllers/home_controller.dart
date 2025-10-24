@@ -1,4 +1,3 @@
-// Updated HomeController.dart
 import 'dart:async';
 import 'dart:convert';
 
@@ -50,6 +49,9 @@ class HomeController extends GetxController {
 
   // Search state
   final RxString searchText = ''.obs;
+
+  // NEW: cache AI summaries by placeId
+  final RxMap<String, List<String>> aiSummaries = <String, List<String>>{}.obs;
 
   IconData get weatherIcon {
     final w = weather.value.toLowerCase();
@@ -324,6 +326,14 @@ class HomeController extends GetxController {
         final map = jsonDecode(res.body) as Map<String, dynamic>;
         final list = Top5PlaceList.fromJson(map);
         top5Places.assignAll(list.places ?? <Places>[]);
+
+        // NEW: lazily fetch AI summaries for visible places (cache)
+        for (final p in top5Places) {
+          final id = p.placeId ?? '';
+          if (id.isNotEmpty && !aiSummaries.containsKey(id)) {
+            _fetchAiForPlace(id);
+          }
+        }
       } else {
         final msg = _safeMsg(res.body) ?? 'Failed to fetch places.';
         Get.snackbar('Top 5', msg);
@@ -335,6 +345,30 @@ class HomeController extends GetxController {
     } finally {
       top5Loading.value = false;
     }
+  }
+
+  // NEW: per-place AI summary fetch + cache
+  Future<void> _fetchAiForPlace(String placeId) async {
+    try {
+      final res = await _service.placeDetailsWithAi(placeId);
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        final List<String> summary = (data['ai_summary'] as List<dynamic>? ?? [])
+            .map((e) => e.toString())
+            .toList();
+        aiSummaries[placeId] = summary;
+      }
+    } catch (_) {
+      // silent fail; UI will simply show fallback text
+    }
+  }
+
+  // NEW: helper to format up to 2 summary items as comma-separated text
+  String aiSummaryTextFor(String? placeId) {
+    if (placeId == null || placeId.isEmpty) return '';
+    final list = aiSummaries[placeId] ?? const <String>[];
+    if (list.isEmpty) return '';
+    return list.take(2).join(', ');
   }
 
   Future<void> _fetchWeatherFor(double lat, double lng) async {
@@ -390,16 +424,36 @@ class HomeController extends GetxController {
   final RxMap<dynamic, dynamic> placeAiDetails = {}.obs;
   final RxBool detailsLoading = false.obs;
 
+  /// UPDATED: pass user's coordinates to place-details API
   Future<void> fetchPlaceDetails(String placeId) async {
     if (placeId.isEmpty) return;
     if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
 
     detailsLoading.value = true;
     try {
-      final res1 = await _service.placeDetails(placeId);
+      double lat, lng;
+      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
+        lat = manualLat.value!;
+        lng = manualLng.value!;
+      } else {
+        final hasLoc = await _ensureLocationPermission();
+        if (!hasLoc) {
+          Get.snackbar('Location', 'Permission denied. Unable to fetch place details.');
+          detailsLoading.value = false;
+          return;
+        }
+        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        lat = pos.latitude;
+        lng = pos.longitude;
+      }
+
+      final res1 = await _service.placeDetails(
+        placeId,
+        userLatitude: lat,
+        userLongitude: lng,
+      );
       if (res1.statusCode == 200) {
         placeDetails.value = jsonDecode(res1.body);
-        print(placeDetails.value);
       } else {
         Get.snackbar('Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
       }

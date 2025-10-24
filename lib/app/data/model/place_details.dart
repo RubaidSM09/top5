@@ -5,6 +5,7 @@ class PlaceDetails {
   String? contactTime;
   String? website;
   String? phone;
+  String? directionUrl;
 
   PlaceDetails(
       {this.placeId,
@@ -12,7 +13,8 @@ class PlaceDetails {
         this.name,
         this.contactTime,
         this.website,
-        this.phone});
+        this.phone,
+        this.directionUrl});
 
   PlaceDetails.fromJson(Map<String, dynamic> json) {
     placeId = json['place_id'];
@@ -21,16 +23,18 @@ class PlaceDetails {
     contactTime = json['contact_time'];
     website = json['website'];
     phone = json['phone'];
+    directionUrl = json['direction_url'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['place_id'] = this.placeId;
-    data['thumbnail'] = this.thumbnail;
-    data['name'] = this.name;
-    data['contact_time'] = this.contactTime;
-    data['website'] = this.website;
-    data['phone'] = this.phone;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['place_id'] = placeId;
+    data['thumbnail'] = thumbnail;
+    data['name'] = name;
+    data['contact_time'] = contactTime;
+    data['website'] = website;
+    data['phone'] = phone;
+    data['direction_url'] = directionUrl;
     return data;
   }
 }

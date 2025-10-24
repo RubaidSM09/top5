@@ -5,11 +5,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
 import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
-import 'package:top5/app/secrets/secrets.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
+import 'package:geolocator/geolocator.dart';
+import '../../../secrets/secrest.dart';
 import 'details_view.dart';
 import 'google_map_webview.dart';
 import 'home_view.dart';
@@ -79,8 +80,7 @@ class ServiceView extends GetView<HomeController> {
                                   color: controller.selectedCategory[1].value
                                       ? AppColors.homeGreen
                                       : AppColors.homeInactiveBg,
-                                  textColor:
-                                  controller.selectedCategory[1].value
+                                  textColor: controller.selectedCategory[1].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
                                 ),
@@ -94,8 +94,7 @@ class ServiceView extends GetView<HomeController> {
                                   color: controller.selectedCategory[2].value
                                       ? AppColors.homeGreen
                                       : AppColors.homeInactiveBg,
-                                  textColor:
-                                  controller.selectedCategory[2].value
+                                  textColor: controller.selectedCategory[2].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
                                 ),
@@ -109,8 +108,7 @@ class ServiceView extends GetView<HomeController> {
                                   color: controller.selectedCategory[3].value
                                       ? AppColors.homeGreen
                                       : AppColors.homeInactiveBg,
-                                  textColor:
-                                  controller.selectedCategory[3].value
+                                  textColor: controller.selectedCategory[3].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
                                 ),
@@ -124,8 +122,7 @@ class ServiceView extends GetView<HomeController> {
                                   color: controller.selectedCategory[4].value
                                       ? AppColors.homeGreen
                                       : AppColors.homeInactiveBg,
-                                  textColor:
-                                  controller.selectedCategory[4].value
+                                  textColor: controller.selectedCategory[4].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
                                 ),
@@ -293,6 +290,10 @@ class ServiceView extends GetView<HomeController> {
                             children: [
                               Obx(() {
                                 final c = Get.find<HomeController>();
+
+                                // Touch the aiSummaries map inside Obx to rebuild when AI data arrives
+                                final _ = c.aiSummaries.length;
+
                                 if (c.top5Loading.value) {
                                   return Row(
                                     children: [
@@ -315,12 +316,14 @@ class ServiceView extends GetView<HomeController> {
                                     final i = entry.key + 1;
                                     final p = entry.value;
 
+                                    final aiText = c.aiSummaryTextFor(p.placeId);
+
                                     return Top5NearYouListCard(
                                       serialNo: i,
                                       title: p.name ?? 'Unknown',
                                       rating: (p.rating ?? 0).toDouble(),
                                       reviewCount: (p.reviewsCount ?? 0),
-                                      image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // will render as NetworkImage if URL
+                                      image: p.thumbnail ?? 'assets/images/home/restaurant.jpg',
                                       isPromo: false,
                                       status: (p.openNow ?? false) ? 'Open' : 'Closed',
                                       distance: p.distanceText ?? '—',
@@ -333,7 +336,10 @@ class ServiceView extends GetView<HomeController> {
                                       ],
                                       isSaved: false.obs,
                                       selectedLocations: controller.selectedLocations,
-                                      placeId: p.placeId ?? '',  // New: pass placeId
+                                      placeId: p.placeId ?? '',
+                                      aiSummary: aiText,
+                                      destLat: p.latitude ?? 0.0,      // NEW
+                                      destLng: p.longitude ?? 0.0,     // NEW
                                     );
                                   }).toList(),
                                 );
@@ -346,7 +352,7 @@ class ServiceView extends GetView<HomeController> {
                       ),
                     )
                         : SizedBox(
-                      height: 360.h, // or any height you like
+                      height: 360.h,
                       width: double.infinity,
                       child: GoogleMapWebView(
                         googleApiKey: googleApiKey,
@@ -447,6 +453,10 @@ class ServiceView extends GetView<HomeController> {
                               children: [
                                 Obx(() {
                                   final c = Get.find<HomeController>();
+
+                                  // Observe AI summaries for reactive rebuild
+                                  final _ = c.aiSummaries.length;
+
                                   if (c.top5Loading.value) {
                                     return Row(
                                       children: [
@@ -469,11 +479,13 @@ class ServiceView extends GetView<HomeController> {
                                       final i = entry.key + 1;
                                       final p = entry.value;
 
+                                      final aiText = c.aiSummaryTextFor(p.placeId);
+
                                       return Top5NearYouMapCard(
                                         serialNo: i,
                                         title: p.name ?? 'Unknown',
                                         rating: (p.rating ?? 0).toDouble(),
-                                        image: p.thumbnail ?? 'assets/images/home/restaurant.jpg', // Network/Asset compatible
+                                        image: p.thumbnail ?? 'assets/images/home/restaurant.jpg',
                                         isPromo: false,
                                         status: (p.openNow ?? false) ? 'Open' : 'Closed',
                                         distance: p.distanceText ?? '—',
@@ -485,7 +497,10 @@ class ServiceView extends GetView<HomeController> {
                                         ],
                                         isSaved: false.obs,
                                         selectedLocations: controller.selectedLocations,
-                                        placeId: p.placeId ?? '',  // New: pass placeId
+                                        placeId: p.placeId ?? '',
+                                        aiSummary: aiText,
+                                        destLat: p.latitude ?? 0.0,      // NEW
+                                        destLng: p.longitude ?? 0.0,     // NEW
                                       );
                                     }).toList(),
                                   );
@@ -574,6 +589,9 @@ class Top5NearYouListCard extends StatelessWidget {
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   final String placeId;  // New
+  final String aiSummary; // NEW
+  final double destLat;   // NEW
+  final double destLng;   // NEW
 
   const Top5NearYouListCard({
     required this.serialNo,
@@ -590,9 +608,51 @@ class Top5NearYouListCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
-    required this.placeId,  // New
+    required this.placeId,
+    required this.aiSummary,
+    required this.destLat,
+    required this.destLng,
     super.key,
   });
+
+  Future<void> _openDirections() async {
+    final c = Get.find<HomeController>();
+
+    double oLat, oLng;
+    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
+      oLat = c.manualLat.value!;
+      oLng = c.manualLng.value!;
+    } else {
+      // fall back to current device location
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar('Location', 'Location services disabled.');
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    Get.to(() => DirectionsMapWebView(
+      googleApiKey: googleApiKey,
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat,
+      destLng: destLng,
+      travelMode: 'WALKING',
+      destName: title,
+      destImgUrl: image,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -623,7 +683,9 @@ class Top5NearYouListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
-            placeId: placeId,  // New: pass placeId
+            placeId: placeId,
+            destLat: destLat,
+            destLng: destLng,
           ),
         );
       },
@@ -840,6 +902,7 @@ class Top5NearYouListCard extends StatelessWidget {
                     ],
                   ),
 
+                  // Why this pick — show AI summary if available (max 2, comma-separated)
                   Row(
                     children: [
                       Text(
@@ -850,11 +913,15 @@ class Top5NearYouListCard extends StatelessWidget {
                         ),
                       ),
 
-                      Text(
-                        primeReason,
-                        style: h4.copyWith(
-                          color: AppColors.serviceGray,
-                          fontSize: 12.sp,
+                      Flexible(
+                        child: Text(
+                          (aiSummary.isNotEmpty ? aiSummary : primeReason),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: h4.copyWith(
+                            color: AppColors.serviceGray,
+                            fontSize: 12.sp,
+                          ),
                         ),
                       ),
                     ],
@@ -872,7 +939,7 @@ class Top5NearYouListCard extends StatelessWidget {
                         paddingBottom: 8,
                         borderRadius: 6,
                         textSize: 12,
-                        onTap: () {},
+                        onTap: _openDirections, // NEW
                       ),
 
                       CustomButton(
@@ -929,6 +996,9 @@ class Top5NearYouMapCard extends StatelessWidget {
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   final String placeId;  // New
+  final String aiSummary; // NEW
+  final double destLat;   // NEW
+  final double destLng;   // NEW
 
   const Top5NearYouMapCard({
     required this.serialNo,
@@ -943,9 +1013,50 @@ class Top5NearYouMapCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
-    required this.placeId,  // New
+    required this.placeId,
+    required this.aiSummary,
+    required this.destLat,
+    required this.destLng,
     super.key,
   });
+
+  Future<void> _openDirections() async {
+    final c = Get.find<HomeController>();
+
+    double oLat, oLng;
+    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
+      oLat = c.manualLat.value!;
+      oLng = c.manualLng.value!;
+    } else {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar('Location', 'Location services disabled.');
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    Get.to(() => DirectionsMapWebView(
+      googleApiKey: googleApiKey,
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat,
+      destLng: destLng,
+      travelMode: 'WALKING',
+      destName: title,
+      destImgUrl: image,
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -977,7 +1088,9 @@ class Top5NearYouMapCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
-            placeId: placeId,  // New: pass placeId
+            placeId: placeId,
+            destLat: destLat,
+            destLng: destLng,
           ),
         );
       },
@@ -1180,6 +1293,34 @@ class Top5NearYouMapCard extends StatelessWidget {
               ],
             ),
 
+            SizedBox(height: 8.h,),
+
+            // Why this pick row for map card (only shows when summary present)
+            if (aiSummary.isNotEmpty)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Why this pick: ',
+                    style: h2.copyWith(
+                      color: AppColors.serviceGray,
+                      fontSize: 11.9.sp,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      aiSummary,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: h4.copyWith(
+                        color: AppColors.serviceGray,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
             SizedBox(height: 16.h,),
 
             Row(
@@ -1194,7 +1335,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                   paddingBottom: 8,
                   borderRadius: 6,
                   textSize: 12,
-                  onTap: () {},
+                  onTap: _openDirections, // NEW
                 ),
 
                 CustomButton(
