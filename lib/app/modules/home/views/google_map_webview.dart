@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart';
+import 'package:top5/app/data/model/top_5_place_list.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-import 'package:top5/app/modules/home/controllers/home_controller.dart';
 
 class GoogleMapWebView extends StatefulWidget {
   final String googleApiKey;
   final double originLat; // Center lat
   final double originLng; // Center lng
-
+  final List<Places> places; // List of places to display
+  final List<int> originalIndices; // NEW: Original indices of places in the source list
   // Optionally exclude one marker (the current place) by its lat/lng
   final double? excludeLat;
   final double? excludeLng;
@@ -20,6 +20,8 @@ class GoogleMapWebView extends StatefulWidget {
     required this.googleApiKey,
     required this.originLat,
     required this.originLng,
+    required this.places,
+    required this.originalIndices, // NEW
     this.excludeLat,
     this.excludeLng,
     super.key,
@@ -30,16 +32,12 @@ class GoogleMapWebView extends StatefulWidget {
 }
 
 class _GoogleMapWebViewState extends State<GoogleMapWebView> {
-  final controller = Get.find<HomeController>();
-
   late final WebViewController _web;
   final RxString _mapError = ''.obs;
   bool _mapReady = false;
 
-  String _pinDataUrl = '';     // location_pointer.png as data URL
+  String _pinDataUrl = ''; // location_pointer.png as data URL
   String _fallbackImgUrl = ''; // restaurant.jpg as data URL (fallback)
-
-  late Worker _placesSub; // listen for top5Places changes
 
   static const double _eps = 1e-6; // equality tolerance for lat/lng
 
@@ -61,13 +59,11 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
                 _pushPlacesToWeb();
                 break;
               case 'gm_authFailure':
-                _mapError.value =
-                'Google Maps auth failure (check key/billing/restrictions).';
+                _mapError.value = 'Google Maps auth failure (check key/billing/restrictions).';
                 break;
               case 'gm_script_error':
               case 'map_init_error':
-                _mapError.value =
-                    (data['message'] ?? 'Map failed to load').toString();
+                _mapError.value = (data['message'] ?? 'Map failed to load').toString();
                 break;
             }
           } catch (_) {}
@@ -75,26 +71,22 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
       );
 
     _initWeb();
-
-    // 🔔 When the list of places changes, update markers
-    _placesSub = ever(controller.top5Places, (_) {
-      _pushPlacesToWeb();
-    });
   }
 
   @override
   void didUpdateWidget(covariant GoogleMapWebView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.originLat != oldWidget.originLat ||
-        widget.originLng != oldWidget.originLng) {
+        widget.originLng != oldWidget.originLng ||
+        widget.places != oldWidget.places ||
+        widget.originalIndices != oldWidget.originalIndices) { // NEW: Check for indices change
       _centerOn(widget.originLat, widget.originLng, zoom: 14);
+      _pushPlacesToWeb();
     }
-    _pushPlacesToWeb();
   }
 
   @override
   void dispose() {
-    _placesSub.dispose();
     super.dispose();
   }
 
@@ -110,21 +102,22 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
       mime: 'image/jpeg',
     ).catchError((_) => '');
 
-    // Build initial HTML with filtered places and ORIGINAL serial numbers
+    // Build initial HTML with filtered places and original serial numbers
     final html = _htmlTemplate(
       apiKey: widget.googleApiKey,
       originLat: widget.originLat,
       originLng: widget.originLng,
-      places: _filteredPlaces().map((p) {
+      places: _filteredPlaces().asMap().entries.map((entry) {
+        final i = entry.key;
+        final p = entry.value;
         final raw = (p.thumbnail ?? '').trim();
         final isHttp = raw.startsWith('http://') || raw.startsWith('https://');
-        final serial = controller.top5Places.indexOf(p) + 1; // keep original number
         return {
           'lat': p.latitude ?? 0.0,
           'lng': p.longitude ?? 0.0,
           'name': p.name ?? 'Unknown',
           'img': isHttp ? raw : '',
-          'serial': serial,
+          'serial': widget.originalIndices[i], // NEW: Use original index
         };
       }).toList(),
       pinImgDataUrl: _pinDataUrl,
@@ -134,13 +127,14 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
     _web.loadHtmlString(html);
   }
 
-  List<dynamic> _filteredPlaces() {
+  List<Places> _filteredPlaces() {
     final exLat = widget.excludeLat;
     final exLng = widget.excludeLng;
     if (exLat == null || exLng == null) {
-      return controller.top5Places;
+      return widget.places;
     }
-    return controller.top5Places.where((p) {
+    return widget.places.asMap().entries.where((entry) {
+      final p = entry.value;
       final lat = p.latitude;
       final lng = p.longitude;
       if (lat == null || lng == null) return true;
@@ -148,7 +142,7 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
       final sameLng = (lng - exLng).abs() < _eps;
       // Exclude if both lat & lng match within tolerance
       return !(sameLat && sameLng);
-    }).toList();
+    }).map((entry) => entry.value).toList();
   }
 
   Future<String> _assetToDataUrl(String assetPath, {required String mime}) async {
@@ -161,8 +155,7 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
   Future<void> _centerOn(double lat, double lng, {int? zoom}) async {
     if (!_mapReady) return;
     final z = zoom != null ? zoom.toString() : 'null';
-    final js =
-        'window._setCenter(${lat.toStringAsFixed(7)}, ${lng.toStringAsFixed(7)}, $z);';
+    final js = 'window._setCenter(${lat.toStringAsFixed(7)}, ${lng.toStringAsFixed(7)}, $z);';
     try {
       await _web.runJavaScript(js);
     } catch (_) {}
@@ -171,17 +164,18 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
   /// Push the (filtered) places to the JS map (refresh markers)
   void _pushPlacesToWeb() {
     if (!_mapReady) return;
-    final arr = _filteredPlaces().map((p) {
+    final arr = _filteredPlaces().asMap().entries.map((entry) {
+      final i = entry.key;
+      final p = entry.value;
       final raw = (p.thumbnail ?? '').trim();
       final isHttp = raw.startsWith('http://') || raw.startsWith('https://');
       final img = isHttp ? raw : '';
-      final serial = controller.top5Places.indexOf(p) + 1; // keep original number
       return {
         'lat': p.latitude ?? 0.0,
         'lng': p.longitude ?? 0.0,
         'name': p.name ?? 'Unknown',
         'img': img,
-        'serial': serial,
+        'serial': widget.originalIndices[i], // NEW: Use original index
       };
     }).toList();
 
@@ -292,9 +286,16 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
       border-radius: 6px;
       object-fit: cover;
       display: block;
-      background: rgba(255,255,255,.12);
-    }
-  </style>
+      background: rgba(255 Ascending
+      .popup {
+        width: 104px;
+        height: 64px;
+        border-radius: 6px;
+        object-fit: cover;
+        display: block;
+        background: rgba(255,255,255,.12);
+      }
+    </style>
 </head>
 <body>
   <div id="map"></div>
@@ -391,7 +392,7 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
     function renderMarkers() {
       clearMarkers();
       places.forEach((p) => {
-        const content = buildPin(p.serial); // use ORIGINAL serial number
+        const content = buildPin(p.serial); // use provided serial number
         const marker = new google.maps.marker.AdvancedMarkerElement({
           map,
           position: { lat: p.lat, lng: p.lng },

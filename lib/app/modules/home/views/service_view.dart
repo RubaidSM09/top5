@@ -10,7 +10,7 @@ import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
 import 'package:geolocator/geolocator.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import 'details_view.dart';
 import 'google_map_webview.dart';
 import 'home_view.dart';
@@ -362,6 +362,8 @@ class ServiceView extends GetView<HomeController> {
                         originLng: controller.top5Places.isNotEmpty
                             ? (controller.top5Places.first.longitude ?? 90.4075592)
                             : 90.4075592,
+                        places: controller.top5Places.isNotEmpty ? (controller.top5Places) : [],
+                        originalIndices: [1, 2, 3, 4, 5],
                       ),
                     ),
                   ],
@@ -652,11 +654,24 @@ class Top5NearYouListCard extends StatelessWidget {
       destName: title,
       destImgUrl: image,
     ));
+
+    await c.submitActionPlaces(placeId, 'recent');
+    await c.fetchRecentPlaces();
+  }
+
+  Future<void> _toggleSave() async {
+    final c = Get.find<HomeController>();
+    final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
+
+    await c.submitActionPlaces(placeId, activityType);
+    await c.fetchSavedPlaces(); // Refresh saved places list
+    await c.fetchSavedCount();
   }
 
   @override
   Widget build(BuildContext context) {
     final ImageProvider imgProvider = image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider;
+    final c = Get.find<HomeController>();
 
     return GestureDetector(
       onTap: () {
@@ -682,7 +697,7 @@ class Top5NearYouListCard extends StatelessWidget {
             time: time,
             type: type,
             reasons: reasons,
-            isSaved: isSaved,
+            isSaved: c.isPlaceSaved(placeId).obs, // Use reactive save status
             placeId: placeId,
             destLat: destLat,
             destLng: destLng,
@@ -734,17 +749,21 @@ class Top5NearYouListCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  Container(
-                    padding: EdgeInsets.all(9.33.r),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.serviceWhite,
+                  Obx(() => GestureDetector(
+                    onTap: _toggleSave,
+                    child: Container(
+                      padding: EdgeInsets.all(9.33.r),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.serviceWhite,
+                      ),
+                      child: SvgPicture.asset(
+                        c.isPlaceSaved(placeId)
+                            ? 'assets/images/home/saved.svg' // Icon for saved state
+                            : 'assets/images/home/save.svg', // Icon for unsaved state
+                      ),
                     ),
-                    child: SvgPicture.asset(
-                        'assets/images/home/save.svg'
-                    ),
-                  ),
+                  )),
                 ],
               ),
             ),

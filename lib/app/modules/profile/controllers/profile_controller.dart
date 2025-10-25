@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:top5/app/data/model/action_places_details.dart';
 import 'package:top5/app/data/services/api_services.dart';
 import 'package:top5/app/modules/authentication/views/sign_in_view.dart';
 import 'package:top5/app/modules/dashboard/views/dashboard_view.dart';
@@ -27,6 +28,10 @@ class ProfileController extends GetxController {
   var email = ''.obs;
   var phone = ''.obs;
   var image = ''.obs;
+
+  var savedPlaces = <ActionPlacesDetails>[].obs;
+  var recentPlaces = <ActionPlacesDetails>[].obs;
+  var reservedPlaces = <ActionPlacesDetails>[].obs;
 
   Future<void> fetchProfileInfo() async {
     final http.Response verificationResponse = await _service.getProfileInfo();
@@ -266,6 +271,73 @@ class ProfileController extends GetxController {
       print('Error: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+
+  /// Recent, Saved, Reservation
+  Future<void> actionPlaces (String placeId, String latitude, String longitude, String activityType) async {
+    isLoading.value = true;
+
+    try {
+      final http.Response response = await _service.actionPlaces(placeId, latitude, longitude, activityType);
+
+      print(':::::::::RESPONSE:::::::::${response.body.toString()}');
+      print(':::::::::CODE:::::::::${response.statusCode}');
+      print(':::::::::REQUEST:::::::::${response.request}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+
+        print(':::::::::responseBody:::::::::$responseBody');
+
+        Get.snackbar('Success', '$activityType toggled successfully');
+      } else {
+        final responseBody = jsonDecode(response.body);
+        Get.snackbar('$activityType toggle failed', responseBody['message'] ?? 'Please try again later');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occured');
+      print('Error: $e');
+    }
+  }
+
+  Future<void> actionPlacesDetails (String actionType, String currentLatitude, String currentLongitude) async {
+    isLoading.value = true;
+
+    try {
+      final http.Response response = await _service.actionPlacesDetails(actionType, currentLatitude, currentLongitude,);
+
+      print(':::::::::RESPONSE:::::::::${response.body.toString()}');
+      print(':::::::::CODE:::::::::${response.statusCode}');
+      print(':::::::::REQUEST:::::::::${response.request}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+
+        print(':::::::::responseBody:::::::::$responseBody');
+
+        if (actionType == 'saved') {
+          savedPlaces.assignAll(responseBody);
+          Get.snackbar('Success', 'Saved list fetched successfully');
+          return;
+        } else if (actionType == 'recent') {
+          recentPlaces.assignAll(responseBody);
+          Get.snackbar('Success', 'Recent list fetched successfully');
+          return;
+        } else {
+          reservedPlaces.assignAll(responseBody);
+          Get.snackbar('Success', 'Reserved list fetched successfully');
+          return;
+        }
+
+      } else {
+        final responseBody = jsonDecode(response.body);
+        Get.snackbar('$actionType list fetch failed', responseBody['message'] ?? 'Please try again later');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occured');
+      print('Error: $e');
     }
   }
 

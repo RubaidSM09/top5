@@ -32,6 +32,14 @@ class ProfileView extends GetView<ProfileController> {
     HomeController homeController = Get.put(HomeController());
     SearchController searchController = Get.put(SearchController());
 
+    // Fetch the recent count once when the screen first appears
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Avoid duplicate concurrent calls
+      if (!homeController.recentCountLoading.value) {
+        homeController.fetchRecentCount();
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -49,13 +57,13 @@ class ProfileView extends GetView<ProfileController> {
                         CircleAvatar(
                           radius: 32.r,
                           backgroundImage: profileController.image.value == '' ?
-                          AssetImage(
+                          const AssetImage(
                             'assets/images/home/profile_pic.jpg',
                           )
-                          :
+                              :
                           NetworkImage(
-                            'https://doctorless-stopperless-turner.ngrok-free.dev${profileController.image.value}',
-                          ),
+                            'https://coreen-unsprouting-properly.ngrok-free.dev/${profileController.image.value}',
+                          ) as ImageProvider,
                         ),
 
                         Column(
@@ -104,31 +112,42 @@ class ProfileView extends GetView<ProfileController> {
                   spacing: 24.w,
                   children: [
                     Expanded(
-                      child: CustomButton(
-                        text: 'Saved 8',
-                        icon: 'assets/images/profile/saved.svg',
-                        paddingTop: 6,
-                        paddingBottom: 6,
-                        color: AppColors.profileSearchBg,
-                        borderRadius: 6,
-                        textSize: 16,
-                        textColor: AppColors.profileGreen,
-                        onTap: () {},
-                      ),
+                      child: Obx(() {
+                        final count = homeController.savedCount.value;
+                        final loading = homeController.savedCountLoading.value;
+                        final label = loading ? 'Saved …' : 'Saved $count';
+                        return CustomButton(
+                          text: label,
+                          // left as-is unless you also have an API for saved count
+                          icon: 'assets/images/profile/saved.svg',
+                          paddingTop: 6,
+                          paddingBottom: 6,
+                          color: AppColors.profileSearchBg,
+                          borderRadius: 6,
+                          textSize: 16,
+                          textColor: AppColors.profileGreen,
+                          onTap: () {},
+                        );
+                      }),
                     ),
 
                     Expanded(
-                      child: CustomButton(
-                        text: 'Recents 12',
-                        icon: 'assets/images/profile/recents.svg',
-                        paddingTop: 6,
-                        paddingBottom: 6,
-                        color: AppColors.profileSearchBg,
-                        borderRadius: 6,
-                        textSize: 16,
-                        textColor: AppColors.profileGreen,
-                        onTap: () {},
-                      ),
+                      child: Obx(() {
+                        final count = homeController.recentCount.value;
+                        final loading = homeController.recentCountLoading.value;
+                        final label = loading ? 'Recents …' : 'Recents $count';
+                        return CustomButton(
+                          text: label,
+                          icon: 'assets/images/profile/recents.svg',
+                          paddingTop: 6,
+                          paddingBottom: 6,
+                          color: AppColors.profileSearchBg,
+                          borderRadius: 6,
+                          textSize: 16,
+                          textColor: AppColors.profileGreen,
+                          onTap: () {},
+                        );
+                      }),
                     ),
                   ],
                 ),
@@ -151,19 +170,19 @@ class ProfileView extends GetView<ProfileController> {
                     ProfileQuickActionButton(
                       text: 'Saved',
                       icon: 'assets/images/profile/saved.svg',
-                      onTap: () => Get.to(SavedListView()),
+                      onTap: () => Get.to(const SavedListView()),
                     ),
 
                     ProfileQuickActionButton(
                       text: 'Recents',
                       icon: 'assets/images/profile/recents.svg',
-                      onTap: () => Get.to(RecentListView()),
+                      onTap: () => Get.to(const RecentListView()),
                     ),
 
                     ProfileQuickActionButton(
                       text: 'Reservations',
                       icon: 'assets/images/profile/reservations.svg',
-                      onTap: () => Get.to(ReservationListView()),
+                      onTap: () => Get.to(const ReservationListView()),
                     ),
                   ],
                 ),
@@ -334,7 +353,6 @@ class ProfileView extends GetView<ProfileController> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      // Update individual RxBool values instead of replacing the list
                                       profileController.selectedDefaultFilters[0].value = true;
                                       profileController.selectedDefaultFilters[1].value = false;
                                       profileController.selectedDefaultFilters[2].value = false;
@@ -375,7 +393,6 @@ class ProfileView extends GetView<ProfileController> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      // Update individual RxBool values
                                       profileController.selectedDefaultFilters[0].value = false;
                                       profileController.selectedDefaultFilters[1].value = true;
                                       profileController.selectedDefaultFilters[2].value = false;
@@ -416,7 +433,6 @@ class ProfileView extends GetView<ProfileController> {
                                   ),
                                   GestureDetector(
                                     onTap: () {
-                                      // Update individual RxBool values
                                       profileController.selectedDefaultFilters[0].value = false;
                                       profileController.selectedDefaultFilters[1].value = false;
                                       profileController.selectedDefaultFilters[2].value = true;
@@ -787,7 +803,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
 
                 SizedBox(height: 16.h),
-                
+
                 CustomButton(
                   text: 'Delete my account',
                   icon: 'assets/images/profile/delete_my_account.svg',
@@ -796,7 +812,7 @@ class ProfileView extends GetView<ProfileController> {
                   paddingBottom: 10,
                   color: AppColors.profileDeleteButtonColor,
                   textColor: AppColors.profileDeleteButtonTextColor,
-                  onTap: () => Get.dialog(DeleteAccountView()),
+                  onTap: () => Get.dialog(const DeleteAccountView()),
                 ),
 
                 SizedBox(height: 24.h),
@@ -810,7 +826,7 @@ class ProfileView extends GetView<ProfileController> {
                 ),
 
                 SizedBox(height: 16.h),
-                
+
                 CustomButton(
                   text: 'Help & Support',
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
@@ -866,7 +882,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () => Get.to(TermsOfServicesView()),
+                  onTap: () => Get.to(const TermsOfServicesView()),
                 ),
 
                 SizedBox(height: 16.h),
@@ -881,7 +897,7 @@ class ProfileView extends GetView<ProfileController> {
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  onTap: () => Get.to(PrivacyPolicyView()),
+                  onTap: () => Get.to(const PrivacyPolicyView()),
                 ),
 
                 SizedBox(height: 24.h),
@@ -895,7 +911,7 @@ class ProfileView extends GetView<ProfileController> {
                   color: AppColors.top5Transparent,
                   borderColor: AppColors.profileGray,
                   textColor: AppColors.profileDeleteButtonTextColor,
-                  onTap: () => Get.dialog(LogOutView()),
+                  onTap: () => Get.dialog(const LogOutView()),
                 ),
 
                 SizedBox(height: 100.h),

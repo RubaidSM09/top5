@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/profile/views/personal_info_view.dart';
+import 'package:top5/app/modules/profile/views/recent_saved_reservation_details_view.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
-import '../../home/views/details_view.dart';
+import '../../home/views/google_map_webview.dart';
 import '../controllers/profile_controller.dart';
 
 class RecentListView extends GetView {
   const RecentListView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    ProfileController profileController = Get.put(ProfileController());
-    HomeController homeController = Get.put(HomeController());
+    final profileController = Get.put(ProfileController());
+    final homeController = Get.put(HomeController());
+
+    // Trigger fetch once when first shown
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (homeController.recentPlaces.isEmpty && !homeController.recentLoading.value) {
+        homeController.fetchRecentPlaces();
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -27,115 +38,80 @@ class RecentListView extends GetView {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 21.w),
-          child: SingleChildScrollView(
-            child: Column(
-              spacing: 16.h,
-              children: [
-                RecentListCard(
-                  serialNo: 1,
-                  title: 'Bella Italia',
-                  rating: 4.7,
-                  image:
-                  'assets/images/home/bella_italia.jpg',
-                  isPromo: true,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${homeController.convertToMiles('450 m').toStringAsFixed(2)} miles",
-                  time: 6,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
-                  ],
-                  isSaved: false.obs,
-                  selectedLocations: homeController.selectedLocations,
+          child: Obx(() {
+            if (homeController.recentLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (homeController.recentError.isNotEmpty) {
+              return Center(
+                child: Text(
+                  homeController.recentError.value,
+                  style: h3.copyWith(color: Colors.red, fontSize: 12.sp),
+                  textAlign: TextAlign.center,
                 ),
-
-                RecentListCard(
-                  serialNo: 1,
-                  title: 'La Tavola d’Oro',
-                  rating: 4.5,
-                  image:
-                  'assets/images/profile/la_tavola_doro.jpg',
-                  isPromo: false,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${homeController.convertToMiles('700 m').toStringAsFixed(2)} miles",
-                  time: 10,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
-                  ],
-                  isSaved: true.obs,
-                  selectedLocations: homeController.selectedLocations,
+              );
+            }
+            if (homeController.recentPlaces.isEmpty) {
+              return Center(
+                child: Text(
+                  'No recent places yet.',
+                  style: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
                 ),
+              );
+            }
 
-                RecentListCard(
-                  serialNo: 1,
-                  title: 'Trattoria Bella Vita',
-                  rating: 4.5,
-                  image:
-                  'assets/images/profile/trattoria_bella_vita.jpg',
-                  isPromo: false,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${homeController.convertToMiles('900 m').toStringAsFixed(2)} miles",
-                  time: 20,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
-                  ],
-                  isSaved: true.obs,
-                  selectedLocations: homeController.selectedLocations,
-                ),
+            final places = homeController.recentPlaces;
 
-                RecentListCard(
-                  serialNo: 1,
-                  title: 'Sapori di Roma',
-                  rating: 4.4,
-                  image:
-                  'assets/images/profile/sapori_di_roma.jpg',
-                  isPromo: false,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                  time: 25,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
-                  ],
-                  isSaved: true.obs,
-                  selectedLocations: homeController.selectedLocations,
-                ),
+            return SingleChildScrollView(
+              child: Column(
+                spacing: 16.h,
+                children: List.generate(places.length, (i) {
+                  final p = places[i];
 
-                RecentListCard(
-                  serialNo: 1,
-                  title: 'Casa Toscana',
-                  rating: 4.3,
-                  image:
-                  'assets/images/profile/casa_toscana.jpg',
-                  isPromo: false,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${homeController.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
-                  time: 30,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
-                  ],
-                  isSaved: true.obs,
-                  selectedLocations: homeController.selectedLocations,
-                ),
+                  final title = p.name ?? 'Unknown';
+                  final rating = p.rating ?? 0.0;
+                  final image = p.photo ?? '';
+                  final status = p.openNow == null ? 'Closed' : (p.openNow! ? 'Open' : 'Closed');
+                  final distance = p.distanceText ?? '';
+                  final timeMins = homeController.parseMinutes(p.durationText);
+                  final reasons = <String>[
+                    '⭐ ${rating.toStringAsFixed(1)}',
+                    if (distance.isNotEmpty) distance,
+                    if ((p.phone ?? '').isNotEmpty) (p.phone ?? ''),
+                  ];
 
-                SizedBox(height: 16.h,),
-              ],
-            ),
-          ),
+                  // New fields from API
+                  final placeId = p.placeId ?? '';
+                  final destLat = p.latitude ?? 0.0;
+                  final destLng = p.longitude ?? 0.0;
+
+                  return RecentListCard(
+                    serialNo: i + 1,
+                    title: title,
+                    rating: rating,
+                    image: image,
+                    isPromo: false,
+                    status: status,
+                    distance: distance,
+                    time: timeMins,
+                    type: 'Restaurant',
+                    reasons: reasons,
+                    isSaved: false.obs,
+                    selectedLocations: homeController.selectedLocations,
+
+                    placeId: placeId,
+                    destLat: destLat,
+                    destLng: destLng,
+                  );
+                }),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 }
-
 
 class RecentListCard extends StatelessWidget {
   final int serialNo;
@@ -151,6 +127,11 @@ class RecentListCard extends StatelessWidget {
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
 
+  // NEW optional fields
+  final String? placeId;
+  final double? destLat;
+  final double? destLng;
+
   const RecentListCard({
     required this.serialNo,
     required this.title,
@@ -164,15 +145,60 @@ class RecentListCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
-    super.key
+    this.placeId,
+    this.destLat,
+    this.destLng,
+    super.key,
   });
+
+  Future<void> _openDirections() async {
+    final c = Get.find<HomeController>();
+
+    double oLat, oLng;
+    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
+      oLat = c.manualLat.value!;
+      oLng = c.manualLng.value!;
+    } else {
+      // fall back to current device location
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar('Location', 'Location services disabled.');
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    Get.to(() => DirectionsMapWebView(
+      googleApiKey: googleApiKey,
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat ?? 0,
+      destLng: destLng ?? 0,
+      travelMode: 'WALKING',
+      destName: title,
+      destImgUrl: image,
+    ));
+
+    await c.submitActionPlaces(placeId ?? '', 'recent');
+    await c.fetchRecentPlaces();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Get.to(
-          DetailsView(
+          RecentSavedReservationDetailsView(
             serialNo: serialNo,
             title: title,
             rating: rating,
@@ -184,9 +210,9 @@ class RecentListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
-            placeId: '',
-            destLat: 0,
-            destLng: 0,
+            placeId: placeId ?? '',
+            destLat: destLat ?? 0.0,
+            destLng: destLng ?? 0.0,
           ),
         );
       },
@@ -211,7 +237,7 @@ class RecentListCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.r),
                     image: DecorationImage(
-                      image: AssetImage(image),
+                      image: NetworkImage(image),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -237,12 +263,16 @@ class RecentListCard extends StatelessWidget {
                   spacing: 8.h,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          title,
-                          style: h2.copyWith(
-                            color: AppColors.serviceBlack,
-                            fontSize: 16.sp,
+                        SizedBox(
+                          width: 135.w,
+                          child: Text(
+                            title,
+                            style: h2.copyWith(
+                              color: AppColors.serviceBlack,
+                              fontSize: 16.sp,
+                            ),
                           ),
                         ),
 
@@ -328,7 +358,7 @@ class RecentListCard extends StatelessWidget {
                   paddingBottom: 8,
                   borderRadius: 6,
                   textSize: 12,
-                  onTap: () {},
+                  onTap: _openDirections,
                 ),
 
                 CustomButton(

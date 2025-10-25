@@ -148,7 +148,7 @@ class EditPersonalInfoView extends GetView {
                         if (local != null) {
                           avatarProvider = FileImage(local);
                         } else if (net.isNotEmpty) {
-                          avatarProvider = NetworkImage('https://doctorless-stopperless-turner.ngrok-free.dev$net');
+                          avatarProvider = NetworkImage('https://coreen-unsprouting-properly.ngrok-free.dev/$net');
                         } else {
                           avatarProvider = const AssetImage('assets/images/home/profile_pic.jpg');
                         }

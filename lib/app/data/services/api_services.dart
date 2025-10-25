@@ -8,7 +8,7 @@ import 'package:http_parser/http_parser.dart';
 class ApiService {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  final String baseUrl = "https://doctorless-stopperless-turner.ngrok-free.dev";
+  final String baseUrl = "https://coreen-unsprouting-properly.ngrok-free.dev/";
 
   // login method
   Future<http.Response> login (String email, String password) async {
@@ -514,6 +514,55 @@ class ApiService {
 
     final Map<String, dynamic> body = {
       "place_id": placeId,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+
+  /// Recent, Saved, Reserved
+  Future<http.Response> actionPlaces (String placeId, String latitude, String longitude, String activityType) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('$baseUrl/api/v1/actions/action_places/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "place_id": placeId,
+      "latitude": latitude,
+      "longitude": longitude,
+      "activity_type": activityType,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> actionPlacesDetails (String actionType, String currentLatitude, String currentLongitude) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('$baseUrl/api/v1/actions/action_places_details/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "action_type": actionType,
+      "current_latitude": currentLatitude,
+      "current_longitude": currentLongitude,
     };
 
     return await http.post(

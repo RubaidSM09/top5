@@ -423,6 +423,7 @@ class CategorySelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        print("Hellow");
         final c = Get.find<HomeController>();
         c.onCategoryChanged(index); // will toggle + refresh
       },

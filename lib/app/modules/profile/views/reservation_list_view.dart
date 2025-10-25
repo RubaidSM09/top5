@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/profile/views/personal_info_view.dart';
+import 'package:top5/app/modules/profile/views/recent_saved_reservation_details_view.dart';
 import 'package:top5/app/modules/profile/views/remove_reservation_list_view.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
+import '../../home/views/contact_us_view.dart';
 import '../../home/views/details_view.dart';
+import '../../home/views/google_map_webview.dart';
 import '../controllers/profile_controller.dart';
 
-class ReservationListView extends GetView {
+class ReservationListView extends GetView<HomeController> {
   const ReservationListView({super.key});
+
   @override
   Widget build(BuildContext context) {
     ProfileController profileController = Get.put(ProfileController());
-    HomeController homeController = Get.put(HomeController());
 
     return Scaffold(
       appBar: AppBar(
@@ -29,37 +34,77 @@ class ReservationListView extends GetView {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 21.w),
-          child: SingleChildScrollView(
-            child: Column(
-              spacing: 16.h,
-              children: [
-                ReservationListCard(
-                  serialNo: 1,
-                  title: 'Trattoria Bella Vita',
-                  rating: 4.5,
-                  image:
-                  'assets/images/profile/trattoria_bella_vita.jpg',
-                  isPromo: false,
-                  status: 'Open',
-                  distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${homeController.convertToMiles('900 m').toStringAsFixed(2)} miles",
-                  time: 20,
-                  type: 'Italian',
-                  reasons: [
-                    'Wood-fired pizza, 1k+ reviews',
-                    '6-min walk, sunny terrace',
+          child: Obx(() {
+            if (controller.reservationLoading.value) {
+              return Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(strokeWidth: 2),
+                    SizedBox(width: 8.w),
+                    Text('Loading reservation places...', style: h4.copyWith(color: AppColors.serviceGray)),
                   ],
-                  isSaved: true.obs,
-                  selectedLocations: homeController.selectedLocations,
                 ),
-              ],
-            ),
-          ),
+              );
+            }
+            if (controller.reservationError.value.isNotEmpty) {
+              return Center(
+                child: Text(
+                  controller.reservationError.value,
+                  style: h4.copyWith(color: AppColors.serviceGray),
+                ),
+              );
+            }
+            if (controller.reservationPlaces.isEmpty) {
+              return Center(
+                child: Text(
+                  'No reservation places found.',
+                  style: h4.copyWith(color: AppColors.serviceGray),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                spacing: 16.h,
+                children: controller.reservationPlaces.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final place = entry.value;
+
+                  return ReservationListCard(
+                    serialNo: index + 1,
+                    title: place.name ?? 'Unknown',
+                    rating: place.rating?.toDouble() ?? 0.0,
+                    image: place.photo ?? 'assets/images/home/restaurant.jpg',
+                    isPromo: false, // Adjust based on API response if available
+                    status: place.openNow == true ? 'Open' : 'Closed',
+                    distance: profileController.selectedDistanceUnit[0].value
+                        ? place.distanceText ?? '—'
+                        : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",
+                    time: controller.parseMinutes(place.durationText),
+                    type: controller.currentCategoryLabel,
+                    reasons: <String>[
+                      '⭐ ${place.rating!.toStringAsFixed(1)}',
+                      if (place.distanceText!.isNotEmpty) profileController.selectedDistanceUnit[0].value
+                          ? place.distanceText ?? '—'
+                          : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",
+                      if ((place.phone ?? '').isNotEmpty) (place.phone ?? ''),
+                    ],
+                    isSaved: controller.isPlaceReserved(place.placeId).obs,
+                    selectedLocations: controller.selectedLocations,
+                    placeId: place.placeId ?? '',
+                    destLat: place.latitude?.toDouble() ?? 0.0,
+                    destLng: place.longitude?.toDouble() ?? 0.0,
+                  );
+                }).toList(),
+              ),
+            );
+          }),
         ),
       ),
     );
   }
 }
-
 
 class ReservationListCard extends StatelessWidget {
   final int serialNo;
@@ -74,6 +119,9 @@ class ReservationListCard extends StatelessWidget {
   final List<String> reasons;
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
+  final String placeId;
+  final double destLat;
+  final double destLng;
 
   const ReservationListCard({
     required this.serialNo,
@@ -88,15 +136,69 @@ class ReservationListCard extends StatelessWidget {
     required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
-    super.key
+    required this.placeId,
+    required this.destLat,
+    required this.destLng,
+    super.key,
   });
+
+  Future<void> _openDirections() async {
+    final c = Get.find<HomeController>();
+    double oLat, oLng;
+    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
+      oLat = c.manualLat.value!;
+      oLng = c.manualLng.value!;
+    } else {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        Get.snackbar('Location', 'Location services disabled.');
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    Get.to(() => DirectionsMapWebView(
+      googleApiKey: googleApiKey,
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat,
+      destLng: destLng,
+      travelMode: 'WALKING',
+      destName: title,
+      destImgUrl: image,
+    ));
+
+    await c.submitActionPlaces(placeId, 'recent');
+    await c.fetchRecentPlaces();
+  }
+
+  Future<void> _removeFromReservation() async {
+    final c = Get.find<HomeController>();
+    await c.submitActionPlaces(placeId, 'reservation-delete');
+    await c.fetchReservationPlaces(); // Refresh reservation places list
+    await c.fetchReservationCount();
+    Get.snackbar('Reservation', 'Place removed from reservation list');
+  }
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.find<HomeController>();
+    final ImageProvider imgProvider = image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider;
+
     return GestureDetector(
       onTap: () {
         Get.to(
-          DetailsView(
+          RecentSavedReservationDetailsView(
             serialNo: serialNo,
             title: title,
             rating: rating,
@@ -108,9 +210,9 @@ class ReservationListCard extends StatelessWidget {
             type: type,
             reasons: reasons,
             isSaved: isSaved,
-            placeId: '',
-            destLat: 0,
-            destLng: 0,
+            placeId: placeId,
+            destLat: destLat,
+            destLng: destLng,
           ),
         );
       },
@@ -137,7 +239,7 @@ class ReservationListCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6.r),
                         image: DecorationImage(
-                          image: AssetImage(image),
+                          image: imgProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -156,7 +258,6 @@ class ReservationListCard extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,24 +265,23 @@ class ReservationListCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              title,
-                              style: h2.copyWith(
-                                color: AppColors.serviceBlack,
-                                fontSize: 16.sp,
+                            SizedBox(
+                              width: 175.w,
+                              child: Text(
+                                title,
+                                style: h2.copyWith(
+                                  color: AppColors.serviceBlack,
+                                  fontSize: 16.sp,
+                                ),
                               ),
                             ),
-
                             SizedBox(width: 16.w),
-
                             Icon(
                               Icons.star,
                               size: 14.r,
                               color: AppColors.serviceGreen,
                             ),
-
                             SizedBox(width: 4.w),
-
                             Text(
                               '$rating',
                               style: h2.copyWith(
@@ -189,9 +289,7 @@ class ReservationListCard extends StatelessWidget {
                                 fontSize: 14.sp,
                               ),
                             ),
-
                             SizedBox(width: 10.w),
-
                             Text(
                               '€€.',
                               style: h2.copyWith(
@@ -201,7 +299,6 @@ class ReservationListCard extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         SizedBox(
                           width: 255.w,
                           child: Row(
@@ -224,7 +321,6 @@ class ReservationListCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
                               Text(
                                 '$distance / ${time.toStringAsFixed(0)} min walk',
                                 style: h4.copyWith(
@@ -239,9 +335,7 @@ class ReservationListCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                SizedBox(height: 16.h,),
-
+                SizedBox(height: 16.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -254,9 +348,8 @@ class ReservationListCard extends StatelessWidget {
                       paddingBottom: 8,
                       borderRadius: 6,
                       textSize: 12,
-                      onTap: () {},
+                      onTap: _openDirections,
                     ),
-
                     CustomButton(
                       text: 'Book',
                       paddingLeft: 35,
@@ -268,9 +361,22 @@ class ReservationListCard extends StatelessWidget {
                       borderColor: AppColors.serviceGray,
                       textColor: AppColors.serviceGray,
                       textSize: 12,
-                      onTap: () {},
+                      onTap: () => Get.dialog(
+                        ContactUsView(
+                          placeId: placeId,
+                          destLat: destLat,
+                          destLng: destLng,
+                          title: title,
+                          image: image,
+                          rating: rating,
+                          status: status,
+                          distance: distance,
+                          time: time,
+                          type: type,
+                          reasons: reasons,
+                        ),
+                      ),
                     ),
-
                     CustomButton(
                       text: '',
                       icon: 'assets/images/home/call.svg',
@@ -290,17 +396,14 @@ class ReservationListCard extends StatelessWidget {
               ],
             ),
           ),
-
           Positioned(
             left: 332.w,
             top: 10.h,
             child: GestureDetector(
-              onTap: () => Get.dialog(RemoveReservationListView()),
-              child: SvgPicture.asset(
-                  'assets/images/profile/remove_cross.svg'
-              ),
+              onTap: _removeFromReservation,
+              child: SvgPicture.asset('assets/images/profile/remove_cross.svg'),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:get/get.dart';
+import 'package:top5/app/modules/search/views/search_view.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
@@ -14,23 +14,24 @@ import '../../profile/views/recent_list_view.dart';
 
 class ResultsView extends GetView<SearchController> {
   final String searchText;
+  const ResultsView({required this.searchText, super.key});
 
-  const ResultsView({
-    required this.searchText,
-    super.key
-  });
   @override
   Widget build(BuildContext context) {
-    Get.find<HomeController>().performSearch(searchText);
+    // Ensure controller exists and we trigger a search for this screen
+    if (!Get.isRegistered<SearchController>()) {
+      Get.put(SearchController());
+    }
+    final profileController = Get.put(ProfileController());
+    final homeController = Get.put(HomeController());
 
-    Get.put(SearchController());
-    ProfileController profileController = Get.put(ProfileController());
-    HomeController homeController = Get.put(HomeController());
+    // run the query for results screen
+    controller.setSearchQuery(searchText);
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ResultsAppBar(),
+        title: const ResultsAppBar(),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -41,16 +42,11 @@ class ResultsView extends GetView<SearchController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Top 5 $searchText',
-                  style: h2.copyWith(
-                    color: AppColors.searchBlack,
-                    fontSize: 24.sp,
-                  ),
-                ),
+                Text('Top 5 $searchText',
+                    style: h2.copyWith(color: AppColors.searchBlack, fontSize: 24.sp)),
+                SizedBox(height: 12.h),
 
-                SizedBox(height: 12.h,),
-
+                /// Filter chips – already wired to refetch
                 Obx(() {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -61,157 +57,138 @@ class ResultsView extends GetView<SearchController> {
                           text: 'Open now',
                           selectedFilter: controller.selectedFilter,
                           index: 0,
-                          color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[0].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[0].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
-
                         FilterSelectionCard(
                           text: '10 min',
                           selectedFilter: controller.selectedFilter,
                           index: 1,
-                          color: controller.selectedFilter[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[1].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[1].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
-
                         FilterSelectionCard(
-                          text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                          text: Get.find<ProfileController>().selectedDistanceUnit[0].value
+                              ? '1 km'
+                              : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
                           selectedFilter: controller.selectedFilter,
                           index: 2,
-                          color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[2].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[2].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
-
                         FilterSelectionCard(
                           text: 'Outdoor',
                           selectedFilter: controller.selectedFilter,
                           index: 3,
-                          color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[3].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[3].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
-
                         FilterSelectionCard(
                           text: 'Vegetarian',
                           selectedFilter: controller.selectedFilter,
                           index: 4,
-                          color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[4].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[4].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
-
                         FilterSelectionCard(
                           text: 'Bookable',
                           selectedFilter: controller.selectedFilter,
                           index: 5,
-                          color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray,
+                          color: controller.selectedFilter[5].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedFilter[5].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
                         ),
                       ],
                     ),
                   );
                 }),
 
-                SizedBox(height: 20.h,),
+                SizedBox(height: 20.h),
 
-                Column(
-                  spacing: 16.h,
-                  children: [
-                    RecentListCard(
-                      serialNo: 1,
-                      title: 'Bella Italia',
-                      rating: 4.7,
-                      image:
-                      'assets/images/home/bella_italia.jpg',
-                      isPromo: true,
-                      status: 'Open',
-                      distance: profileController.selectedDistanceUnit[0].value ? '450 m' : "${homeController.convertToMiles('450 m').toStringAsFixed(2)} miles",
-                      time: 6,
-                      type: 'Italian',
-                      reasons: [
-                        'Wood-fired pizza, 1k+ reviews',
-                        '6-min walk, sunny terrace',
-                      ],
-                      isSaved: false.obs,
-                      selectedLocations: homeController.selectedLocations,
-                    ),
+                /// DYNAMIC RESULTS
+                Obx(() {
+                  if (controller.loading.value) {
+                    return const Center(child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(),
+                    ));
+                  }
+                  if (controller.error.isNotEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: 12.h),
+                      child: Text(
+                        controller.error.value,
+                        style: h3.copyWith(color: Colors.red, fontSize: 12.sp),
+                      ),
+                    );
+                  }
+                  if (controller.results.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: 12.h),
+                      child: Text(
+                        'No results found.',
+                        style: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+                      ),
+                    );
+                  }
 
-                    RecentListCard(
-                      serialNo: 1,
-                      title: 'La Tavola d’Oro',
-                      rating: 4.5,
-                      image:
-                      'assets/images/profile/la_tavola_doro.jpg',
-                      isPromo: false,
-                      status: 'Open',
-                      distance: profileController.selectedDistanceUnit[0].value ? '700 m' : "${homeController.convertToMiles('700 m').toStringAsFixed(2)} miles",
-                      time: 10,
-                      type: 'Italian',
-                      reasons: [
-                        'Wood-fired pizza, 1k+ reviews',
-                        '6-min walk, sunny terrace',
-                      ],
-                      isSaved: true.obs,
-                      selectedLocations: homeController.selectedLocations,
-                    ),
+                  final selected = homeController.selectedLocations;
+                  return Column(
+                    spacing: 16.h,
+                    children: List.generate(controller.results.length, (i) {
+                      final p = controller.results[i];
+                      final status = (p.openNow == true) ? 'Open' : 'Closed';
+                      final timeMins = _parseMinutes(p.durationText ?? '');
+                      final type = _typeFromPlace(p);
+                      final reasons = [
+                        '⭐ ${p.rating?.toStringAsFixed(1) ?? '-'} • ${p.reviewsCount ?? 0} reviews',
+                        p.distanceText ?? '',
+                      ];
+                      return SearchListCard(
+                        serialNo: i + 1,
+                        title: p.name ?? 'Unknown',
+                        rating: p.rating ?? 0.0,
+                        image: p.thumbnail ?? '',
+                        isPromo: false,
+                        status: status,
+                        distance: p.distanceText ?? '',
+                        time: timeMins.toDouble(),
+                        type: type,
+                        reasons: reasons,
+                        isSaved: false.obs,
+                        selectedLocations: selected,
+                        placeId: p.placeId ?? '', // NEW
+                        destLat: p.latitude ?? 0.0, // NEW
+                        destLng: p.longitude ?? 0.0, // NEW
+                      );
+                    }),
+                  );
+                }),
 
-                    RecentListCard(
-                      serialNo: 1,
-                      title: 'Trattoria Bella Vita',
-                      rating: 4.5,
-                      image:
-                      'assets/images/profile/trattoria_bella_vita.jpg',
-                      isPromo: false,
-                      status: 'Open',
-                      distance: profileController.selectedDistanceUnit[0].value ? '900 m' : "${homeController.convertToMiles('900 m').toStringAsFixed(2)} miles",
-                      time: 20,
-                      type: 'Italian',
-                      reasons: [
-                        'Wood-fired pizza, 1k+ reviews',
-                        '6-min walk, sunny terrace',
-                      ],
-                      isSaved: true.obs,
-                      selectedLocations: homeController.selectedLocations,
-                    ),
-
-                    RecentListCard(
-                      serialNo: 1,
-                      title: 'Sapori di Roma',
-                      rating: 4.4,
-                      image:
-                      'assets/images/profile/sapori_di_roma.jpg',
-                      isPromo: false,
-                      status: 'Open',
-                      distance: profileController.selectedDistanceUnit[0].value ? '1 km' : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                      time: 25,
-                      type: 'Italian',
-                      reasons: [
-                        'Wood-fired pizza, 1k+ reviews',
-                        '6-min walk, sunny terrace',
-                      ],
-                      isSaved: true.obs,
-                      selectedLocations: homeController.selectedLocations,
-                    ),
-
-                    RecentListCard(
-                      serialNo: 1,
-                      title: 'Casa Toscana',
-                      rating: 4.3,
-                      image:
-                      'assets/images/profile/casa_toscana.jpg',
-                      isPromo: false,
-                      status: 'Open',
-                      distance: profileController.selectedDistanceUnit[0].value ? '1.1 km' : "${homeController.convertToMiles('1.1 km').toStringAsFixed(2)} miles",
-                      time: 30,
-                      type: 'Italian',
-                      reasons: [
-                        'Wood-fired pizza, 1k+ reviews',
-                        '6-min walk, sunny terrace',
-                      ],
-                      isSaved: true.obs,
-                      selectedLocations: homeController.selectedLocations,
-                    ),
-
-                    SizedBox(height: 16.h,),
-                  ],
-                ),
+                SizedBox(height: 16.h),
               ],
             ),
           ),
@@ -221,10 +198,8 @@ class ResultsView extends GetView<SearchController> {
   }
 }
 
-
 class ResultsAppBar extends StatelessWidget {
   const ResultsAppBar({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -234,42 +209,40 @@ class ResultsAppBar extends StatelessWidget {
           onTap: () => Get.back(),
           child: Container(
             padding: EdgeInsets.all(6.r),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.serviceBlack,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.arrow_back,
-              color: AppColors.serviceWhite,
-              size: 15.r,
-            ),
+            child: Icon(Icons.arrow_back, color: AppColors.serviceWhite, size: 18.r),
           ),
         ),
-
-        Text(
-          'Results',
-          style: h3.copyWith(
-            color: AppColors.top5Black,
-            fontSize: 24.sp,
-          ),
-        ),
-
+        Text('Results',
+            style: h3.copyWith(color: AppColors.top5Black, fontSize: 24.sp)),
         Container(
           decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.homeProfileBorderColor,
-                width: 2,
-              )
+            shape: BoxShape.circle,
+            border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
           ),
           child: CircleAvatar(
             radius: 16.r,
-            backgroundImage: AssetImage(
-              'assets/images/home/profile_pic.jpg',
-            ),
+            backgroundImage: const AssetImage('assets/images/home/profile_pic.jpg'),
           ),
         )
       ],
     );
   }
+}
+
+int _parseMinutes(String s) {
+  final m = RegExp(r'(\d+)').firstMatch(s);
+  if (m == null) return 0;
+  return int.tryParse(m.group(1)!) ?? 0;
+}
+
+String _typeFromPlace(dynamic p) {
+  if (p.types != null && p.types is List && (p.types as List).isNotEmpty) {
+    final first = (p.types as List).first.toString();
+    return first[0].toUpperCase() + first.substring(1);
+  }
+  return 'Restaurant';
 }
