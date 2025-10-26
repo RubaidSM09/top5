@@ -21,7 +21,7 @@ class PersonalInfoView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Personal Info',),
+        title: ProfileAppBar(appBarTitle: 'Personal Info'.tr,),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -61,21 +61,21 @@ class PersonalInfoView extends GetView {
                   SizedBox(height: 9.h,),
 
                   ProfileInfoSection(
-                    title: 'Name',
+                    title: 'Name'.tr,
                     info: profileController.fullName.value,
                   ),
 
                   SizedBox(height: 8.h,),
 
                   ProfileInfoSection(
-                    title: 'E-mail',
+                    title: 'E-mail'.tr,
                     info: profileController.email.value,
                   ),
 
                   SizedBox(height: 8.h,),
 
                   ProfileInfoSection(
-                    title: 'Phone',
+                    title: 'Phone'.tr,
                     info: profileController.phone.value,
                   ),
                 ],
@@ -118,6 +118,7 @@ class ProfileAppBar extends StatelessWidget {
         Text(
           appBarTitle,
           style: h2.copyWith(color: AppColors.top5Black, fontSize: 22.sp),
+          textAlign: TextAlign.center,
         ),
 
         SizedBox.shrink(),

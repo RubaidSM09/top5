@@ -7,8 +7,9 @@ import 'package:top5/app/modules/search/views/search_details_view.dart';
 
 import 'package:top5/common/custom_fonts.dart';
 import '../../../../common/app_colors.dart';
+import '../../../../common/localization/localization_controller.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/details_view.dart';
 import '../../home/views/google_map_webview.dart';
@@ -53,7 +54,7 @@ class SearchView extends GetView<SearchController> {
                 SizedBox(height: 12.h),
 
                 Text(
-                  'Recent searches',
+                  'Recent searches'.tr,
                   style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
@@ -82,7 +83,7 @@ class SearchView extends GetView<SearchController> {
                 SizedBox(height: 20.h),
 
                 Text(
-                  'Popular near you',
+                  'Popular near you'.tr,
                   style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
@@ -103,7 +104,7 @@ class SearchView extends GetView<SearchController> {
                 SizedBox(height: 20.h),
 
                 Text(
-                  'By category',
+                  'By category'.tr,
                   style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
@@ -116,7 +117,7 @@ class SearchView extends GetView<SearchController> {
                       spacing: 10.w,
                       children: [
                         CategorySelectionCardSearch(
-                          text: 'Restaurant',
+                          text: 'Restaurant'.tr,
                           icon: 'assets/images/home/restaurant.svg',
                           selectedCategory: controller.selectedCategory,
                           index: 0,
@@ -128,7 +129,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         CategorySelectionCardSearch(
-                          text: 'Cafes',
+                          text: 'Cafes'.tr,
                           icon: 'assets/images/home/coffee_x5F_cup.svg',
                           selectedCategory: controller.selectedCategory,
                           index: 1,
@@ -140,7 +141,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         CategorySelectionCardSearch(
-                          text: 'Bars',
+                          text: 'Bars'.tr,
                           icon: 'assets/images/home/bars.svg',
                           selectedCategory: controller.selectedCategory,
                           index: 2,
@@ -152,7 +153,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         CategorySelectionCardSearch(
-                          text: 'Activities',
+                          text: 'Activities'.tr,
                           icon: 'assets/images/home/activities.svg',
                           selectedCategory: controller.selectedCategory,
                           index: 3,
@@ -164,7 +165,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         CategorySelectionCardSearch(
-                          text: 'Services',
+                          text: 'Services'.tr,
                           icon: 'assets/images/home/services.svg',
                           selectedCategory: controller.selectedCategory,
                           index: 4,
@@ -198,7 +199,7 @@ class SearchView extends GetView<SearchController> {
                       onTap: () =>
                           Get.to(ResultsView(searchText: controller.searchText.value)),
                       child: Text(
-                        'See all',
+                        'See all'.tr,
                         style: h4.copyWith(color: AppColors.searchGreen, fontSize: 14.sp),
                       ),
                     )
@@ -215,7 +216,7 @@ class SearchView extends GetView<SearchController> {
                       spacing: 10.w,
                       children: [
                         FilterSelectionCard(
-                          text: 'Open now',
+                          text: 'Open now'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 0,
                           color: controller.selectedFilter[0].value
@@ -250,7 +251,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Outdoor',
+                          text: 'Outdoor'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 3,
                           color: controller.selectedFilter[3].value
@@ -261,7 +262,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Vegetarian',
+                          text: 'Vegetarian'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 4,
                           color: controller.selectedFilter[4].value
@@ -272,7 +273,7 @@ class SearchView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Bookable',
+                          text: 'Bookable'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 5,
                           color: controller.selectedFilter[5].value
@@ -321,7 +322,7 @@ class SearchView extends GetView<SearchController> {
                     spacing: 16.h,
                     children: List.generate(controller.results.length, (i) {
                       final p = controller.results[i];
-                      final status = (p.openNow == true) ? 'Open' : 'Closed';
+                      final status = (p.openNow == true) ? 'Open'.tr : 'Closed'.tr;
                       final timeMins = _parseMinutes(p.durationText ?? '');
                       final type = _typeFromPlace(p);
                       final reasons = [
@@ -383,7 +384,7 @@ class SearchAppBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SvgPicture.asset('assets/images/home/top_5_green_logo.svg'),
-        Text('Search', style: h3.copyWith(color: AppColors.top5Black, fontSize: 24.sp)),
+        Text('Search'.tr, style: h3.copyWith(color: AppColors.top5Black, fontSize: 24.sp)),
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -441,7 +442,7 @@ class SearchBar extends StatelessWidget {
             Image.asset('assets/images/home/voice.png', scale: 4),
             Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
             Image.asset('assets/images/home/filter.png', scale: 4),
-            Text('Filter', style: h4.copyWith(color: AppColors.homeGray, fontSize: 12.sp)),
+            Text('Filter'.tr, style: h4.copyWith(color: AppColors.homeGray, fontSize: 12.sp)),
             SizedBox(width: 20.w),
           ],
         ),
@@ -802,7 +803,7 @@ class SearchListCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomButton(
-                  text: 'Directions',
+                  text: 'Directions'.tr,
                   prefixIcon: 'assets/images/home/directions.svg',
                   paddingLeft: 12,
                   paddingRight: 12,
@@ -813,7 +814,7 @@ class SearchListCard extends StatelessWidget {
                   onTap: _openDirections, // Updated
                 ),
                 CustomButton(
-                  text: 'Book',
+                  text: 'Book'.tr,
                   paddingLeft: 35,
                   paddingRight: 35,
                   paddingTop: 8,
@@ -828,8 +829,8 @@ class SearchListCard extends StatelessWidget {
                 CustomButton(
                   text: '',
                   icon: 'assets/images/home/call.svg',
-                  paddingLeft: 40,
-                  paddingRight: 20,
+                  paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 40: 20,
+                  paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 20: 10,
                   paddingTop: 8,
                   paddingBottom: 8,
                   borderRadius: 6,

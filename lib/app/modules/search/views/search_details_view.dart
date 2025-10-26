@@ -8,7 +8,7 @@ import 'package:top5/app/modules/home/views/google_map_webview.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/details_view.dart';
 import '../controllers/search_controller.dart';
@@ -173,7 +173,7 @@ class SearchDetailsView extends GetView<SearchController> {
                                   spacing: 6.w,
                                   children: [
                                     Text(
-                                      isSaved.value == false ? 'Save' : 'Saved',
+                                      isSaved.value == false ? 'Save'.tr : 'Saved'.tr,
                                       style: h3.copyWith(
                                         color: isSaved.value == false
                                             ? AppColors.serviceGray
@@ -262,7 +262,7 @@ class SearchDetailsView extends GetView<SearchController> {
                       ),
                       SizedBox(height: 16.h),
                       Text(
-                        'Why it’s in the Top 5',
+                        'Why it’s in the Top 5'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -292,7 +292,7 @@ class SearchDetailsView extends GetView<SearchController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomButton(
-                            text: 'Book',
+                            text: 'Book'.tr,
                             paddingLeft: 35,
                             paddingRight: 35,
                             paddingTop: 8,
@@ -316,7 +316,7 @@ class SearchDetailsView extends GetView<SearchController> {
                             ),
                           ),
                           CustomButton(
-                            text: 'Directions',
+                            text: 'Directions'.tr,
                             prefixIcon: 'assets/images/home/directions2.svg',
                             paddingLeft: 12,
                             paddingRight: 12,
@@ -362,7 +362,7 @@ class SearchDetailsView extends GetView<SearchController> {
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Text(
-                        controller.isMoreDetails.value ? 'See Less' : 'More Details',
+                        controller.isMoreDetails.value ? 'See Less'.tr : 'More Details'.tr,
                         style: h3.copyWith(
                           color: AppColors.serviceWhite,
                           fontSize: 12.sp,
@@ -380,7 +380,7 @@ class SearchDetailsView extends GetView<SearchController> {
                       children: [
                         SizedBox(height: 24.h),
                         Text(
-                          'Review highlights',
+                          'Review highlights'.tr,
                           style: h2.copyWith(
                             color: AppColors.serviceBlack,
                             fontSize: 16.sp,
@@ -402,7 +402,7 @@ class SearchDetailsView extends GetView<SearchController> {
                         }),
                         SizedBox(height: 24.h),
                         Text(
-                          'Best time / Busy now',
+                          'Best time / Busy now'.tr,
                           style: h2.copyWith(
                             color: AppColors.serviceBlack,
                             fontSize: 16.sp,
@@ -412,25 +412,25 @@ class SearchDetailsView extends GetView<SearchController> {
                         Wrap(
                           spacing: 12.w,
                           runSpacing: 12.h,
-                          children: const [
+                          children: [
                             DetailsTagCard(
-                              text: 'Best time',
+                              text: 'Best time'.tr,
                               isActive: true,
                             ),
                             DetailsTagCard(
-                              text: 'Busy now',
+                              text: 'Busy now'.tr,
                             ),
                             DetailsTagCard(
-                              text: 'Quiet now',
+                              text: 'Quiet now'.tr,
                             ),
                             DetailsTagCard(
-                              text: 'Busier after 8 pm',
+                              text: 'Busier after 8 pm'.tr,
                             ),
                           ],
                         ),
                         SizedBox(height: 24.h),
                         Text(
-                          'Top dishes / Amenities',
+                          'Top dishes / Amenities'.tr,
                           style: h2.copyWith(
                             color: AppColors.serviceBlack,
                             fontSize: 16.sp,
@@ -452,7 +452,7 @@ class SearchDetailsView extends GetView<SearchController> {
                         }),
                         SizedBox(height: 24.h),
                         Text(
-                          'Hours & contact',
+                          'Hours & contact'.tr,
                           style: h2.copyWith(
                             color: AppColors.serviceBlack,
                             fontSize: 16.sp,
@@ -474,7 +474,7 @@ class SearchDetailsView extends GetView<SearchController> {
                               ),
                               website.isNotEmpty
                                   ? DetailsTagCard(
-                                text: 'Website',
+                                text: 'Website'.tr,
                                 icon: 'assets/images/home/website.svg',
                                 onTap: () {
                                   website = website.startsWith('http://')

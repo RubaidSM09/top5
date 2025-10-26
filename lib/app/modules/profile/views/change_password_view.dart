@@ -55,7 +55,7 @@ class ChangePasswordView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Change Password',),
+        title: ProfileAppBar(appBarTitle: 'Change Password'.tr,),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -75,7 +75,7 @@ class ChangePasswordView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'Current Password',
+                            'Current Password'.tr,
                             style: h3.copyWith(
                               color: AppColors.profileGray,
                               fontSize: 12.sp,
@@ -88,7 +88,7 @@ class ChangePasswordView extends GetView {
 
                       Obx(() {
                         return CustomTextField(
-                          hintText: 'Enter Current Password',
+                          hintText: 'Enter Current Password'.tr,
                           controller: _currentPasswordController,
                           hintTextColor: AppColors.profileBlack,
                           color: AppColors.profileWhite,
@@ -113,7 +113,7 @@ class ChangePasswordView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'New Password',
+                            'New Password'.tr,
                             style: h3.copyWith(
                               color: AppColors.profileGray,
                               fontSize: 12.sp,
@@ -126,7 +126,7 @@ class ChangePasswordView extends GetView {
 
                       Obx(() {
                         return CustomTextField(
-                          hintText: 'Enter New Password',
+                          hintText: 'Enter New Password'.tr,
                           controller: _newPasswordController,
                           hintTextColor: AppColors.profileBlack,
                           color: AppColors.profileWhite,
@@ -151,7 +151,7 @@ class ChangePasswordView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'Confirm Password',
+                            'Confirm Password'.tr,
                             style: h3.copyWith(
                               color: AppColors.profileGray,
                               fontSize: 12.sp,
@@ -164,7 +164,7 @@ class ChangePasswordView extends GetView {
 
                       Obx(() {
                         return CustomTextField(
-                          hintText: 'Re-inter New Password',
+                          hintText: 'Re-enter New Password'.tr,
                           controller: _confirmPasswordController,
                           hintTextColor: AppColors.profileBlack,
                           color: AppColors.profileWhite,
@@ -190,7 +190,7 @@ class ChangePasswordView extends GetView {
                 SizedBox(height: 30.h,),
 
                 CustomButton(
-                  text: 'Update Password',
+                  text: 'Update Password'.tr,
                   onTap: () {
                     _handleChangePassword();
                   },
@@ -199,7 +199,8 @@ class ChangePasswordView extends GetView {
                 SizedBox(height: 10.h,),
 
                 Text(
-                  'Make sure your new password is at least 8 characters long.',
+                  'Make sure your new password is at least 8 characters long.'.tr,
+                  textAlign: TextAlign.center,
                   style: h4.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 12.sp,

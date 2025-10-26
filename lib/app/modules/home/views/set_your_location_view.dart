@@ -9,7 +9,7 @@ import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 import 'package:top5/common/widgets/custom_text_field.dart';
 
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import 'google_map_webview.dart';
 
 class SetYourLocationView extends GetView<HomeController> {

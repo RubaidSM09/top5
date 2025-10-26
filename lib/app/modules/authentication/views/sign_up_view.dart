@@ -42,7 +42,7 @@ class SignUpView extends GetView {
                     child: Column(
                       children: [
                         Text(
-                          'Welcome',
+                          'Welcome'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 28.sp,
@@ -52,7 +52,7 @@ class SignUpView extends GetView {
                         SizedBox(height: 73.h,),
                     
                         CustomButton(
-                          text: 'Continue with Apple',
+                          text: 'Continue with Apple'.tr,
                           icon: 'assets/images/authentication/apple.svg',
                           color: AppColors.authenticationBlack,
                           onTap: () {  },
@@ -61,7 +61,7 @@ class SignUpView extends GetView {
                         SizedBox(height: 16.h,),
                     
                         CustomButton(
-                          text: 'Continue with Google',
+                          text: 'Continue with Google'.tr.tr,
                           icon: 'assets/images/authentication/google.svg',
                           color: AppColors.authenticationWhite,
                           borderColor: AppColors.authenticationButtonBorderColor,
@@ -89,7 +89,7 @@ class SignUpView extends GetView {
                             ),
                     
                              Text(
-                               'Or',
+                               'Or'.tr,
                                style: h3.copyWith(
                                  color: AppColors.authenticationButtonBorderColor,
                                  fontSize: 20.sp,
@@ -107,7 +107,7 @@ class SignUpView extends GetView {
                         SizedBox(height: 24.h,),
                     
                         CustomButton(
-                          text: 'Continue with email',
+                          text: 'Continue with email'.tr,
                           color: AppColors.authenticationWhite,
                           borderColor: AppColors.authenticationButtonBorderColor,
                           textColor: AppColors.authenticationButtonTextColor,
@@ -126,7 +126,7 @@ class SignUpView extends GetView {
                         Column(
                           children: [
                             Text(
-                              'By continuing, you agree to',
+                              'By continuing, you agree to'.tr,
                               style: h4.copyWith(
                                 color: AppColors.authenticationButtonBorderColor,
                                 fontSize: 14.sp,
@@ -134,7 +134,7 @@ class SignUpView extends GetView {
                             ),
                     
                             Text(
-                              'Terms and Privacy Policy.',
+                              'Terms and Privacy Policy.'.tr,
                               style: h4.copyWith(
                                 color: AppColors.authenticationGreen,
                                 fontSize: 14.sp,
@@ -149,7 +149,7 @@ class SignUpView extends GetView {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Already have an account? ',
+                              'Already have an account? '.tr,
                               style: h4.copyWith(
                                 color: AppColors.authenticationGray,
                                 fontSize: 14.sp,
@@ -159,7 +159,7 @@ class SignUpView extends GetView {
                             GestureDetector(
                               onTap: () => Get.to(SignInView()),
                               child: Text(
-                                'Sign In',
+                                'Sign In'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.authenticationGreen,
                                   fontSize: 14.sp,

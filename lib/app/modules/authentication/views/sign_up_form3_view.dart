@@ -87,7 +87,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Enter password',
+                          'Enter password'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -98,7 +98,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
 
                         Obx(() {
                           return CustomTextField(
-                            hintText: 'Type you password',
+                            hintText: 'Type you password'.tr,
                             controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password2.png',
                             suffixIcon: controller.isSignUpPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
@@ -109,7 +109,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                         SizedBox(height: 24.h,),
 
                         Text(
-                          'Confirm password',
+                          'Confirm password'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -120,7 +120,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
 
                         Obx(() {
                           return CustomTextField(
-                            hintText: 'Type you password again',
+                            hintText: 'Type you password again'.tr,
                             controller: _confirmPasswordController,
                             prefixIcon: 'assets/images/authentication/password2.png',
                             suffixIcon: controller.isSignUpConfirmPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
@@ -134,7 +134,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomButton(
-                              text: 'Back',
+                              text: 'Back'.tr,
                               color: AppColors.top5Transparent,
                               borderColor: AppColors.authenticationButtonBorderColor,
                               textColor: AppColors.authenticationButtonTextColor2,
@@ -144,7 +144,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                             ),
 
                             CustomButton(
-                              text: 'Next',
+                              text: 'Next'.tr,
                               paddingLeft: 60,
                               paddingRight: 60,
                               onTap: () {

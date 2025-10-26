@@ -84,7 +84,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                     child: Column(
                       children: [
                         Text(
-                          'Create new password',
+                          'Create new password'.tr,
                           style: h2.copyWith(
                               color: AppColors.authenticationBlack,
                               fontSize: 36.sp,
@@ -96,12 +96,13 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                                 )
                               ]
                           ),
+                          textAlign: TextAlign.center,
                         ),
 
                         SizedBox(height: 20.h,),
 
                         Text(
-                            'Your new password must be unique from those previously used.',
+                            'Your new password must be unique from those previously used.'.tr,
                             style: h4.copyWith(
                               color: AppColors.authenticationButtonBorderColor,
                               fontSize: 18.sp,
@@ -113,7 +114,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
 
                         Obx(() {
                           return CustomTextField(
-                            hintText: 'New password',
+                            hintText: 'New password'.tr,
                             controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isNewPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
@@ -125,7 +126,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
 
                         Obx(() {
                           return CustomTextField(
-                            hintText: 'Confirm password',
+                            hintText: 'Confirm password'.tr,
                             controller: _confirmPasswordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isConfirmNewPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
@@ -136,7 +137,7 @@ class CreateNewPasswordView extends GetView<AuthenticationController> {
                         SizedBox(height: 30.h,),
 
                         CustomButton(
-                          text: 'Save',
+                          text: 'Save'.tr,
                           paddingLeft: 60,
                           paddingRight: 60,
                           onTap: () {

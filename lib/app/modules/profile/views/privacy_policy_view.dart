@@ -14,7 +14,7 @@ class PrivacyPolicyView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Privacy Policy'),
+        title: ProfileAppBar(appBarTitle: 'Privacy Policy'.tr),
         centerTitle: true,
       ),
       body: SafeArea(

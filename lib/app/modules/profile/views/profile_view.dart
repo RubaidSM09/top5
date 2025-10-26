@@ -21,6 +21,7 @@ import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
+import '../../../../common/localization/localization_controller.dart';
 import '../../search/controllers/search_controller.dart';
 import '../controllers/profile_controller.dart';
 
@@ -31,6 +32,7 @@ class ProfileView extends GetView<ProfileController> {
     ProfileController profileController = Get.put(ProfileController());
     HomeController homeController = Get.put(HomeController());
     SearchController searchController = Get.put(SearchController());
+    final LocalizationController localizationController = Get.find<LocalizationController>();
 
     // Fetch the recent count once when the screen first appears
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,7 +93,7 @@ class ProfileView extends GetView<ProfileController> {
                     ),
 
                     CustomButton(
-                      text: 'Edit Profile',
+                      text: 'Edit Profile'.tr,
                       paddingLeft: 12,
                       paddingRight: 12,
                       paddingTop: 8,
@@ -155,7 +157,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h),
 
                 Text(
-                  'Quick Actions',
+                  'Quick Actions'.tr,
                   style: h2.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 24.sp,
@@ -168,19 +170,19 @@ class ProfileView extends GetView<ProfileController> {
                   spacing: 31.w,
                   children: [
                     ProfileQuickActionButton(
-                      text: 'Saved',
+                      text: 'Saved'.tr,
                       icon: 'assets/images/profile/saved.svg',
                       onTap: () => Get.to(const SavedListView()),
                     ),
 
                     ProfileQuickActionButton(
-                      text: 'Recents',
+                      text: 'Recents'.tr,
                       icon: 'assets/images/profile/recents.svg',
                       onTap: () => Get.to(const RecentListView()),
                     ),
 
                     ProfileQuickActionButton(
-                      text: 'Reservations',
+                      text: 'Reservations'.tr,
                       icon: 'assets/images/profile/reservations.svg',
                       onTap: () => Get.to(const ReservationListView()),
                     ),
@@ -190,7 +192,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h),
 
                 Text(
-                  'Account',
+                  'Account'.tr,
                   style: h2.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 24.sp,
@@ -204,7 +206,7 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     Expanded(
                       child: CustomButton(
-                        text: 'Personal Info',
+                        text: 'Personal Info'.tr,
                         icon: 'assets/images/profile/personal_info.svg',
                         paddingTop: 6,
                         paddingBottom: 6,
@@ -220,7 +222,7 @@ class ProfileView extends GetView<ProfileController> {
 
                     Expanded(
                       child: CustomButton(
-                        text: 'Change password',
+                        text: 'Change password'.tr,
                         paddingTop: 6,
                         paddingBottom: 6,
                         icon: 'assets/images/profile/change_password.svg',
@@ -260,7 +262,7 @@ class ProfileView extends GetView<ProfileController> {
                           ),
 
                           Text(
-                            'Connected accounts',
+                            'Connected accounts'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 14.sp,
@@ -277,7 +279,7 @@ class ProfileView extends GetView<ProfileController> {
                           ),
 
                           Text(
-                            'Apple Id',
+                            'Apple Id'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -292,7 +294,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h),
 
                 Text(
-                  'Preferences',
+                  'Preferences'.tr,
                   style: h2.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 24.sp,
@@ -337,7 +339,7 @@ class ProfileView extends GetView<ProfileController> {
                                 ),
 
                                 Text(
-                                  'Default filters',
+                                  'Default filters'.tr,
                                   style: h4.copyWith(
                                     color: AppColors.profileBlack,
                                     fontSize: 16.sp,
@@ -380,7 +382,7 @@ class ProfileView extends GetView<ProfileController> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          'Open Now',
+                                          'Open Now'.tr,
                                           style: h4.copyWith(
                                             color: profileController.selectedDefaultFilters[0].value
                                                 ? AppColors.profileWhite
@@ -489,7 +491,7 @@ class ProfileView extends GetView<ProfileController> {
                                 ),
 
                                 Text(
-                                  'Dietary',
+                                  'Dietary'.tr,
                                   style: h4.copyWith(
                                     color: AppColors.profileBlack,
                                     fontSize: 16.sp,
@@ -525,7 +527,7 @@ class ProfileView extends GetView<ProfileController> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          'Not-Vegan',
+                                          'Not-Vegan'.tr,
                                           style: h4.copyWith(
                                             color: profileController
                                                 .selectedDietary[0].value
@@ -561,7 +563,7 @@ class ProfileView extends GetView<ProfileController> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          'Vegan',
+                                          'Vegan'.tr,
                                           style: h4.copyWith(
                                             color: profileController
                                                 .selectedDietary[1].value
@@ -597,7 +599,7 @@ class ProfileView extends GetView<ProfileController> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          'Gluten-free',
+                                          'Gluten-free'.tr,
                                           style: h4.copyWith(
                                             color: profileController
                                                 .selectedDietary[2].value
@@ -637,7 +639,7 @@ class ProfileView extends GetView<ProfileController> {
                                 ),
 
                                 Text(
-                                  'Distance Unit',
+                                  'Distance Unit'.tr,
                                   style: h4.copyWith(
                                     color: AppColors.profileBlack,
                                     fontSize: 16.sp,
@@ -719,7 +721,7 @@ class ProfileView extends GetView<ProfileController> {
                               ),
 
                               Text(
-                                'Language',
+                                'Language'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.profileBlack,
                                   fontSize: 16.sp,
@@ -728,25 +730,80 @@ class ProfileView extends GetView<ProfileController> {
                             ],
                           ),
 
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 18.48.w,
-                              vertical: 6.h,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.profileGreen,
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'English',
-                                style: h4.copyWith(
-                                  color: AppColors.profileWhite,
-                                  fontSize: 10.sp,
+                          Obx(() {
+                            return Row(
+                              spacing: 8.w,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    localizationController.changeLanguage(
+                                        'English');
+                                    print('Language changed to: English');
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 18.48.w,
+                                      vertical: 6.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: localizationController
+                                          .selectedLanguage.value == 'English'
+                                          ? AppColors.profileGreen
+                                          : AppColors.profileWhite,
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'English',
+                                        style: h4.copyWith(
+                                          color: localizationController
+                                              .selectedLanguage.value ==
+                                              'English'
+                                              ? AppColors.profileWhite
+                                              : AppColors.profileGray,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
+
+                                GestureDetector(
+                                  onTap: () {
+                                    localizationController.changeLanguage(
+                                        'French');
+                                    print('Language changed to: French');
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 18.48.w,
+                                      vertical: 6.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: localizationController
+                                          .selectedLanguage.value == 'French'
+                                          ? AppColors.profileGreen
+                                          : AppColors.profileWhite,
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'French',
+                                        style: h4.copyWith(
+                                          color: localizationController
+                                              .selectedLanguage.value ==
+                                              'French'
+                                              ? AppColors.profileWhite
+                                              : AppColors.profileGray,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
                         ],
                       ),
                     ],
@@ -756,7 +813,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h,),
 
                 Text(
-                  'Privacy & Security',
+                  'Privacy & Security'.tr,
                   style: h2.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 24.sp,
@@ -770,7 +827,7 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     Expanded(
                       child: CustomButton(
-                        text: 'Location permission',
+                        text: 'Location permission'.tr,
                         icon: 'assets/images/profile/location_permission.svg',
                         paddingTop: 6,
                         paddingBottom: 6,
@@ -786,7 +843,7 @@ class ProfileView extends GetView<ProfileController> {
 
                     Expanded(
                       child: CustomButton(
-                        text: 'Download my data',
+                        text: 'Download my data'.tr,
                         icon: 'assets/images/profile/download_my_data.svg',
                         paddingTop: 6,
                         paddingBottom: 6,
@@ -805,7 +862,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Delete my account',
+                  text: 'Delete my account'.tr,
                   icon: 'assets/images/profile/delete_my_account.svg',
                   borderRadius: 6,
                   paddingTop: 10,
@@ -818,7 +875,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h),
 
                 Text(
-                  'Help & Legal',
+                  'Help & Legal'.tr,
                   style: h2.copyWith(
                     color: AppColors.profileBlack,
                     fontSize: 24.sp,
@@ -828,7 +885,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Help & Support',
+                  text: 'Help & Support'.tr,
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -843,7 +900,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Report a place',
+                  text: 'Report a place'.tr,
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -858,7 +915,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Send feedback',
+                  text: 'Send feedback'.tr,
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -873,7 +930,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Terms of Service',
+                  text: 'Terms of Service'.tr,
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -888,7 +945,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 16.h),
 
                 CustomButton(
-                  text: 'Privacy Policy',
+                  text: 'Privacy Policy'.tr,
                   prefixIcon: 'assets/images/profile/arrow_next.svg',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -903,7 +960,7 @@ class ProfileView extends GetView<ProfileController> {
                 SizedBox(height: 24.h),
 
                 CustomButton(
-                  text: 'Log out',
+                  text: 'Log out'.tr,
                   icon: 'assets/images/profile/log_out.svg',
                   paddingTop: 6,
                   paddingBottom: 6,

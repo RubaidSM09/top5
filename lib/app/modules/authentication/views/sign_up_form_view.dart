@@ -71,7 +71,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'What’s your email address?',
+                          'What’s your email address?'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -108,18 +108,22 @@ class SignUpFormView extends GetView<AuthenticationController> {
                             Row(
                               children: [
                                 Text(
-                                  'I agree to ',
+                                  'I agree to '.tr,
                                   style: h4.copyWith(
                                     color: AppColors.authenticationButtonBorderColor,
                                     fontSize: 14.sp,
                                   ),
                                 ),
 
-                                Text(
-                                  'Terms and Privacy Policy.',
-                                  style: h4.copyWith(
-                                    color: AppColors.authenticationGreen,
-                                    fontSize: 14.sp,
+                                SizedBox(
+                                  width: 235.w,
+                                  child: Text(
+                                    'Terms and Privacy Policy.'.tr,
+                                    style: h4.copyWith(
+                                      color: AppColors.authenticationGreen,
+                                      fontSize: 14.sp,
+                                    ),
+                                    maxLines: 1,
                                   ),
                                 ),
                               ],
@@ -133,7 +137,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomButton(
-                              text: 'Back',
+                              text: 'Back'.tr,
                               color: AppColors.top5Transparent,
                               borderColor: AppColors.authenticationButtonBorderColor,
                               textColor: AppColors.authenticationButtonTextColor2,
@@ -143,7 +147,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                             ),
 
                             CustomButton(
-                              text: 'Next',
+                              text: 'Next'.tr,
                               paddingLeft: 60,
                               paddingRight: 60,
                               onTap: () {

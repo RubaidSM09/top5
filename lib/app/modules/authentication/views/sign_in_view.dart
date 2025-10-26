@@ -75,7 +75,7 @@ class SignInView extends GetView<AuthenticationController> {
                     child: Column(
                       children: [
                         Text(
-                          'Welcome back',
+                          'Welcome back'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 28.sp,
@@ -95,7 +95,7 @@ class SignInView extends GetView<AuthenticationController> {
 
                         Obx(() {
                           return CustomTextField(
-                            hintText: 'Enter you password',
+                            hintText: 'Enter you password'.tr,
                             controller: _passwordController,
                             prefixIcon: 'assets/images/authentication/password.png',
                             suffixIcon: controller.isSignInPasswordVisible.value ? 'assets/images/authentication/invisible.png' : 'assets/images/authentication/visible.png',
@@ -106,7 +106,7 @@ class SignInView extends GetView<AuthenticationController> {
                         SizedBox(height: 24.h,),
 
                         CustomButton(
-                          text: 'Sign In',
+                          text: 'Sign In'.tr,
                           onTap: () {
                             _handleLogin();
                           },
@@ -148,7 +148,7 @@ class SignInView extends GetView<AuthenticationController> {
                                 }),
 
                                 Text(
-                                  'Remember Me',
+                                  'Remember Me'.tr,
                                   style: h4.copyWith(
                                     color: AppColors.authenticationRememberMeTextColor,
                                     fontSize: 14.sp,
@@ -161,7 +161,7 @@ class SignInView extends GetView<AuthenticationController> {
                             GestureDetector(
                               onTap: () => Get.to(ForgotPasswordView()),
                               child: Text(
-                                'Forgot Password?',
+                                'Forgot Password?'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.authenticationGreen,
                                   fontSize: 14.sp,
@@ -184,7 +184,7 @@ class SignInView extends GetView<AuthenticationController> {
                             ),
 
                             Text(
-                              'Or',
+                              'Or'.tr,
                               style: h3.copyWith(
                                 color: AppColors.authenticationButtonBorderColor,
                                 fontSize: 20.sp,
@@ -202,7 +202,7 @@ class SignInView extends GetView<AuthenticationController> {
                         SizedBox(height: 14.h,),
 
                         CustomButton(
-                          text: 'Continue with Apple',
+                          text: 'Continue with Apple'.tr,
                           icon: 'assets/images/authentication/apple.svg',
                           color: AppColors.authenticationBlack,
                           onTap: () {  },
@@ -211,7 +211,7 @@ class SignInView extends GetView<AuthenticationController> {
                         SizedBox(height: 16.h,),
 
                         CustomButton(
-                          text: 'Continue with Google',
+                          text: 'Continue with Google'.tr,
                           icon: 'assets/images/authentication/google.svg',
                           color: AppColors.authenticationWhite,
                           borderColor: AppColors.authenticationButtonBorderColor,
@@ -232,7 +232,7 @@ class SignInView extends GetView<AuthenticationController> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'New To Top5? ',
+                              'New To Top5? '.tr,
                               style: h4.copyWith(
                                 color: AppColors.authenticationGray,
                                 fontSize: 14.sp,
@@ -242,7 +242,7 @@ class SignInView extends GetView<AuthenticationController> {
                             GestureDetector(
                               onTap: () => Get.to(SignUpView()),
                               child: Text(
-                                'Sign Up',
+                                'Sign Up'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.authenticationGreen,
                                   fontSize: 14.sp,

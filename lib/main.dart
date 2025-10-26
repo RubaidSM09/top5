@@ -7,9 +7,16 @@ import 'package:top5/common/app_colors.dart';
 
 import 'app/core/dependency_injection.dart';
 import 'app/routes/app_pages.dart';
+import 'common/localization/app_translations.dart';
+import 'common/localization/localization_controller.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize LocalizationController and load saved language
+  final LocalizationController localizationController = Get.put(LocalizationController());
+  await localizationController.loadSavedLanguage(); // Ensure saved language is loaded
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -28,6 +35,9 @@ void main() {
           debugShowCheckedModeBanner: false,
           defaultTransition: Transition.rightToLeft,
           transitionDuration: Duration(milliseconds: 300),
+          translations: AppTranslations(),
+          locale: localizationController.getCurrentLocale(), // Use saved locale
+          fallbackLocale: const Locale('en', 'US'),
           theme: ThemeData(
             scaffoldBackgroundColor: AppColors.homeWhite,
 

@@ -54,7 +54,7 @@ class ResultsView extends GetView<SearchController> {
                       spacing: 10.w,
                       children: [
                         FilterSelectionCard(
-                          text: 'Open now',
+                          text: 'Open now'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 0,
                           color: controller.selectedFilter[0].value
@@ -89,7 +89,7 @@ class ResultsView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Outdoor',
+                          text: 'Outdoor'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 3,
                           color: controller.selectedFilter[3].value
@@ -100,7 +100,7 @@ class ResultsView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Vegetarian',
+                          text: 'Vegetarian'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 4,
                           color: controller.selectedFilter[4].value
@@ -111,7 +111,7 @@ class ResultsView extends GetView<SearchController> {
                               : AppColors.homeGray,
                         ),
                         FilterSelectionCard(
-                          text: 'Bookable',
+                          text: 'Bookable'.tr,
                           selectedFilter: controller.selectedFilter,
                           index: 5,
                           color: controller.selectedFilter[5].value
@@ -160,7 +160,7 @@ class ResultsView extends GetView<SearchController> {
                     spacing: 16.h,
                     children: List.generate(controller.results.length, (i) {
                       final p = controller.results[i];
-                      final status = (p.openNow == true) ? 'Open' : 'Closed';
+                      final status = (p.openNow == true) ? 'Open'.tr : 'Closed'.tr;
                       final timeMins = _parseMinutes(p.durationText ?? '');
                       final type = _typeFromPlace(p);
                       final reasons = [
@@ -216,7 +216,7 @@ class ResultsAppBar extends StatelessWidget {
             child: Icon(Icons.arrow_back, color: AppColors.serviceWhite, size: 18.r),
           ),
         ),
-        Text('Results',
+        Text('Results'.tr,
             style: h3.copyWith(color: AppColors.top5Black, fontSize: 24.sp)),
         Container(
           decoration: BoxDecoration(

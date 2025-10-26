@@ -21,21 +21,23 @@ class LogOutView extends GetView {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Log Out',
+              'Log Out'.tr,
               style: h1.copyWith(
                 color: AppColors.profileBlack,
                 fontSize: 20.sp,
               ),
+              textAlign: TextAlign.center,
             ),
 
             SizedBox(height: 16.h,),
 
             Text(
-              'Are you sure you want to log out?',
+              'Are you sure you want to log out?'.tr,
               style: h4.copyWith(
                 color: AppColors.profileDeleteButtonTextColor,
                 fontSize: 16.sp,
               ),
+              textAlign: TextAlign.center,
             ),
 
             SizedBox(height: 30.h,),
@@ -45,7 +47,7 @@ class LogOutView extends GetView {
               children: [
                 Expanded(
                   child: CustomButton(
-                    text: 'Cancel',
+                    text: 'Cancel'.tr,
                     color: AppColors.top5Transparent,
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
@@ -56,7 +58,7 @@ class LogOutView extends GetView {
 
                 Expanded(
                   child: CustomButton(
-                    text: 'Log Out',
+                    text: 'Log Out'.tr,
                     color: AppColors.profileDeleteButtonTextColor,
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,

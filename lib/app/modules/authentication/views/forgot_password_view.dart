@@ -69,7 +69,7 @@ class ForgotPasswordView extends GetView<AuthenticationController> {
                     child: Column(
                       children: [
                         Text(
-                          'Forgot password?',
+                          'Forgot password?'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 36.sp,
@@ -86,7 +86,7 @@ class ForgotPasswordView extends GetView<AuthenticationController> {
                         SizedBox(height: 20.h,),
 
                         Text(
-                          'Don\'t worry! Please enter the email address linked with your account.',
+                          'Don\'t worry! Please enter the email address linked with your account.'.tr,
                           style: h4.copyWith(
                             color: AppColors.authenticationButtonBorderColor,
                             fontSize: 18.sp,
@@ -106,7 +106,7 @@ class ForgotPasswordView extends GetView<AuthenticationController> {
                         SizedBox(height: 30.h,),
 
                         CustomButton(
-                          text: 'Send',
+                          text: 'Send'.tr,
                           paddingLeft: 60,
                           paddingRight: 60,
                           onTap: () {

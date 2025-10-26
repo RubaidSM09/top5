@@ -45,7 +45,7 @@ class ReportAPlaceView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Report a place'),
+        title: ProfileAppBar(appBarTitle: 'Report a place'.tr),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -65,7 +65,7 @@ class ReportAPlaceView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'E-mail',
+                            'E-mail'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -77,7 +77,7 @@ class ReportAPlaceView extends GetView {
                       SizedBox(height: 5.h,),
 
                       CustomTextField(
-                        hintText: 'Enter Email',
+                        hintText: 'Enter Email'.tr,
                         controller: _supportEmailController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
@@ -96,7 +96,7 @@ class ReportAPlaceView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'Enter URL',
+                            'Enter URL'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -108,7 +108,7 @@ class ReportAPlaceView extends GetView {
                       SizedBox(height: 5.h,),
 
                       CustomTextField(
-                        hintText: 'Enter the place URL',
+                        hintText: 'Enter the place URL'.tr,
                         controller: _reportUrlController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
@@ -127,7 +127,7 @@ class ReportAPlaceView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'Report',
+                            'Report'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -139,7 +139,7 @@ class ReportAPlaceView extends GetView {
                       SizedBox(height: 5.h,),
 
                       CustomTextField(
-                        hintText: 'Describe Your report',
+                        hintText: 'Describe Your report'.tr,
                         controller: _reportController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
@@ -162,7 +162,7 @@ class ReportAPlaceView extends GetView {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 5.w),
                   child: CustomButton(
-                    text: 'Send',
+                    text: 'Send'.tr,
                     onTap: () {
                       _handleSubmitReport();
                     },

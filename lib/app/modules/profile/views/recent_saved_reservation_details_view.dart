@@ -8,11 +8,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
+import '../../../secrets/secrest.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/contact_us_view.dart';
 import '../../home/views/details_view.dart' show DetailsAppBar, WhyTop5Point, DetailsTagCard, WebViewPage; // reuse widgets
 import '../../home/views/google_map_webview.dart';
-import '../../../secrets/secrets.dart';
 
 class RecentSavedReservationDetailsView extends GetView<HomeController> {
   final int serialNo;
@@ -175,7 +175,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                                   spacing: 6.w,
                                   children: [
                                     Text(
-                                      c.isPlaceSaved(placeId) ? 'Saved' : 'Save',
+                                      c.isPlaceSaved(placeId) ? 'Saved'.tr : 'Save'.tr,
                                       style: h3.copyWith(
                                         color: c.isPlaceSaved(placeId)
                                             ? AppColors.serviceGreen
@@ -275,7 +275,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
 
                       // Why it's in Top 5
                       Text(
-                        'Why it’s in the Top 5',
+                        'Why it’s in the Top 5'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -309,7 +309,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomButton(
-                            text: 'Book',
+                            text: 'Book'.tr,
                             paddingLeft: 35,
                             paddingRight: 35,
                             paddingTop: 8,
@@ -334,7 +334,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                           ),
 
                           CustomButton(
-                            text: 'Directions',
+                            text: 'Directions'.tr,
                             prefixIcon: 'assets/images/home/directions2.svg',
                             paddingLeft: 12,
                             paddingRight: 12,
@@ -384,7 +384,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Text(
-                        controller.isMoreDetails.value ? 'See Less' : 'More Details',
+                        controller.isMoreDetails.value ? 'See Less'.tr : 'More Details'.tr,
                         style: h3.copyWith(
                           color: AppColors.serviceWhite,
                           fontSize: 12.sp,
@@ -403,7 +403,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Review highlights',
+                        'Review highlights'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -428,7 +428,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Best time / Busy now',
+                        'Best time / Busy now'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -440,18 +440,18 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                       Wrap(
                         spacing: 12.w,
                         runSpacing: 12.h,
-                        children: const [
-                          DetailsTagCard(text: 'Best time', isActive: true),
-                          DetailsTagCard(text: 'Busy now'),
-                          DetailsTagCard(text: 'Quiet now'),
-                          DetailsTagCard(text: 'Busier after 8 pm'),
+                        children: [
+                          DetailsTagCard(text: 'Best time'.tr, isActive: true),
+                          DetailsTagCard(text: 'Busy now'.tr),
+                          DetailsTagCard(text: 'Quiet now'.tr),
+                          DetailsTagCard(text: 'Busier after 8 pm'.tr),
                         ],
                       ),
 
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Top dishes / Amenities',
+                        'Top dishes / Amenities'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -476,7 +476,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Hours & contact',
+                        'Hours & contact'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -497,7 +497,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
                             DetailsTagCard(text: contactTime),
                             website.isNotEmpty
                                 ? DetailsTagCard(
-                              text: 'Website',
+                              text: 'Website'.tr,
                               icon: 'assets/images/home/website.svg',
                               onTap: () {
                                 website = website.startsWith('http://')

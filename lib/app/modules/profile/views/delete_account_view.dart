@@ -22,7 +22,7 @@ class DeleteAccountView extends GetView {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Delete Account',
+              'Delete Account'.tr,
               style: h1.copyWith(
                 color: AppColors.profileBlack,
                 fontSize: 16.sp,
@@ -32,7 +32,7 @@ class DeleteAccountView extends GetView {
             SizedBox(height: 16.h,),
 
             Text(
-              'Are you absolutely sure you want to delete your account?',
+              'Are you absolutely sure you want to delete your account?'.tr,
               style: h4.copyWith(
                 color: AppColors.profileBlack,
                 fontSize: 12.sp,
@@ -49,7 +49,7 @@ class DeleteAccountView extends GetView {
                 borderRadius: BorderRadius.circular(6.r),
               ),
               child: Text(
-                '⚠️ This action is permanent and cannot be undone. All your data will be lost.',
+                '⚠️ This action is permanent and cannot be undone. All your data will be lost.'.tr,
                 style: h4.copyWith(
                   color: AppColors.profileDeleteButtonTextColor,
                   fontSize: 12.sp
@@ -65,7 +65,7 @@ class DeleteAccountView extends GetView {
               children: [
                 Expanded(
                   child: CustomButton(
-                    text: 'Cancel',
+                    text: 'Cancel'.tr,
                     color: AppColors.top5Transparent,
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
@@ -76,7 +76,7 @@ class DeleteAccountView extends GetView {
 
                 Expanded(
                   child: CustomButton(
-                    text: 'Delete',
+                    text: 'Delete'.tr,
                     color: AppColors.profileDeleteButtonTextColor,
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,

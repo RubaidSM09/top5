@@ -12,8 +12,9 @@ import 'package:top5/app/modules/profile/views/remove_saved_list_view.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
+import '../../../../common/localization/localization_controller.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import '../../home/views/details_view.dart';
 import '../../home/views/google_map_webview.dart';
 
@@ -27,7 +28,7 @@ class SavedListView extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Saved List'),
+        title: ProfileAppBar(appBarTitle: 'Saved List'.tr),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -76,7 +77,7 @@ class SavedListView extends GetView<HomeController> {
                     rating: place.rating?.toDouble() ?? 0.0,
                     image: place.photo ?? 'assets/images/home/restaurant.jpg',
                     isPromo: false, // Adjust based on API response if available
-                    status: place.openNow == true ? 'Open' : 'Closed',
+                    status: place.openNow == true ? 'Open'.tr : 'Closed'.tr,
                     distance: profileController.selectedDistanceUnit[0].value
                         ? place.distanceText ?? '—'
                         : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",
@@ -341,7 +342,7 @@ class SavedListCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CustomButton(
-                      text: 'Directions',
+                      text: 'Directions'.tr,
                       prefixIcon: 'assets/images/home/directions.svg',
                       paddingLeft: 12,
                       paddingRight: 12,
@@ -352,7 +353,7 @@ class SavedListCard extends StatelessWidget {
                       onTap: _openDirections,
                     ),
                     CustomButton(
-                      text: 'Book',
+                      text: 'Book'.tr,
                       paddingLeft: 35,
                       paddingRight: 35,
                       paddingTop: 8,
@@ -367,8 +368,8 @@ class SavedListCard extends StatelessWidget {
                     CustomButton(
                       text: '',
                       icon: 'assets/images/home/call.svg',
-                      paddingLeft: 40,
-                      paddingRight: 20,
+                      paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 40 : 20,
+                      paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 20 : 10,
                       paddingTop: 8,
                       paddingBottom: 8,
                       borderRadius: 6,

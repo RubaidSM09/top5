@@ -19,7 +19,7 @@ class RemoveSavedListView extends GetView {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Remove from save list',
+              'Remove from save list'.tr,
               style: h1.copyWith(
                 color: AppColors.profileBlack,
                 fontSize: 20.sp,
@@ -29,7 +29,7 @@ class RemoveSavedListView extends GetView {
             SizedBox(height: 16.h,),
 
             Text(
-              'Are you sure you want to remove this item?',
+              'Are you sure you want to remove this item?'.tr,
               style: h4.copyWith(
                 color: AppColors.profileDeleteButtonTextColor,
                 fontSize: 16.sp,
@@ -44,7 +44,7 @@ class RemoveSavedListView extends GetView {
               children: [
                 Expanded(
                   child: CustomButton(
-                    text: 'Cancel',
+                    text: 'Cancel'.tr,
                     color: AppColors.top5Transparent,
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
@@ -55,7 +55,7 @@ class RemoveSavedListView extends GetView {
 
                 Expanded(
                   child: CustomButton(
-                    text: 'Remove',
+                    text: 'Remove'.tr,
                     color: AppColors.profileDeleteButtonTextColor,
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,

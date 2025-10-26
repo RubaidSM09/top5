@@ -54,7 +54,7 @@ class HomeView extends GetView<HomeController> {
                         spacing: 10.w,
                         children: [
                           CategorySelectionCard(
-                            text: 'Restaurant',
+                            text: 'Restaurant'.tr,
                             icon: 'assets/images/home/restaurant.svg',
                             selectedCategory: controller.selectedCategory,
                             index: 0,
@@ -63,7 +63,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           CategorySelectionCard(
-                            text: 'Cafes',
+                            text: 'Cafes'.tr,
                             icon: 'assets/images/home/coffee_x5F_cup.svg',
                             selectedCategory: controller.selectedCategory,
                             index: 1,
@@ -72,7 +72,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           CategorySelectionCard(
-                            text: 'Bars',
+                            text: 'Bars'.tr,
                             icon: 'assets/images/home/bars.svg',
                             selectedCategory: controller.selectedCategory,
                             index: 2,
@@ -81,7 +81,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           CategorySelectionCard(
-                            text: 'Activities',
+                            text: 'Activities'.tr,
                             icon: 'assets/images/home/activities.svg',
                             selectedCategory: controller.selectedCategory,
                             index: 3,
@@ -90,7 +90,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           CategorySelectionCard(
-                            text: 'Services',
+                            text: 'Services'.tr,
                             icon: 'assets/images/home/services.svg',
                             selectedCategory: controller.selectedCategory,
                             index: 4,
@@ -104,7 +104,7 @@ class HomeView extends GetView<HomeController> {
 
                   SizedBox(height: 24.h,),
 
-                  HomeSearchBar(searchBarText: 'Inspire me',),
+                  HomeSearchBar(searchBarText: 'Inspire me'.tr,),
 
                   SizedBox(height: 16.38.h,),
 
@@ -115,7 +115,7 @@ class HomeView extends GetView<HomeController> {
                         spacing: 10.w,
                         children: [
                           FilterSelectionCard(
-                            text: 'Open now',
+                            text: 'Open now'.tr,
                             selectedFilter: controller.selectedFilter,
                             index: 0,
                             color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
@@ -139,7 +139,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           FilterSelectionCard(
-                            text: 'Outdoor',
+                            text: 'Outdoor'.tr,
                             selectedFilter: controller.selectedFilter,
                             index: 3,
                             color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
@@ -147,7 +147,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           FilterSelectionCard(
-                            text: 'Vegetarian',
+                            text: 'Vegetarian'.tr,
                             selectedFilter: controller.selectedFilter,
                             index: 4,
                             color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
@@ -155,7 +155,7 @@ class HomeView extends GetView<HomeController> {
                           ),
 
                           FilterSelectionCard(
-                            text: 'Bookable',
+                            text: 'Bookable'.tr,
                             selectedFilter: controller.selectedFilter,
                             index: 5,
                             color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
@@ -169,7 +169,7 @@ class HomeView extends GetView<HomeController> {
                   SizedBox(height: 30.h,),
 
                   Text(
-                    'Quick Glance (5-in-5)',
+                    'Quick Glance (5-in-5)'.tr,
                     style: h2.copyWith(
                       color: AppColors.homeBlack,
                       fontSize: 24.sp,
@@ -185,7 +185,7 @@ class HomeView extends GetView<HomeController> {
                       children: [
                         QuickGlanceCard(
                           image: 'assets/images/home/restaurant.jpg',
-                          text: 'Restaurant',
+                          text: 'Restaurant'.tr,
                           rating: 4.6,
                           selectedCategory: controller.selectedCategory,
                           index: 0,
@@ -193,7 +193,7 @@ class HomeView extends GetView<HomeController> {
 
                         QuickGlanceCard(
                           image: 'assets/images/home/cafes.jpg',
-                          text: 'Cafes',
+                          text: 'Cafes'.tr,
                           rating: 4.6,
                           selectedCategory: controller.selectedCategory,
                           index: 1,
@@ -201,7 +201,7 @@ class HomeView extends GetView<HomeController> {
 
                         QuickGlanceCard(
                           image: 'assets/images/home/bar.jpg',
-                          text: 'Bar',
+                          text: 'Bar'.tr,
                           rating: 4.6,
                           selectedCategory: controller.selectedCategory,
                           index: 2,
@@ -209,7 +209,7 @@ class HomeView extends GetView<HomeController> {
 
                         QuickGlanceCard(
                           image: 'assets/images/home/services.jpg',
-                          text: 'Services',
+                          text: 'Services'.tr,
                           rating: 4.6,
                           selectedCategory: controller.selectedCategory,
                           index: 4,
@@ -217,7 +217,7 @@ class HomeView extends GetView<HomeController> {
 
                         QuickGlanceCard(
                           image: 'assets/images/home/activities.jpg',
-                          text: 'Activities',
+                          text: 'Activities'.tr,
                           rating: 4.6,
                           selectedCategory: controller.selectedCategory,
                           index: 3,
@@ -232,7 +232,7 @@ class HomeView extends GetView<HomeController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Ideas to Try',
+                        'Ideas to Try'.tr,
                         style: h2.copyWith(
                           color: AppColors.homeBlack,
                           fontSize: 24.sp,
@@ -545,7 +545,7 @@ class HomeSearchBar extends StatelessWidget {
                       ),
 
                       Text(
-                        'Set your location',
+                        'Set your location'.tr,
                         style: h4.copyWith(
                           color: AppColors.homeGray,
                           fontSize: 10.sp,

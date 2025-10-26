@@ -74,7 +74,7 @@ class OtpVerificationsView extends GetView<AuthenticationController> {
                     child: Column(
                       children: [
                         Text(
-                          'OTP verifications',
+                          'OTP verifications'.tr,
                           style: h2.copyWith(
                               color: AppColors.authenticationBlack,
                               fontSize: 36.sp,
@@ -86,12 +86,13 @@ class OtpVerificationsView extends GetView<AuthenticationController> {
                                 )
                               ]
                           ),
+                          textAlign: TextAlign.center,
                         ),
 
                         SizedBox(height: 20.h,),
 
                         Text(
-                            'Enter the verification code we just sent on your email address.',
+                            'Enter the verification code we just sent on your email address.'.tr,
                             style: h4.copyWith(
                               color: AppColors.authenticationButtonBorderColor,
                               fontSize: 18.sp,
@@ -110,7 +111,7 @@ class OtpVerificationsView extends GetView<AuthenticationController> {
                         SizedBox(height: 40.15.h,),
 
                         CustomButton(
-                          text: 'Send',
+                          text: 'Send'.tr,
                           paddingLeft: 60,
                           paddingRight: 60,
                           onTap: () {

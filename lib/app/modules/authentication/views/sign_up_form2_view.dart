@@ -67,7 +67,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'What’s your name?',
+                          'What’s your name?'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -77,7 +77,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                         SizedBox(height: 24.h,),
 
                         CustomTextField(
-                          hintText: 'Full name',
+                          hintText: 'Full name'.tr,
                           controller: _fullNameController,
                           prefixIcon: 'assets/images/authentication/full_name.png',
                           isObscureText: false.obs,
@@ -89,7 +89,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomButton(
-                              text: 'Back',
+                              text: 'Back'.tr,
                               color: AppColors.top5Transparent,
                               borderColor: AppColors.authenticationButtonBorderColor,
                               textColor: AppColors.authenticationButtonTextColor2,
@@ -99,7 +99,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                             ),
 
                             CustomButton(
-                              text: 'Next',
+                              text: 'Next'.tr,
                               paddingLeft: 60,
                               paddingRight: 60,
                               onTap: () {

@@ -14,7 +14,7 @@ class TermsOfServicesView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Terms Of Service'),
+        title: ProfileAppBar(appBarTitle: 'Terms Of Service'.tr),
         centerTitle: true,
       ),
       body: SafeArea(

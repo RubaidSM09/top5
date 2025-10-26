@@ -11,7 +11,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import '../controllers/home_controller.dart';
 import 'google_map_webview.dart';
 
@@ -182,7 +182,7 @@ class DetailsView extends GetView<HomeController> {
                                   spacing: 6.w,
                                   children: [
                                     Text(
-                                      c.isPlaceSaved(placeId) ? 'Saved' : 'Save',
+                                      c.isPlaceSaved(placeId) ? 'Saved'.tr : 'Save'.tr,
                                       style: h3.copyWith(
                                         color: c.isPlaceSaved(placeId)
                                             ? AppColors.serviceGreen
@@ -281,7 +281,7 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 16.h,),
 
                       Text(
-                        'Why it’s in the Top 5',
+                        'Why it’s in the Top 5'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -313,7 +313,7 @@ class DetailsView extends GetView<HomeController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CustomButton(
-                            text: 'Book',
+                            text: 'Book'.tr,
                             paddingLeft: 35,
                             paddingRight: 35,
                             paddingTop: 8,
@@ -338,7 +338,7 @@ class DetailsView extends GetView<HomeController> {
                           ),
 
                           CustomButton(
-                            text: 'Directions',
+                            text: 'Directions'.tr,
                             prefixIcon: 'assets/images/home/directions2.svg',
                             paddingLeft: 12,
                             paddingRight: 12,
@@ -387,7 +387,7 @@ class DetailsView extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(20.r),
                       ),
                       child: Text(
-                        controller.isMoreDetails.value ? 'See Less' : 'More Details',
+                        controller.isMoreDetails.value ? 'See Less'.tr : 'More Details'.tr,
                         style: h3.copyWith(
                           color: AppColors.serviceWhite,
                           fontSize: 12.sp,
@@ -405,7 +405,7 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Review highlights',
+                        'Review highlights'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -429,7 +429,7 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Best time / Busy now',
+                        'Best time / Busy now'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -441,22 +441,22 @@ class DetailsView extends GetView<HomeController> {
                       Wrap(
                         spacing: 12.w,
                         runSpacing: 12.h,
-                        children: const [
+                        children: [
                           DetailsTagCard(
-                            text: 'Best time',
+                            text: 'Best time'.tr,
                             isActive: true,
                           ),
 
                           DetailsTagCard(
-                            text: 'Busy now',
+                            text: 'Busy now'.tr,
                           ),
 
                           DetailsTagCard(
-                            text: 'Quiet now',
+                            text: 'Quiet now'.tr,
                           ),
 
                           DetailsTagCard(
-                            text: 'Busier after 8 pm',
+                            text: 'Busier after 8 pm'.tr,
                           ),
                         ],
                       ),
@@ -464,7 +464,7 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Top dishes / Amenities',
+                        'Top dishes / Amenities'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -488,7 +488,7 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Text(
-                        'Hours & contact',
+                        'Hours & contact'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,
@@ -512,7 +512,7 @@ class DetailsView extends GetView<HomeController> {
                             ),
 
                             website.isNotEmpty ? DetailsTagCard(
-                              text: 'Website',
+                              text: 'Website'.tr,
                               icon: 'assets/images/home/website.svg',
                               onTap: () {
                                 website = website.startsWith('http://') ? website.replaceFirst('http://', 'https://') : website;
@@ -783,7 +783,7 @@ class WebViewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Website')),
+      appBar: AppBar(title: Text('Website'.tr)),
       body: WebViewWidget(
         controller: WebViewController()
           ..setJavaScriptMode(JavaScriptMode.disabled)

@@ -65,7 +65,7 @@ class ContactUsView extends GetView<HomeController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Contact Us',
+              'Contact Us'.tr,
               style: h1.copyWith(
                 fontSize: 20.sp,
                 color: AppColors.serviceBlack,
@@ -73,7 +73,7 @@ class ContactUsView extends GetView<HomeController> {
             ),
             SizedBox(height: 13.h),
             Text(
-              c.isPlaceReserved(placeId) ? 'You have already reserved this place' : 'Your reservation is just a call away!',
+              c.isPlaceReserved(placeId) ? 'You have already reserved this place'.tr : 'Your reservation is just a call away!'.tr,
               style: h4.copyWith(
                 fontSize: 16.sp,
                 color: AppColors.serviceGreen,
@@ -95,7 +95,7 @@ class ContactUsView extends GetView<HomeController> {
             ),
             SizedBox(height: 30.h),
             Obx(() => CustomButton(
-              text: c.isPlaceReserved(placeId) ? 'Remove from Reservation' : 'Save to Reservation',
+              text: c.isPlaceReserved(placeId) ? 'Remove from Reservation'.tr : 'Save to Reservation'.tr,
               textSize: 16.sp,
               color: c.isPlaceReserved(placeId) ? AppColors.profileDeleteButtonTextColor : AppColors.authenticationGreen,
               onTap: _toggleReservation,

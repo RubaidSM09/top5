@@ -44,7 +44,7 @@ class HelpNSupportView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Help & Support'),
+        title: ProfileAppBar(appBarTitle: 'Help & Support'.tr),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -64,7 +64,7 @@ class HelpNSupportView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'E-mail',
+                            'E-mail'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -76,7 +76,7 @@ class HelpNSupportView extends GetView {
                       SizedBox(height: 5.h,),
 
                       CustomTextField(
-                        hintText: 'Enter Email',
+                        hintText: 'Enter Email'.tr,
                         controller: _supportEmailController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
@@ -95,7 +95,7 @@ class HelpNSupportView extends GetView {
                       Row(
                         children: [
                           Text(
-                            'Problem',
+                            'Problem'.tr,
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -107,7 +107,7 @@ class HelpNSupportView extends GetView {
                       SizedBox(height: 5.h,),
 
                       CustomTextField(
-                        hintText: 'Describe Your Problem',
+                        hintText: 'Describe Your Problem'.tr,
                         controller: _problemController,
                         hintTextColor: AppColors.profileGray,
                         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 11.h),
@@ -130,7 +130,7 @@ class HelpNSupportView extends GetView {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 5.w),
                   child: CustomButton(
-                    text: 'Send',
+                    text: 'Send'.tr,
                     onTap: () {
                       _handleSubmitProblem();
                     },

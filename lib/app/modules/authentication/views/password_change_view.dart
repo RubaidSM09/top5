@@ -48,7 +48,7 @@ class PasswordChangeView extends GetView {
                         SizedBox(height: 23.85.h,),
 
                         Text(
-                          'Password Change!',
+                          'Password Change!'.tr,
                           style: h2.copyWith(
                               color: AppColors.authenticationBlack,
                               fontSize: 36.sp,
@@ -60,12 +60,13 @@ class PasswordChangeView extends GetView {
                                 )
                               ]
                           ),
+                          textAlign: TextAlign.center,
                         ),
 
                         SizedBox(height: 12.h,),
 
                         Text(
-                            'Your password has been changed successfully.',
+                            'Your password has been changed successfully.'.tr,
                             style: h4.copyWith(
                               color: AppColors.authenticationButtonBorderColor,
                               fontSize: 18.sp,
@@ -76,7 +77,7 @@ class PasswordChangeView extends GetView {
                         SizedBox(height: 30.h,),
 
                         CustomButton(
-                          text: 'Back To Login',
+                          text: 'Back To Login'.tr,
                           paddingLeft: 60,
                           paddingRight: 60,
                           onTap: () => Get.to(SignInView()),

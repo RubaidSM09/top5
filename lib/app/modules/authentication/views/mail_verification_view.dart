@@ -76,7 +76,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Enter 6-digit code sent to your email',
+                          'Enter 6-digit code sent to your email'.tr,
                           style: h2.copyWith(
                             color: AppColors.authenticationBlack,
                             fontSize: 24.sp,
@@ -94,7 +94,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                         SizedBox(height: 16.h,),
 
                         Text(
-                          'Tip : Make sure check your inbox and spam folders',
+                          'Tip : Make sure check your inbox and spam folders'.tr,
                           style: h4.copyWith(
                             color: AppColors.authenticationButtonBorderColor,
                             fontSize: 14.sp,
@@ -106,7 +106,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                         Row(
                           children: [
                             CustomButton(
-                              text: 'Resend',
+                              text: 'Resend'.tr,
                               color: AppColors.authenticationResendButtonColor,
                               textColor: AppColors.authenticationButtonTextColor2,
                               paddingTop: 5,
@@ -124,7 +124,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             CustomButton(
-                              text: 'Back',
+                              text: 'Back'.tr,
                               color: AppColors.top5Transparent,
                               borderColor: AppColors.authenticationButtonBorderColor,
                               textColor: AppColors.authenticationButtonTextColor2,
@@ -134,7 +134,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                             ),
 
                             CustomButton(
-                              text: 'Next',
+                              text: 'Next'.tr,
                               paddingLeft: 60,
                               paddingRight: 60,
                               onTap: () {

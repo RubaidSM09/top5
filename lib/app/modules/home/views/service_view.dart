@@ -10,7 +10,8 @@ import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 
 import 'package:geolocator/geolocator.dart';
-import '../../../secrets/secrets.dart';
+import '../../../../common/localization/localization_controller.dart';
+import '../../../secrets/secrest.dart';
 import 'details_view.dart';
 import 'google_map_webview.dart';
 import 'home_view.dart';
@@ -57,7 +58,7 @@ class ServiceView extends GetView<HomeController> {
                               spacing: 10.w,
                               children: [
                                 CategorySelectionCard(
-                                  text: 'Restaurant',
+                                  text: 'Restaurant'.tr,
                                   icon: 'assets/images/home/restaurant.svg',
                                   selectedCategory: controller
                                       .selectedCategory,
@@ -72,7 +73,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 CategorySelectionCard(
-                                  text: 'Cafes',
+                                  text: 'Cafes'.tr,
                                   icon: 'assets/images/home/coffee_x5F_cup.svg',
                                   selectedCategory: controller
                                       .selectedCategory,
@@ -86,7 +87,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 CategorySelectionCard(
-                                  text: 'Bars',
+                                  text: 'Bars'.tr,
                                   icon: 'assets/images/home/bars.svg',
                                   selectedCategory: controller
                                       .selectedCategory,
@@ -100,7 +101,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 CategorySelectionCard(
-                                  text: 'Activities',
+                                  text: 'Activities'.tr,
                                   icon: 'assets/images/home/activities.svg',
                                   selectedCategory: controller
                                       .selectedCategory,
@@ -114,7 +115,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 CategorySelectionCard(
-                                  text: 'Services',
+                                  text: 'Services'.tr,
                                   icon: 'assets/images/home/services.svg',
                                   selectedCategory: controller
                                       .selectedCategory,
@@ -144,7 +145,7 @@ class ServiceView extends GetView<HomeController> {
                               spacing: 10.w,
                               children: [
                                 FilterSelectionCard(
-                                  text: 'Open now',
+                                  text: 'Open now'.tr,
                                   selectedFilter: controller.selectedFilter,
                                   index: 0,
                                   color: controller.selectedFilter[0].value
@@ -183,7 +184,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 FilterSelectionCard(
-                                  text: 'Outdoor',
+                                  text: 'Outdoor'.tr,
                                   selectedFilter: controller.selectedFilter,
                                   index: 3,
                                   color: controller.selectedFilter[3].value
@@ -196,7 +197,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 FilterSelectionCard(
-                                  text: 'Vegetarian',
+                                  text: 'Vegetarian'.tr,
                                   selectedFilter: controller.selectedFilter,
                                   index: 4,
                                   color: controller.selectedFilter[4].value
@@ -209,7 +210,7 @@ class ServiceView extends GetView<HomeController> {
                                 ),
 
                                 FilterSelectionCard(
-                                  text: 'Bookable',
+                                  text: 'Bookable'.tr,
                                   selectedFilter: controller.selectedFilter,
                                   index: 5,
                                   color: controller.selectedFilter[5].value
@@ -239,7 +240,7 @@ class ServiceView extends GetView<HomeController> {
                             MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Top 5 near you',
+                                'Top 5 near you'.tr,
                                 style: h2.copyWith(
                                   color: AppColors.serviceBlack,
                                   fontSize: 24.sp,
@@ -270,7 +271,7 @@ class ServiceView extends GetView<HomeController> {
                                       ),
 
                                       Text(
-                                        'Map',
+                                        'Map'.tr,
                                         style: h4.copyWith(
                                           color: AppColors.serviceGray,
                                           fontSize: 12.sp,
@@ -325,7 +326,7 @@ class ServiceView extends GetView<HomeController> {
                                       reviewCount: (p.reviewsCount ?? 0),
                                       image: p.thumbnail ?? 'assets/images/home/restaurant.jpg',
                                       isPromo: false,
-                                      status: (p.openNow ?? false) ? 'Open' : 'Closed',
+                                      status: (p.openNow ?? false) ? 'Open'.tr : 'Closed'.tr,
                                       distance: p.distanceText ?? '—',
                                       time: c.parseMinutes(p.durationText),
                                       type: c.currentCategoryLabel,
@@ -410,7 +411,7 @@ class ServiceView extends GetView<HomeController> {
                           MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Top 5 near you',
+                              'Top 5 near you'.tr,
                               style: h2.copyWith(
                                 color: AppColors.serviceBlack,
                                 fontSize: 24.sp,
@@ -434,7 +435,7 @@ class ServiceView extends GetView<HomeController> {
                                   ),
                                 ),
                                 child: Text(
-                                  'List View',
+                                  'List View'.tr,
                                   style: h4.copyWith(
                                     color: AppColors.serviceGray,
                                     fontSize: 12.sp,
@@ -489,7 +490,7 @@ class ServiceView extends GetView<HomeController> {
                                         rating: (p.rating ?? 0).toDouble(),
                                         image: p.thumbnail ?? 'assets/images/home/restaurant.jpg',
                                         isPromo: false,
-                                        status: (p.openNow ?? false) ? 'Open' : 'Closed',
+                                        status: (p.openNow ?? false) ? 'Open'.tr : 'Closed'.tr,
                                         distance: p.distanceText ?? '—',
                                         type: c.currentCategoryLabel,
                                         time: c.parseMinutes(p.durationText),
@@ -925,7 +926,7 @@ class Top5NearYouListCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Why this pick: ',
+                        'Why this pick: '.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceGray,
                           fontSize: 11.9.sp,
@@ -950,7 +951,7 @@ class Top5NearYouListCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CustomButton(
-                        text: 'Directions',
+                        text: 'Directions'.tr,
                         prefixIcon: 'assets/images/home/directions.svg',
                         paddingLeft: 12,
                         paddingRight: 12,
@@ -962,7 +963,7 @@ class Top5NearYouListCard extends StatelessWidget {
                       ),
 
                       CustomButton(
-                        text: 'Book',
+                        text: 'Book'.tr,
                         paddingLeft: 35,
                         paddingRight: 35,
                         paddingTop: 8,
@@ -1278,7 +1279,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                             spacing: 4.w,
                             children: [
                               Text(
-                                'Cuisine',
+                                'Cuisine'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.serviceGray,
                                   fontSize: 12.sp,
@@ -1320,7 +1321,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Why this pick: ',
+                    'Why this pick: '.tr,
                     style: h2.copyWith(
                       color: AppColors.serviceGray,
                       fontSize: 11.9.sp,
@@ -1346,7 +1347,7 @@ class Top5NearYouMapCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomButton(
-                  text: 'Directions',
+                  text: 'Directions'.tr,
                   prefixIcon: 'assets/images/home/directions.svg',
                   paddingLeft: 12,
                   paddingRight: 12,
@@ -1358,9 +1359,9 @@ class Top5NearYouMapCard extends StatelessWidget {
                 ),
 
                 CustomButton(
-                  text: 'Book',
-                  paddingLeft: 35,
-                  paddingRight: 35,
+                  text: 'Book'.tr,
+                  paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
+                  paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
                   paddingTop: 8,
                   paddingBottom: 8,
                   borderRadius: 6,

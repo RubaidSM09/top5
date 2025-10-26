@@ -5,11 +5,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:top5/app/modules/profile/views/personal_info_view.dart';
 import 'package:top5/app/modules/profile/views/recent_saved_reservation_details_view.dart';
+import 'package:top5/common/localization/localization_controller.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrets.dart';
+import '../../../secrets/secrest.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/google_map_webview.dart';
 import '../controllers/profile_controller.dart';
@@ -32,7 +33,7 @@ class RecentListView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: ProfileAppBar(appBarTitle: 'Recent List'),
+        title: ProfileAppBar(appBarTitle: 'Recent List'.tr),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -71,7 +72,7 @@ class RecentListView extends GetView {
                   final title = p.name ?? 'Unknown';
                   final rating = p.rating ?? 0.0;
                   final image = p.photo ?? '';
-                  final status = p.openNow == null ? 'Closed' : (p.openNow! ? 'Open' : 'Closed');
+                  final status = p.openNow == null ? 'Closed'.tr : (p.openNow! ? 'Open'.tr : 'Closed'.tr);
                   final distance = p.distanceText ?? '';
                   final timeMins = homeController.parseMinutes(p.durationText);
                   final reasons = <String>[
@@ -94,7 +95,7 @@ class RecentListView extends GetView {
                     status: status,
                     distance: distance,
                     time: timeMins,
-                    type: 'Restaurant',
+                    type: 'Restaurant'.tr,
                     reasons: reasons,
                     isSaved: false.obs,
                     selectedLocations: homeController.selectedLocations,
@@ -350,7 +351,7 @@ class RecentListCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomButton(
-                  text: 'Directions',
+                  text: 'Directions'.tr,
                   prefixIcon: 'assets/images/home/directions.svg',
                   paddingLeft: 12,
                   paddingRight: 12,
@@ -362,7 +363,7 @@ class RecentListCard extends StatelessWidget {
                 ),
 
                 CustomButton(
-                  text: 'Book',
+                  text: 'Book'.tr,
                   paddingLeft: 35,
                   paddingRight: 35,
                   paddingTop: 8,
@@ -378,8 +379,8 @@ class RecentListCard extends StatelessWidget {
                 CustomButton(
                   text: '',
                   icon: 'assets/images/home/call.svg',
-                  paddingLeft: 40,
-                  paddingRight: 20,
+                  paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 40 : 20,
+                  paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 20 : 10,
                   paddingTop: 8,
                   paddingBottom: 8,
                   borderRadius: 6,

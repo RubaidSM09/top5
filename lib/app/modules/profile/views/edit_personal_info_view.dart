@@ -123,7 +123,7 @@ class EditPersonalInfoView extends GetView {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const ProfileAppBar(appBarTitle: 'Edit Personal Info'),
+        title: ProfileAppBar(appBarTitle: 'Edit Personal Info'.tr),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -185,7 +185,7 @@ class EditPersonalInfoView extends GetView {
                       SizedBox(height: 12.h),
 
                       // Name
-                      _Label('Name'),
+                      _Label('Name'.tr),
                       SizedBox(height: 4.h),
                       CustomTextField(
                         controller: form.nameCtrl,
@@ -207,7 +207,7 @@ class EditPersonalInfoView extends GetView {
                       SizedBox(height: 12.h),
 
                       // Email
-                      _Label('E-mail'),
+                      _Label('E-mail'.tr),
                       SizedBox(height: 4.h),
                       CustomTextField(
                         controller: form.emailCtrl,
@@ -230,7 +230,7 @@ class EditPersonalInfoView extends GetView {
                       SizedBox(height: 12.h),
 
                       // Phone
-                      _Label('Phone'),
+                      _Label('Phone'.tr),
                       SizedBox(height: 4.h),
                       CustomTextField(
                         controller: form.phoneCtrl,
@@ -256,7 +256,7 @@ class EditPersonalInfoView extends GetView {
                 SizedBox(height: 30.h),
 
                 Obx(() => CustomButton(
-                  text: form.isSaving.value ? 'Saving…' : 'Save',
+                  text: form.isSaving.value ? 'Saving…'.tr : 'Save'.tr,
                   onTap: form.isSaving.value ? null : form.save,
                 )),
               ],

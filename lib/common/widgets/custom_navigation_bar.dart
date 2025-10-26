@@ -16,17 +16,17 @@ class CustomNavigationBar extends StatelessWidget {
 
     final List<Map<String, String>> navItems = [
       {
-        'label': 'Explore',
+        'label': 'Explore'.tr,
         'filledIcon': 'assets/images/bottom_navigation_bar/explore_active.svg',
         'defaultIcon': 'assets/images/bottom_navigation_bar/explore.svg',
       },
       {
-        'label': 'Search',
+        'label': 'Search'.tr,
         'filledIcon': 'assets/images/bottom_navigation_bar/search_active.svg',
         'defaultIcon': 'assets/images/bottom_navigation_bar/search.svg',
       },
       {
-        'label': 'Profile',
+        'label': 'Profile'.tr,
         'filledIcon': 'assets/images/bottom_navigation_bar/profile_active.svg',
         'defaultIcon': 'assets/images/bottom_navigation_bar/profile.svg',
       },
