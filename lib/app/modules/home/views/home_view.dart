@@ -333,6 +333,7 @@ class HomeView extends GetView<HomeController> {
 
 class HomeAppBar extends StatelessWidget {
   final RxString time;
+
   const HomeAppBar({required this.time, super.key});
 
   @override

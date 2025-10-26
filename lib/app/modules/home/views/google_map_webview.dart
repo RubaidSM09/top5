@@ -458,7 +458,16 @@ class GoogleMapPickerWebView extends StatefulWidget {
   final String googleApiKey;
   final double initialLat;
   final double initialLng;
-  final ValueChanged<LatLng> onCenterChanged; // fires when map settles (idle)
+
+  /// Fired on map idle/center change with latest center.
+  final ValueChanged<LatLng> onCenterChanged;
+
+  /// NEW: Fired along with center changes when a human-readable address is available.
+  final ValueChanged<String>? onAddressResolved;
+
+  /// NEW: When this value changes (non-null), the webview geocodes the address
+  /// and recenters the map there. You can keep passing null when not searching.
+  final String? searchAddress;
 
   const GoogleMapPickerWebView({
     super.key,
@@ -466,6 +475,8 @@ class GoogleMapPickerWebView extends StatefulWidget {
     required this.initialLat,
     required this.initialLng,
     required this.onCenterChanged,
+    this.onAddressResolved,
+    this.searchAddress,
   });
 
   @override
@@ -477,6 +488,8 @@ class _GoogleMapPickerWebViewState extends State<GoogleMapPickerWebView> {
 
   String _buildHtml() {
     final apiKey = widget.googleApiKey;
+    // Load the JS API with Geocoding support (core maps is enough; Geocoder is included)
+    // For Places Autocomplete you would add &libraries=places, but here we geocode free-text.
     return """
 <!doctype html>
 <html>
@@ -493,8 +506,18 @@ class _GoogleMapPickerWebViewState extends State<GoogleMapPickerWebView> {
     const initLat = ${widget.initialLat};
     const initLng = ${widget.initialLng};
     let map;
+    let geocoder;
+
+    function postToFlutter(payload) {
+      try {
+        if (window.FlutterChannel && window.FlutterChannel.postMessage) {
+          window.FlutterChannel.postMessage(JSON.stringify(payload));
+        }
+      } catch (_) {}
+    }
 
     function init() {
+      geocoder = new google.maps.Geocoder();
       map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: initLat, lng: initLng},
         zoom: 15,
@@ -503,14 +526,46 @@ class _GoogleMapPickerWebViewState extends State<GoogleMapPickerWebView> {
         gestureHandling: 'greedy',
       });
 
+      // Reverse geocode on idle (when user stops panning/zooming)
       map.addListener('idle', () => {
         const c = map.getCenter();
-        const payload = JSON.stringify({ lat: c.lat(), lng: c.lng() });
-        if (window.FlutterChannel && window.FlutterChannel.postMessage) {
-          window.FlutterChannel.postMessage(payload);
-        }
+        const lat = c.lat(), lng = c.lng();
+        // Reverse geocode center and send address + coords back to Flutter
+        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+          let addr = '';
+          if (status === 'OK' && results && results.length) {
+            addr = results[0].formatted_address || '';
+          }
+          postToFlutter({ lat, lng, address: addr });
+        });
       });
     }
+
+    // Called by Flutter when user submits a search string
+    window._geocodeAddress = function(q) {
+      if (!q || !q.length) return;
+      try {
+        geocoder.geocode({ address: q }, (results, status) => {
+          if (status === 'OK' && results && results.length) {
+            const r = results[0];
+            const loc = r.geometry.location;
+            const lat = loc.lat(), lng = loc.lng();
+            const addr = r.formatted_address || q;
+            map.setCenter({ lat, lng });
+            // push resolved address to Flutter too
+            postToFlutter({ lat, lng, address: addr });
+          } else {
+            // still notify with empty address but same center (no jump)
+            const c = map.getCenter();
+            postToFlutter({ lat: c.lat(), lng: c.lng(), address: '' });
+          }
+        });
+      } catch (e) {
+        const c = map.getCenter();
+        postToFlutter({ lat: c.lat(), lng: c.lng(), address: '' });
+      }
+    };
+
     window.onload = init;
   </script>
 </body>
@@ -530,11 +585,26 @@ class _GoogleMapPickerWebViewState extends State<GoogleMapPickerWebView> {
             final m = jsonDecode(msg.message) as Map<String, dynamic>;
             final lat = (m['lat'] as num).toDouble();
             final lng = (m['lng'] as num).toDouble();
+            final addr = (m['address'] ?? '').toString();
             widget.onCenterChanged(LatLng(lat, lng));
+            if (widget.onAddressResolved != null) {
+              widget.onAddressResolved!(addr);
+            }
           } catch (_) {}
         },
       )
       ..loadHtmlString(_buildHtml());
+  }
+
+  /// When parent provides a new searchAddress, forward-geocode inside the webview.
+  @override
+  void didUpdateWidget(covariant GoogleMapPickerWebView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((widget.searchAddress ?? '') != (oldWidget.searchAddress ?? '') &&
+        (widget.searchAddress ?? '').isNotEmpty) {
+      final q = jsonEncode(widget.searchAddress);
+      _web.runJavaScript("window._geocodeAddress($q);");
+    }
   }
 
   @override

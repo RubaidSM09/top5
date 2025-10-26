@@ -207,11 +207,14 @@ class DetailsView extends GetView<HomeController> {
                       Row(
                         spacing: 12.w,
                         children: [
-                          Text(
-                            title,
-                            style: h1.copyWith(
-                              color: AppColors.serviceBlack,
-                              fontSize: 22.sp,
+                          SizedBox(
+                            width: 260.w,
+                            child: Text(
+                              title,
+                              style: h1.copyWith(
+                                color: AppColors.serviceBlack,
+                                fontSize: 22.sp,
+                              ),
                             ),
                           ),
 

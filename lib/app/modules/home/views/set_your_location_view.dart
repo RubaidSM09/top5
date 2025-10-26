@@ -22,27 +22,48 @@ class SetYourLocationView extends GetView<HomeController> {
     // local state: the current center from WebView
     final RxDouble pickedLat = (controller.manualLat.value ?? 23.7809063).obs;
     final RxDouble pickedLng = (controller.manualLng.value ?? 90.4075592).obs;
+    final RxString pickedAddress = ''.obs;
+
+    // user can type here to search; when submitted we push into the webview
+    final TextEditingController addressCtl = TextEditingController();
+    final RxString searchAddress = ''.obs; // triggers geocode in the WebView
+
+    // keep textfield in sync with pickedAddress (from reverse geocode)
+    ever<String>(pickedAddress, (addr) {
+      if (addr.isNotEmpty && addressCtl.text != addr) {
+        addressCtl.text = addr;
+      }
+    });
+
+    void submitSearch() {
+      final q = addressCtl.text.trim();
+      if (q.isEmpty) return;
+      searchAddress.value = q; // this re-builds the WebView with a new searchAddress, which geocodes and centers
+    }
 
     return Scaffold(
       body: SafeArea(
         child: Obx(() {
           return Stack(
             children: [
-              // --- REPLACED background image with GoogleMapPickerWebView ---
+              // --- GoogleMapPickerWebView with search & reverse geocode ---
               Positioned.fill(
                 child: GoogleMapPickerWebView(
                   googleApiKey: googleApiKey,
                   initialLat: controller.manualLat.value ?? 23.7809063,
                   initialLng: controller.manualLng.value ?? 90.4075592,
+                  searchAddress: searchAddress.value.isEmpty ? null : searchAddress.value,
                   onCenterChanged: (latLng) {
                     pickedLat.value = latLng.latitude;
                     pickedLng.value = latLng.longitude;
                   },
+                  onAddressResolved: (addr) {
+                    pickedAddress.value = addr;
+                  },
                 ),
               ),
 
-              // --- Your custom center pin as a Flutter overlay ---
-              // It stays fixed while the map moves underneath
+              // --- Your custom center pin as a Flutter overlay (unchanged) ---
               Positioned.fill(
                 child: IgnorePointer(
                   child: Center(
@@ -54,7 +75,7 @@ class SetYourLocationView extends GetView<HomeController> {
                 ),
               ),
 
-              // Back button
+              // Back button (unchanged)
               Positioned(
                 top: 33.h,
                 left: 20.w,
@@ -71,7 +92,7 @@ class SetYourLocationView extends GetView<HomeController> {
                 ),
               ),
 
-              // Bottom Sheet
+              // Bottom Sheet (UI unchanged except the text field enabled and showing address)
               Positioned(
                 bottom: 0, left: 0, right: 0,
                 child: Container(
@@ -92,7 +113,7 @@ class SetYourLocationView extends GetView<HomeController> {
                           Text('Set your location',
                             style: h2.copyWith(color: AppColors.homeWhite, fontSize: 20.sp),
                           ),
-                          Text('Drag map to move pin',
+                          Text('Drag map or search to move pin',
                             style: h4.copyWith(color: AppColors.homeWhite, fontSize: 16.sp),
                           ),
                         ],
@@ -103,15 +124,20 @@ class SetYourLocationView extends GetView<HomeController> {
                       Column(
                         spacing: 12.h,
                         children: [
-                          // (optional) show current lat/lng, or a place name if you reverse-geocode
+                          // Address-enabled search bar (ENABLED now)
                           CustomTextField(
-                            hintText: 'Lat: ${pickedLat.value.toStringAsFixed(6)}, Lng: ${pickedLng.value.toStringAsFixed(6)}',
+                            hintText: pickedAddress.value.isEmpty
+                                ? 'Search by address (e.g., Banani 11, Dhaka)'
+                                : pickedAddress.value,
                             prefixIcon: 'assets/images/home/search.png',
                             color: AppColors.homeWhite,
                             borderRadius: 50,
                             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
                             isObscureText: false.obs,
-                            enabled: false,
+                            controller: addressCtl,
+                            onSubmitted: (_) => submitSearch(),
+                            onPrefixTap: submitSearch, // if your CustomTextField supports it; if not, keep onSubmitted
+                            enabled: true, // ✅ enabled now
                           ),
 
                           // Confirm -> tell HomeController to override and refresh

@@ -22,6 +22,15 @@ class CustomTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool enabled;
 
+  // ✅ NEW (optional): fire when user hits the keyboard action (search/go/done)
+  final void Function(String)? onSubmitted;
+
+  // ✅ NEW (optional): make the left icon clickable (e.g., trigger search)
+  final VoidCallback? onPrefixTap;
+
+  // ✅ NEW (optional): control keyboard action button (e.g., TextInputAction.search)
+  final TextInputAction? textInputAction;
+
   const CustomTextField({
     required this.hintText,
     this.prefixIcon = '',
@@ -31,56 +40,52 @@ class CustomTextField extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 15.47, vertical: 17),
     this.borderColor = AppColors.authenticationButtonBorderColor,
     this.borderRadius = 12,
-    this.boxShadow = const [
-      BoxShadow()
-    ],
+    this.boxShadow = const [BoxShadow()],
     this.hintTextColor = AppColors.authenticationButtonBorderColor,
     this.maxLine = 1,
     this.controller,
     this.onChanged,
     this.keyboardType,
     this.enabled = true,
+    this.onSubmitted,      // NEW
+    this.onPrefixTap,      // NEW
+    this.textInputAction,  // NEW
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        // boxShadow: boxShadow,
+      decoration: const BoxDecoration(
+        // boxShadow: boxShadow, // (kept commented as in your original)
       ),
-      child: TextFormField(
+      // Wrap with Obx so obscureText toggles immediately everywhere
+      child: Obx(() => TextFormField(
         controller: controller,
-
         onChanged: onChanged,
-
         keyboardType: keyboardType,
-
         enabled: enabled,
+
+        // ✅ NEW
+        onFieldSubmitted: onSubmitted,
+        textInputAction: textInputAction,
 
         decoration: InputDecoration(
           contentPadding: padding,
-
           filled: true,
           fillColor: color,
 
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius.r),
-            borderSide: BorderSide(
-              color: borderColor,
-            )
+            borderSide: BorderSide(color: borderColor),
           ),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius.r),
-              borderSide: BorderSide(
-                color: borderColor,
-              )
+            borderRadius: BorderRadius.circular(borderRadius.r),
+            borderSide: BorderSide(color: borderColor),
           ),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(borderRadius.r),
-              borderSide: BorderSide(
-                color: borderColor,
-              )
+            borderRadius: BorderRadius.circular(borderRadius.r),
+            borderSide: BorderSide(color: borderColor),
           ),
 
           hintText: hintText,
@@ -89,34 +94,33 @@ class CustomTextField extends StatelessWidget {
             fontSize: 14.sp,
           ),
 
-          prefixIcon: prefixIcon != '' ? SizedBox(
-            width: 22.w,
-            height: 22.h,
-            child: Image.asset(
-              prefixIcon,
-              scale: 4,
+          // ✅ If onPrefixTap is provided, make the prefix icon tappable
+          prefixIcon: prefixIcon != '' ? GestureDetector(
+            onTap: onPrefixTap,
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 22.w,
+              height: 22.h,
+              child: Image.asset(prefixIcon, scale: 4),
             ),
           ) : null,
 
+          // Keep your suffix behavior (toggle obscure)
           suffixIcon: suffixIcon != '' ? GestureDetector(
             onTap: () {
               isObscureText.value = !isObscureText.value;
             },
             child: SizedBox(
-              child: Image.asset(
-                width: 24.w,
-                height: 24.h,
-                suffixIcon,
-                scale: 4,
-              ),
+              width: 24.w,
+              height: 24.h,
+              child: Image.asset(suffixIcon, scale: 4),
             ),
           ) : null,
         ),
 
         obscureText: isObscureText.value,
-
         maxLines: maxLine,
-      ),
+      )),
     );
   }
 }
