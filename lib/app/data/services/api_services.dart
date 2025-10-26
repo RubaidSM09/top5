@@ -89,6 +89,26 @@ class ApiService {
     );
   }
 
+  Future<http.Response> socialSignIn (String email, String fullName, String authProvider) async {
+    final Uri url = Uri.parse('$baseUrl/api/v1/user/social-login/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+    };
+
+    final Map<String, String> body = {
+      "email": email,
+      "full_name": fullName,
+      "auth_provider": authProvider,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
   // Profile
   Future<http.Response> getProfileInfo () async {
     final Uri url = Uri.parse('$baseUrl/api/v1/user/profile/');

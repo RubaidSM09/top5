@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:top5/app/modules/authentication/views/password_change_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_form2_view.dart';
@@ -169,6 +171,69 @@ class AuthenticationController extends GetxController {
       } else {
         final responseBody = jsonDecode(response.body);
         Get.snackbar('Sign up failed', responseBody['message'] ?? 'Please use Correct password');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occured');
+      print('Error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Google Sign In
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+    await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> googleSignIn () async {
+    isLoading.value = true;
+
+    try {
+      UserCredential userCredential = await signInWithGoogle();
+      final user = userCredential.user;
+
+      if (user == null || user.email == null) {
+        Get.snackbar('Error', "Google sign-in failed. Please try again.");
+        return;
+      }
+
+      final http.Response response = await _service.socialSignIn(user.email ?? '', user.displayName ?? '', 'google');
+
+      print(':::::::::RESPONSE:::::::::${response.body.toString()}');
+      print(':::::::::CODE:::::::::${response.statusCode}');
+      print(':::::::::REQUEST:::::::::${response.request}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+        final accessToken = responseBody['token']['access'];
+        final refreshToken = responseBody['token']['refresh'];
+
+        await storeTokens(accessToken, refreshToken);
+
+        print(':::::::::responseBody:::::::::$responseBody');
+        print(':::::::::accessToken:::::::::$accessToken');
+        print(':::::::::refreshToken:::::::::$refreshToken');
+
+        Get.snackbar('Success', 'Google sign in successful');
+
+        Get.off(() => DashboardView());
+      } else {
+        final responseBody = jsonDecode(response.body);
+        Get.snackbar('Google Sign In Failed', responseBody['message'] ?? 'Please use correct gmail');
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');

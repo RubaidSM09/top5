@@ -47,6 +47,8 @@ class SignInView extends GetView<AuthenticationController> {
 
   @override
   Widget build(BuildContext context) {
+    AuthenticationController authController = Get.find<AuthenticationController>();
+
     return Scaffold(
       backgroundColor: AppColors.authenticationBlue,
       body: SafeArea(
@@ -223,7 +225,9 @@ class SignInView extends GetView<AuthenticationController> {
                               offset: Offset(1.w, 2.h),
                             )
                           ],
-                          onTap: () {  },
+                          onTap: () {
+                            authController.googleSignIn();
+                          },
                         ),
 
                         SizedBox(height: 60.h,),

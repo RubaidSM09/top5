@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
+import 'package:top5/app/modules/authentication/controllers/authentication_controller.dart';
 import 'package:top5/app/modules/authentication/views/sign_in_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_form_view.dart';
 import 'package:top5/common/app_colors.dart';
@@ -14,6 +15,8 @@ class SignUpView extends GetView {
   const SignUpView({super.key});
   @override
   Widget build(BuildContext context) {
+    AuthenticationController authController = Get.find<AuthenticationController>();
+
     return Scaffold(
       backgroundColor: AppColors.authenticationBlue,
       body: SafeArea(
@@ -61,7 +64,7 @@ class SignUpView extends GetView {
                         SizedBox(height: 16.h,),
                     
                         CustomButton(
-                          text: 'Continue with Google'.tr.tr,
+                          text: 'Continue with Google'.tr,
                           icon: 'assets/images/authentication/google.svg',
                           color: AppColors.authenticationWhite,
                           borderColor: AppColors.authenticationButtonBorderColor,
@@ -73,7 +76,9 @@ class SignUpView extends GetView {
                               offset: Offset(1.w, 2.h),
                             )
                           ],
-                          onTap: () {  },
+                          onTap: () {
+                            authController.googleSignIn();
+                          },
                         ),
                     
                         SizedBox(height: 24.h,),

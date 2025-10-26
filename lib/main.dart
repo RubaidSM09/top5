@@ -10,12 +10,19 @@ import 'app/routes/app_pages.dart';
 import 'common/localization/app_translations.dart';
 import 'common/localization/localization_controller.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize LocalizationController and load saved language
   final LocalizationController localizationController = Get.put(LocalizationController());
   await localizationController.loadSavedLanguage(); // Ensure saved language is loaded
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
