@@ -117,7 +117,7 @@ class ProfileView extends GetView<ProfileController> {
                       child: Obx(() {
                         final count = homeController.savedCount.value;
                         final loading = homeController.savedCountLoading.value;
-                        final label = loading ? 'Saved …' : 'Saved $count';
+                        final label = localizationController.selectedLanguage.value == 'English' ? loading ? 'Saved …' : 'Saved $count' : loading ? 'économiser …' : 'économiser $count';
                         return CustomButton(
                           text: label,
                           // left as-is unless you also have an API for saved count
@@ -137,7 +137,7 @@ class ProfileView extends GetView<ProfileController> {
                       child: Obx(() {
                         final count = homeController.recentCount.value;
                         final loading = homeController.recentCountLoading.value;
-                        final label = loading ? 'Recents …' : 'Recents $count';
+                        final label = localizationController.selectedLanguage.value == 'English' ? loading ? 'Recents …' : 'Recents $count' : loading ? 'Récents …' : 'Récents $count';
                         return CustomButton(
                           text: label,
                           icon: 'assets/images/profile/recents.svg',

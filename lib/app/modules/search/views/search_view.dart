@@ -8,8 +8,9 @@ import 'package:top5/app/modules/search/views/search_details_view.dart';
 import 'package:top5/common/custom_fonts.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/localization/localization_controller.dart';
+import '../../../../common/voice/voice_service.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/details_view.dart';
 import '../../home/views/google_map_webview.dart';
@@ -408,12 +409,25 @@ class SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final searchController = Get.find<SearchController>();
     final homeController = Get.find<HomeController>();
+    final voice = Get.put(VoiceService());
+
+    Future<void> _handleVoice() async {
+      final text = await voice.listenOnce();
+      if (text == null || text.isEmpty) {
+        Get.snackbar('Voice', 'Didn\'t catch that. Please try again.');
+        return;
+      }
+      searchBarText.text = text;
+      // keep both controllers in sync, like your typing flow
+      searchController.setSearchQuery(text);
+      homeController.performSearch(text);
+    }
 
     return TextFormField(
       controller: searchBarText,
       onFieldSubmitted: (value) {
         searchController.setSearchQuery(value.trim());
-        homeController.performSearch(value); // left as-is for your other flows
+        homeController.performSearch(value);
       },
       decoration: InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
@@ -434,12 +448,17 @@ class SearchBar extends StatelessWidget {
         hintText: searchBarText.text,
         hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
         prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
+
+        // ↓ Only this part changed: we call _handleVoice()
         suffixIcon: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
           spacing: 8.w,
           children: [
-            Image.asset('assets/images/home/voice.png', scale: 4),
+            GestureDetector(
+              onTap: _handleVoice,
+              child: Image.asset('assets/images/home/voice.png', scale: 4),
+            ),
             Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
             Image.asset('assets/images/home/filter.png', scale: 4),
             Text('Filter'.tr, style: h4.copyWith(color: AppColors.homeGray, fontSize: 12.sp)),

@@ -9,6 +9,7 @@ import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 
+import '../../../../common/voice/voice_service.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -471,6 +472,17 @@ class HomeSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextEditingController controller = TextEditingController(text: searchBarText);
     final homeController = Get.find<HomeController>();
+    final voice = Get.put(VoiceService());
+
+    Future<void> _handleVoice() async {
+      final text = await voice.listenOnce();
+      if (text == null || text.isEmpty) {
+        Get.snackbar('Voice', 'Didn\'t catch that. Please try again.');
+        return;
+      }
+      controller.text = text;
+      homeController.performSearch(text);
+    }
 
     return TextFormField(
       controller: controller,
@@ -478,87 +490,59 @@ class HomeSearchBar extends StatelessWidget {
         homeController.performSearch(value);
       },
       decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h,),
+        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h,),
+        filled: true,
+        fillColor: AppColors.homeSearchBg,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50.r),
+          borderSide: const BorderSide(color: AppColors.top5Transparent),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50.r),
+          borderSide: const BorderSide(color: AppColors.top5Transparent),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(50.r),
+          borderSide: const BorderSide(color: AppColors.top5Transparent),
+        ),
+        hintText: searchBarText,
+        hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+        prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
 
-          filled: true,
-          fillColor: AppColors.homeSearchBg,
-
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.r),
-              borderSide: BorderSide(
-                color: AppColors.top5Transparent,
-              )
-          ),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.r),
-              borderSide: BorderSide(
-                color: AppColors.top5Transparent,
-              )
-          ),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50.r),
-              borderSide: BorderSide(
-                color: AppColors.top5Transparent,
-              )
-          ),
-
-          hintText: searchBarText,
-          hintStyle: h4.copyWith(
-            color: AppColors.homeGray,
-            fontSize: 14.sp,
-          ),
-
-          prefixIcon: Image.asset(
-            'assets/images/home/search.png',
-            scale: 4,
-          ),
-
-          suffixIcon: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            spacing: 8.w,
-            children: [
-              Image.asset(
-                'assets/images/home/voice.png',
-                scale: 4,
-              ),
-
-              Container(
-                width: 1.w,
-                height: 20.h,
-                color: AppColors.homeSearchBarLineColor,
-              ),
-
-              GestureDetector(
-                onTap: () => Get.to(SetYourLocationView()),
-                child: Container(
-                  padding: EdgeInsets.all(6.r),
-                  decoration: BoxDecoration(
-                    color: AppColors.homeWhite,
-                    borderRadius: BorderRadius.circular(50.r),
-                  ),
-                  child: Row(
-                    spacing: 2.w,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/images/home/set_your_location.svg',
-                      ),
-
-                      Text(
-                        'Set your location'.tr,
-                        style: h4.copyWith(
-                          color: AppColors.homeGray,
-                          fontSize: 10.sp,
-                        ),
-                      )
-                    ],
-                  ),
+        // ↓ Only this part changed: we call _handleVoice()
+        suffixIcon: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8.w,
+          children: [
+            GestureDetector(
+              onTap: _handleVoice,
+              child: Image.asset('assets/images/home/voice.png', scale: 4),
+            ),
+            Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
+            GestureDetector(
+              onTap: () => Get.to(SetYourLocationView()),
+              child: Container(
+                padding: EdgeInsets.all(6.r),
+                decoration: BoxDecoration(
+                  color: AppColors.homeWhite,
+                  borderRadius: BorderRadius.circular(50.r),
+                ),
+                child: Row(
+                  spacing: 2.w,
+                  children: [
+                    SvgPicture.asset('assets/images/home/set_your_location.svg'),
+                    Text(
+                      'Set your location'.tr,
+                      style: h4.copyWith(color: AppColors.homeGray, fontSize: 10.sp),
+                    ),
+                  ],
                 ),
               ),
-
-              SizedBox(width: 20.w,),
-            ],
-          )
+            ),
+            SizedBox(width: 20.w),
+          ],
+        ),
       ),
     );
   }

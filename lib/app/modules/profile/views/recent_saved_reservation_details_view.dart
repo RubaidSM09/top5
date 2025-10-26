@@ -8,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/contact_us_view.dart';
 import '../../home/views/details_view.dart' show DetailsAppBar, WhyTop5Point, DetailsTagCard, WebViewPage; // reuse widgets

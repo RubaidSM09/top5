@@ -173,6 +173,8 @@ class HomeController extends GetxController {
     _weatherTicker = Timer.periodic(const Duration(minutes: 10), (_) {
       _fetchAndSetWeather();
     });
+    fetchRecentPlaces();
+    fetchSavedCount();
     fetchSavedPlaces();
     fetchSavedCount();
     fetchReservationPlaces();

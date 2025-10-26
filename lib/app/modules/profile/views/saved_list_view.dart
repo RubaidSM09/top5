@@ -14,7 +14,7 @@ import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/localization/localization_controller.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/views/details_view.dart';
 import '../../home/views/google_map_webview.dart';
 

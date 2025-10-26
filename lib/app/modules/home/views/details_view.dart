@@ -11,7 +11,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
 import '../../../../common/widgets/custom_button.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import '../controllers/home_controller.dart';
 import 'google_map_webview.dart';
 

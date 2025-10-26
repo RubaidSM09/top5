@@ -27,7 +27,7 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
     if (isLoggedIn) {
       Get.offAll('/home');
     } else {
-      Get.offAllNamed('/authentication');
+      Get.offAllNamed('/onboarding');
     }
   }
 

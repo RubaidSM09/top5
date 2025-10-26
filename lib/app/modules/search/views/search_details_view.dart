@@ -8,7 +8,7 @@ import 'package:top5/app/modules/home/views/google_map_webview.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/views/details_view.dart';
 import '../controllers/search_controller.dart';

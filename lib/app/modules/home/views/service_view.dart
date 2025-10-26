@@ -11,7 +11,7 @@ import 'package:top5/common/widgets/custom_button.dart';
 
 import 'package:geolocator/geolocator.dart';
 import '../../../../common/localization/localization_controller.dart';
-import '../../../secrets/secrest.dart';
+import '../../../secrets/secrets.dart';
 import 'details_view.dart';
 import 'google_map_webview.dart';
 import 'home_view.dart';
@@ -795,7 +795,7 @@ class Top5NearYouListCard extends StatelessWidget {
                       SizedBox(width: 16.w),
 
                       SizedBox(
-                        width: 200.w,
+                        width: 190.w,
                         child: Text(
                           title,
                           style: h2.copyWith(
