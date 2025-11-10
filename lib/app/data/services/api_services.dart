@@ -8,7 +8,7 @@ import 'package:http_parser/http_parser.dart';
 class ApiService {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  final String baseUrl = "https://coreen-unsprouting-properly.ngrok-free.dev/";
+  final String baseUrl = "http://10.10.13.99:8090";
 
   // login method
   Future<http.Response> login (String email, String password) async {

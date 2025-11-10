@@ -44,7 +44,7 @@ class PersonalInfoView extends GetView {
                     )
                         :
                     NetworkImage(
-                      'https://coreen-unsprouting-properly.ngrok-free.dev/${profileController.image.value}',
+                      'http://10.10.13.99:8090${profileController.image.value}',
                     ),
                   ),
                     
