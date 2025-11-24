@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -8,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/action_places_details.dart';
 import '../../../data/model/time_date.dart';
@@ -47,6 +49,9 @@ class HomeController extends GetxController {
   final RxnDouble manualLat = RxnDouble(null);
   final RxnDouble manualLng = RxnDouble(null);
   final RxBool manualOverride = false.obs;
+
+  final RxnDouble userLat = RxnDouble(null);
+  final RxnDouble userLng = RxnDouble(null);
 
   // Search state
   final RxString searchText = ''.obs;
@@ -202,7 +207,7 @@ class HomeController extends GetxController {
     if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
       await _fetchWeatherFor(manualLat.value!, manualLng.value!);
       await refreshIdeas();
-      await fetchTop5Places(search: searchText.value);
+      // await fetchTop5Places(search: searchText.value);
       return;
     }
     final hasLocation = await _ensureLocationPermission();
@@ -213,7 +218,7 @@ class HomeController extends GetxController {
     final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     await _fetchWeatherFor(pos.latitude, pos.longitude);
     await refreshIdeas();
-    await fetchTop5Places(search: searchText.value);
+    // await fetchTop5Places(search: searchText.value);
   }
 
   Future<bool> _ensureLocationPermission() async {
@@ -326,6 +331,9 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
+      userLat.value = lat;
+      userLng.value = lng;
+
       // Apply filters
       final bool openNow = selectedFilter[0].value;
       final String? maxTime = selectedFilter[1].value ? '10m' : null;
@@ -353,12 +361,12 @@ class HomeController extends GetxController {
         top5Places.assignAll(list.places ?? <Places>[]);
 
         // NEW: lazily fetch AI summaries for visible places (cache)
-        for (final p in top5Places) {
+        /*for (final p in top5Places) {
           final id = p.placeId ?? '';
           if (id.isNotEmpty && !aiSummaries.containsKey(id)) {
             _fetchAiForPlace(id);
           }
-        }
+        }*/
       } else {
         final msg = _safeMsg(res.body) ?? 'Failed to fetch places.';
         Get.snackbar('Top 5', msg);
@@ -427,6 +435,9 @@ class HomeController extends GetxController {
     manualLat.value = lat;
     manualLng.value = lng;
     manualOverride.value = true;
+
+    userLat.value = lat;
+    userLng.value = lng;
 
     await _fetchWeatherFor(lat, lng);
     await refreshIdeas();
@@ -812,6 +823,114 @@ class HomeController extends GetxController {
       reservationCount.value = 0;
     } finally {
       reservationCountLoading.value = false;
+    }
+  }
+
+  Future<void> openGoogleMapsAppDirections({
+    required double originLat,
+    required double originLng,
+    required double destLat,
+    required double destLng,
+    String travelMode = 'walking', // walking | driving | bicycling | transit
+  }) async {
+    // Android: google.navigation (opens the app)
+    if (!kIsWeb && Platform.isAndroid) {
+      final modeChar = switch (travelMode) {
+        'walking' => 'w',
+        'bicycling' => 'b',
+        'transit' => 'r',
+        _ => 'd', // driving
+      };
+      final androidUri = Uri.parse('google.navigation:q=$destLat,$destLng&mode=$modeChar');
+      if (await canLaunchUrl(androidUri)) {
+        await launchUrl(androidUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    }
+
+    // iOS: comgooglemaps scheme (opens Google Maps app if installed)
+    if (!kIsWeb && Platform.isIOS) {
+      final iosUri = Uri.parse(
+        'comgooglemaps://?saddr=$originLat,$originLng&daddr=$destLat,$destLng&directionsmode=$travelMode',
+      );
+      if (await canLaunchUrl(iosUri)) {
+        await launchUrl(iosUri, mode: LaunchMode.externalApplication);
+        return;
+      }
+    }
+
+    // Fallback: universal link (opens Google Maps app if possible, else browser)
+    final webUri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+          '&origin=$originLat,$originLng'
+          '&destination=$destLat,$destLng'
+          '&travelmode=$travelMode',
+    );
+    await launchUrl(webUri, mode: LaunchMode.externalApplication);
+  }
+
+// Convenience wrapper that reuses your existing origin logic
+  Future<void> openDirectionsTo({
+    required double destLat,
+    required double destLng,
+    String travelMode = 'walking',
+  }) async {
+    double oLat, oLng;
+    if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
+      oLat = manualLat.value!;
+      oLng = manualLng.value!;
+    } else {
+      final hasLoc = await _ensureLocationPermission();
+      if (!hasLoc) {
+        Get.snackbar('Location', 'Permission denied for location.');
+        return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      oLat = pos.latitude;
+      oLng = pos.longitude;
+    }
+
+    await openGoogleMapsAppDirections(
+      originLat: oLat,
+      originLng: oLng,
+      destLat: destLat,
+      destLng: destLng,
+      travelMode: travelMode,
+    );
+  }
+
+  Future<void> openGoogleAppSearch(String query) async {
+    final encoded = Uri.encodeComponent(query.trim());
+
+    // ⛔ iOS: Cannot open Google App directly
+    if (!kIsWeb && Platform.isIOS) {
+      final fallback = Uri.parse("https://www.google.com/search?q=$encoded");
+      await launchUrl(fallback, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // ANDROID: Attempt to open Google App directly
+    final googleAppIntent = Uri.parse(
+        "intent://www.google.com/search?q=$encoded#Intent;"
+            "package=com.google.android.googlequicksearchbox;"
+            "scheme=https;"
+            "end"
+    );
+
+    try {
+      final canOpenGoogleApp = await launchUrl(
+        googleAppIntent,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!canOpenGoogleApp) {
+        throw "Google App not available";
+      }
+
+    } catch (_) {
+      // Fallback → open Google search in browser or Chrome
+      final fallback = Uri.parse("https://www.google.com/search?q=$encoded");
+      await launchUrl(fallback, mode: LaunchMode.externalApplication);
     }
   }
 }

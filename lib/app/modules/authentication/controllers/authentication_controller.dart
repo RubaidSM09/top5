@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:top5/app/modules/authentication/views/password_change_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_form2_view.dart';
 import 'package:top5/app/modules/dashboard/views/dashboard_view.dart';
+import 'package:top5/app/modules/subscription/views/subscription_view.dart';
 
 import '../../../data/services/api_services.dart';
 import '../views/create_new_password_view.dart';
@@ -70,10 +71,12 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar('Success', 'Logged in Successfully');
 
-        Get.off(() => DashboardView());
+        // ⬇️ NEW: decide where to go based on current plan
+        await _checkUserSubscriptionAndNavigate();
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Login failed', responseBody['message'] ?? 'Please use Correct UserName and Password');
+        Get.snackbar('Login failed',
+            responseBody['message'] ?? 'Please use Correct UserName and Password');
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -167,7 +170,7 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar('Success', 'Account created Successfully');
 
-        Get.off(() => DashboardView());
+        Get.off(() => SubscriptionView());
       } else {
         final responseBody = jsonDecode(response.body);
         Get.snackbar('Sign up failed', responseBody['message'] ?? 'Please use Correct password');
@@ -211,7 +214,11 @@ class AuthenticationController extends GetxController {
         return;
       }
 
-      final http.Response response = await _service.socialSignIn(user.email ?? '', user.displayName ?? '', 'google');
+      final http.Response response = await _service.socialSignIn(
+        user.email ?? '',
+        user.displayName ?? '',
+        'google',
+      );
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -230,10 +237,12 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar('Success', 'Google sign in successful');
 
-        Get.off(() => DashboardView());
+        // ⬇️ NEW: route according to plan (BASIC/PREMIUM → Dashboard)
+        await _checkUserSubscriptionAndNavigate();
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Google Sign In Failed', responseBody['message'] ?? 'Please use correct gmail');
+        Get.snackbar('Google Sign In Failed',
+            responseBody['message'] ?? 'Please use correct gmail');
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -331,6 +340,41 @@ class AuthenticationController extends GetxController {
       print('Error: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _checkUserSubscriptionAndNavigate() async {
+    try {
+      final response = await _service.getCurrentActivePlan();
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
+
+        // "plan_details" contains the actual plan info
+        final planDetails = body['plan_details'] as Map<String, dynamic>?;
+
+        final String planName =
+        (planDetails?['name'] ?? '').toString().toUpperCase();
+
+        // If BASIC or PREMIUM → go straight to Dashboard
+        if (planName == 'BASIC' || planName == 'PREMIUM') {
+          Get.offAll(() => DashboardView());
+          return;
+        }
+
+        // Any other plan (e.g., FREE / no plan) → show Subscription screen
+        Get.offAll(() => SubscriptionView());
+      } else {
+        // If API failed, fallback to Subscription screen
+        print(
+            'Failed to fetch current plan: ${response.statusCode} ${response.body}');
+        Get.offAll(() => SubscriptionView());
+      }
+    } catch (e) {
+      print('Error checking current plan: $e');
+      // On error, still let the user pick a plan
+      Get.offAll(() => SubscriptionView());
     }
   }
 

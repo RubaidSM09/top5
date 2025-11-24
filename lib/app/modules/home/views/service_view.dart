@@ -317,7 +317,7 @@ class ServiceView extends GetView<HomeController> {
                                     final i = entry.key + 1;
                                     final p = entry.value;
 
-                                    final aiText = c.aiSummaryTextFor(p.placeId);
+                                    // final aiText = c.aiSummaryTextFor(p.placeId);
 
                                     return Top5NearYouListCard(
                                       serialNo: i,
@@ -338,7 +338,7 @@ class ServiceView extends GetView<HomeController> {
                                       isSaved: false.obs,
                                       selectedLocations: controller.selectedLocations,
                                       placeId: p.placeId ?? '',
-                                      aiSummary: aiText,
+                                      // aiSummary: aiText,
                                       destLat: p.latitude ?? 0.0,      // NEW
                                       destLng: p.longitude ?? 0.0,     // NEW
                                     );
@@ -357,12 +357,14 @@ class ServiceView extends GetView<HomeController> {
                       width: double.infinity,
                       child: GoogleMapWebView(
                         googleApiKey: googleApiKey,
-                        originLat: controller.top5Places.isNotEmpty
-                            ? (controller.top5Places.first.latitude ?? 23.7809063)
-                            : 23.7809063,
-                        originLng: controller.top5Places.isNotEmpty
-                            ? (controller.top5Places.first.longitude ?? 90.4075592)
-                            : 90.4075592,
+                        originLat: controller.userLat.value ??
+                            (controller.top5Places.isNotEmpty
+                                ? (controller.top5Places.first.latitude ?? 23.7809063)
+                                : 23.7809063),
+                        originLng: controller.userLng.value ??
+                            (controller.top5Places.isNotEmpty
+                                ? (controller.top5Places.first.longitude ?? 90.4075592)
+                                : 90.4075592),
                         places: controller.top5Places.isNotEmpty ? (controller.top5Places) : [],
                         originalIndices: [1, 2, 3, 4, 5],
                       ),
@@ -482,7 +484,7 @@ class ServiceView extends GetView<HomeController> {
                                       final i = entry.key + 1;
                                       final p = entry.value;
 
-                                      final aiText = c.aiSummaryTextFor(p.placeId);
+                                      // final aiText = c.aiSummaryTextFor(p.placeId);
 
                                       return Top5NearYouMapCard(
                                         serialNo: i,
@@ -501,7 +503,7 @@ class ServiceView extends GetView<HomeController> {
                                         isSaved: false.obs,
                                         selectedLocations: controller.selectedLocations,
                                         placeId: p.placeId ?? '',
-                                        aiSummary: aiText,
+                                        // aiSummary: aiText,
                                         destLat: p.latitude ?? 0.0,      // NEW
                                         destLng: p.longitude ?? 0.0,     // NEW
                                       );
@@ -592,7 +594,7 @@ class Top5NearYouListCard extends StatelessWidget {
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   final String placeId;  // New
-  final String aiSummary; // NEW
+  // final String aiSummary; // NEW
   final double destLat;   // NEW
   final double destLng;   // NEW
 
@@ -612,7 +614,7 @@ class Top5NearYouListCard extends StatelessWidget {
     required this.isSaved,
     required this.selectedLocations,
     required this.placeId,
-    required this.aiSummary,
+    // required this.aiSummary,
     required this.destLat,
     required this.destLng,
     super.key,
@@ -620,44 +622,18 @@ class Top5NearYouListCard extends StatelessWidget {
 
   Future<void> _openDirections() async {
     final c = Get.find<HomeController>();
+    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
-    double oLat, oLng;
-    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
-      oLat = c.manualLat.value!;
-      oLng = c.manualLng.value!;
-    } else {
-      // fall back to current device location
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Location', 'Location services disabled.');
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar('Location', 'Permission denied for location.');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      oLat = pos.latitude;
-      oLng = pos.longitude;
+    // (Optional) keep your recents tracking:
+    if (placeId.isNotEmpty) {
+      await c.submitActionPlaces(placeId, 'recent');
+      await c.fetchRecentPlaces();
     }
+  }
 
-    Get.to(() => DirectionsMapWebView(
-      googleApiKey: googleApiKey,
-      originLat: oLat,
-      originLng: oLng,
-      destLat: destLat,
-      destLng: destLng,
-      travelMode: 'WALKING',
-      destName: title,
-      destImgUrl: image,
-    ));
-
-    await c.submitActionPlaces(placeId, 'recent');
-    await c.fetchRecentPlaces();
+  Future<void> _searchOnGoogle() async {
+    final c = Get.find<HomeController>();
+    await c.openGoogleAppSearch(title);
   }
 
   Future<void> _toggleSave() async {
@@ -720,53 +696,75 @@ class Top5NearYouListCard extends StatelessWidget {
         child: Column(
           spacing: 16.h,
           children: [
-            Container(
-              padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 8.h, bottom: 156.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6.r),
-                image: DecorationImage(
-                  image: imgProvider,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: isPromo
-                          ? AppColors.servicePromoGreen
-                          : AppColors.top5Transparent,
-                      borderRadius: BorderRadius.circular(16.r),
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 8.w, right: 8.w, top: 8.h, bottom: 156.h),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6.r),
+                    image: DecorationImage(
+                      image: imgProvider,
+                      fit: BoxFit.cover,
                     ),
-                    child: Text(
-                      'Promo',
-                      style: h4.copyWith(
-                        color: isPromo
-                            ? AppColors.serviceWhite
-                            : AppColors.top5Transparent,
-                        fontSize: 10.sp,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: isPromo
+                              ? AppColors.servicePromoGreen
+                              : AppColors.top5Transparent,
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: Text(
+                          'Promo',
+                          style: h4.copyWith(
+                            color: isPromo
+                                ? AppColors.serviceWhite
+                                : AppColors.top5Transparent,
+                            fontSize: 10.sp,
+                          ),
+                        ),
+                      ),
+                      Obx(() => GestureDetector(
+                        onTap: _toggleSave,
+                        child: Container(
+                          padding: EdgeInsets.all(9.33.r),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.serviceWhite,
+                          ),
+                          child: SvgPicture.asset(
+                            c.isPlaceSaved(placeId)
+                                ? 'assets/images/home/saved.svg' // Icon for saved state
+                                : 'assets/images/home/save.svg', // Icon for unsaved state
+                          ),
+                        ),
+                      )),
+                    ],
+                  ),
+                ),
+
+                if (status == 'Closed')
+                  Positioned.fill(
+                    child: Container(
+                      padding: EdgeInsets.all(20.r),
+                      color: AppColors.top5Black.withAlpha(127),
+                      child: Center(
+                        child: Text(
+                          '$title is closed now.',
+                          style: h3.copyWith(
+                            color: AppColors.homeWhite,
+                            fontSize: 20.sp,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ),
-                  Obx(() => GestureDetector(
-                    onTap: _toggleSave,
-                    child: Container(
-                      padding: EdgeInsets.all(9.33.r),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.serviceWhite,
-                      ),
-                      child: SvgPicture.asset(
-                        c.isPlaceSaved(placeId)
-                            ? 'assets/images/home/saved.svg' // Icon for saved state
-                            : 'assets/images/home/save.svg', // Icon for unsaved state
-                      ),
-                    ),
-                  )),
-                ],
-              ),
+              ],
             ),
 
             Padding(
@@ -908,13 +906,13 @@ class Top5NearYouListCard extends StatelessWidget {
                           vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.serviceSearchBg,
+                          color: status == 'Open' ? AppColors.serviceSearchBg : AppColors.profileDeleteButtonColor,
                           borderRadius: BorderRadius.circular(50.r),
                         ),
                         child: Text(
                           status,
                           style: h3.copyWith(
-                            color: AppColors.servicePromoGreen,
+                            color: status == 'Open' ? AppColors.servicePromoGreen : AppColors.profileDeleteButtonTextColor,
                             fontSize: 12.sp,
                           ),
                         ),
@@ -923,7 +921,7 @@ class Top5NearYouListCard extends StatelessWidget {
                   ),
 
                   // Why this pick — show AI summary if available (max 2, comma-separated)
-                  Row(
+                  /*Row(
                     children: [
                       Text(
                         'Why this pick: '.tr,
@@ -945,7 +943,7 @@ class Top5NearYouListCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -973,22 +971,7 @@ class Top5NearYouListCard extends StatelessWidget {
                         borderColor: AppColors.serviceGray,
                         textColor: AppColors.serviceGray,
                         textSize: 12,
-                        onTap: () {},
-                      ),
-
-                      CustomButton(
-                        text: '',
-                        icon: 'assets/images/home/call.svg',
-                        paddingLeft: 40,
-                        paddingRight: 20,
-                        paddingTop: 8,
-                        paddingBottom: 8,
-                        borderRadius: 6,
-                        color: AppColors.top5Transparent,
-                        borderColor: AppColors.serviceGray,
-                        textColor: AppColors.serviceGray,
-                        textSize: 12,
-                        onTap: () {},
+                        onTap: _searchOnGoogle,
                       ),
                     ],
                   ),
@@ -1016,7 +999,7 @@ class Top5NearYouMapCard extends StatelessWidget {
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   final String placeId;  // New
-  final String aiSummary; // NEW
+  // final String aiSummary; // NEW
   final double destLat;   // NEW
   final double destLng;   // NEW
 
@@ -1034,7 +1017,7 @@ class Top5NearYouMapCard extends StatelessWidget {
     required this.isSaved,
     required this.selectedLocations,
     required this.placeId,
-    required this.aiSummary,
+    // required this.aiSummary,
     required this.destLat,
     required this.destLng,
     super.key,
@@ -1042,40 +1025,18 @@ class Top5NearYouMapCard extends StatelessWidget {
 
   Future<void> _openDirections() async {
     final c = Get.find<HomeController>();
+    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
-    double oLat, oLng;
-    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
-      oLat = c.manualLat.value!;
-      oLng = c.manualLng.value!;
-    } else {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Location', 'Location services disabled.');
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar('Location', 'Permission denied for location.');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      oLat = pos.latitude;
-      oLng = pos.longitude;
+    // (Optional) keep your recents tracking:
+    if (placeId.isNotEmpty) {
+      await c.submitActionPlaces(placeId, 'recent');
+      await c.fetchRecentPlaces();
     }
+  }
 
-    Get.to(() => DirectionsMapWebView(
-      googleApiKey: googleApiKey,
-      originLat: oLat,
-      originLng: oLng,
-      destLat: destLat,
-      destLng: destLng,
-      travelMode: 'WALKING',
-      destName: title,
-      destImgUrl: image,
-    ));
+  Future<void> _searchOnGoogle() async {
+    final c = Get.find<HomeController>();
+    await c.openGoogleAppSearch(title);
   }
 
   @override
@@ -1316,7 +1277,7 @@ class Top5NearYouMapCard extends StatelessWidget {
             SizedBox(height: 8.h,),
 
             // Why this pick row for map card (only shows when summary present)
-            if (aiSummary.isNotEmpty)
+            /*if (aiSummary.isNotEmpty)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1339,7 +1300,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ),*/
 
             SizedBox(height: 16.h,),
 
@@ -1369,22 +1330,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                   borderColor: AppColors.serviceGray,
                   textColor: AppColors.serviceGray,
                   textSize: 12,
-                  onTap: () {},
-                ),
-
-                CustomButton(
-                  text: '',
-                  icon: 'assets/images/home/call.svg',
-                  paddingLeft: 40,
-                  paddingRight: 20,
-                  paddingTop: 8,
-                  paddingBottom: 8,
-                  borderRadius: 6,
-                  color: AppColors.top5Transparent,
-                  borderColor: AppColors.serviceGray,
-                  textColor: AppColors.serviceGray,
-                  textSize: 12,
-                  onTap: () {},
+                  onTap: _searchOnGoogle,
                 ),
               ],
             ),

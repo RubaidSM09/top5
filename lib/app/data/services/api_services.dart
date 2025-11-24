@@ -591,4 +591,59 @@ class ApiService {
       body: jsonEncode(body),
     );
   }
+
+
+
+  /// Subscription Plan
+  Future<http.Response> getSubscriptionList() async {
+    final Uri url = Uri.parse('$baseUrl/api/v1/subscription/list/');
+
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    return await http.get(
+      url,
+      headers: headers,
+    );
+  }
+
+  Future<http.Response> subscriptionCheckout(int planId) async {
+    String? accessToken = await _storage.read(key: 'access_token');
+
+    final Uri url = Uri.parse('$baseUrl/api/v1/subscription/checkout/');
+
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+
+    final Map<String, dynamic> body = {
+      "plan_id": planId.toString(),
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
+
+  Future<http.Response> getCurrentActivePlan() async {
+    final String? accessToken = await _storage.read(key: 'access_token');
+
+    final uri = Uri.parse(
+      '$baseUrl/api/v1/subscription/user/current-active-plan/',
+    );
+
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+      if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+    };
+
+    return http.get(uri, headers: headers);
+  }
 }

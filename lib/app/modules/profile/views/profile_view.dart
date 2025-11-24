@@ -133,7 +133,7 @@ class ProfileView extends GetView<ProfileController> {
                       }),
                     ),
 
-                    Expanded(
+                    /*Expanded(
                       child: Obx(() {
                         final count = homeController.recentCount.value;
                         final loading = homeController.recentCountLoading.value;
@@ -150,7 +150,7 @@ class ProfileView extends GetView<ProfileController> {
                           onTap: () {},
                         );
                       }),
-                    ),
+                    ),*/
                   ],
                 ),
 
@@ -169,13 +169,15 @@ class ProfileView extends GetView<ProfileController> {
                 Row(
                   spacing: 31.w,
                   children: [
-                    ProfileQuickActionButton(
-                      text: 'Saved'.tr,
-                      icon: 'assets/images/profile/saved.svg',
-                      onTap: () => Get.to(const SavedListView()),
+                    Expanded(
+                      child: ProfileQuickActionButton(
+                        text: 'Saved'.tr,
+                        icon: 'assets/images/profile/saved.svg',
+                        onTap: () => Get.to(const SavedListView()),
+                      ),
                     ),
 
-                    ProfileQuickActionButton(
+                    /*ProfileQuickActionButton(
                       text: 'Recents'.tr,
                       icon: 'assets/images/profile/recents.svg',
                       onTap: () => Get.to(const RecentListView()),
@@ -185,7 +187,7 @@ class ProfileView extends GetView<ProfileController> {
                       text: 'Reservations'.tr,
                       icon: 'assets/images/profile/reservations.svg',
                       onTap: () => Get.to(const ReservationListView()),
-                    ),
+                    ),*/
                   ],
                 ),
 
@@ -995,36 +997,34 @@ class ProfileQuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(10.r),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(6.r),
-            border: Border.all(color: AppColors.profileGray, width: 0.75.r),
-          ),
-          child: Column(
-            spacing: 8.h,
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(
-                  color: AppColors.profileSearchBg,
-                  shape: BoxShape.circle,
-                ),
-                child: SvgPicture.asset(icon),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(10.r),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.r),
+          border: Border.all(color: AppColors.profileGray, width: 0.75.r),
+        ),
+        child: Column(
+          spacing: 8.h,
+          children: [
+            Container(
+              padding: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: AppColors.profileSearchBg,
+                shape: BoxShape.circle,
               ),
+              child: SvgPicture.asset(icon),
+            ),
 
-              Text(
-                text,
-                style: h1.copyWith(
-                  color: AppColors.profileBlack,
-                  fontSize: 12.sp,
-                ),
+            Text(
+              text,
+              style: h1.copyWith(
+                color: AppColors.profileBlack,
+                fontSize: 12.sp,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

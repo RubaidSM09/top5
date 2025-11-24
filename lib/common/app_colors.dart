@@ -73,4 +73,7 @@ class AppColors {
   /// MISC
   static const Color top5Transparent = Colors.transparent;
   static const Color top5Black = Colors.black;
+  static const Color subscriptionBorder = Color(0xFFE9EAEB);
+  static const Color subscriptionInactiveContainer = Color(0xFFD9D9D9);
+  static const Color subscriptionBoxShadowColor = Color(0xFF0A0D12);
 }

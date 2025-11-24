@@ -1,5 +1,6 @@
 // lib/app/modules/home/views/google_map_webview.dart
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart';
@@ -11,7 +12,7 @@ class GoogleMapWebView extends StatefulWidget {
   final double originLat; // Center lat
   final double originLng; // Center lng
   final List<Places> places; // List of places to display
-  final List<int> originalIndices; // NEW: Original indices of places in the source list
+  final List<int> originalIndices; // Original indices of places in the source list
   // Optionally exclude one marker (the current place) by its lat/lng
   final double? excludeLat;
   final double? excludeLng;
@@ -21,7 +22,7 @@ class GoogleMapWebView extends StatefulWidget {
     required this.originLat,
     required this.originLng,
     required this.places,
-    required this.originalIndices, // NEW
+    required this.originalIndices,
     this.excludeLat,
     this.excludeLng,
     super.key,
@@ -32,45 +33,14 @@ class GoogleMapWebView extends StatefulWidget {
 }
 
 class _GoogleMapWebViewState extends State<GoogleMapWebView> {
-  late final WebViewController _web;
-  final RxString _mapError = ''.obs;
-  bool _mapReady = false;
-
-  String _pinDataUrl = ''; // location_pointer.png as data URL
-  String _fallbackImgUrl = ''; // restaurant.jpg as data URL (fallback)
+  late String _staticMapUrl;
 
   static const double _eps = 1e-6; // equality tolerance for lat/lng
 
   @override
   void initState() {
     super.initState();
-
-    _web = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..addJavaScriptChannel(
-        'MapBridge',
-        onMessageReceived: (msg) {
-          try {
-            final data = jsonDecode(msg.message) as Map<String, dynamic>;
-            switch (data['type']) {
-              case 'map_ready':
-                _mapReady = true;
-                _centerOn(widget.originLat, widget.originLng, zoom: 14);
-                _pushPlacesToWeb();
-                break;
-              case 'gm_authFailure':
-                _mapError.value = 'Google Maps auth failure (check key/billing/restrictions).';
-                break;
-              case 'gm_script_error':
-              case 'map_init_error':
-                _mapError.value = (data['message'] ?? 'Map failed to load').toString();
-                break;
-            }
-          } catch (_) {}
-        },
-      );
-
-    _initWeb();
+    _staticMapUrl = _buildStaticMapUrl();
   }
 
   @override
@@ -79,62 +49,21 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
     if (widget.originLat != oldWidget.originLat ||
         widget.originLng != oldWidget.originLng ||
         widget.places != oldWidget.places ||
-        widget.originalIndices != oldWidget.originalIndices) { // NEW: Check for indices change
-      _centerOn(widget.originLat, widget.originLng, zoom: 14);
-      _pushPlacesToWeb();
+        widget.originalIndices != oldWidget.originalIndices ||
+        widget.excludeLat != oldWidget.excludeLat ||
+        widget.excludeLng != oldWidget.excludeLng) {
+      _staticMapUrl = _buildStaticMapUrl();
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> _initWeb() async {
-    // Convert your assets to data URLs so WebView JS can use them
-    _pinDataUrl = await _assetToDataUrl(
-      'assets/images/home/location_pointer.png',
-      mime: 'image/png',
-    ).catchError((_) => '');
-
-    _fallbackImgUrl = await _assetToDataUrl(
-      'assets/images/home/restaurant.jpg',
-      mime: 'image/jpeg',
-    ).catchError((_) => '');
-
-    // Build initial HTML with filtered places and original serial numbers
-    final html = _htmlTemplate(
-      apiKey: widget.googleApiKey,
-      originLat: widget.originLat,
-      originLng: widget.originLng,
-      places: _filteredPlaces().asMap().entries.map((entry) {
-        final i = entry.key;
-        final p = entry.value;
-        final raw = (p.thumbnail ?? '').trim();
-        final isHttp = raw.startsWith('http://') || raw.startsWith('https://');
-        return {
-          'lat': p.latitude ?? 0.0,
-          'lng': p.longitude ?? 0.0,
-          'name': p.name ?? 'Unknown',
-          'img': isHttp ? raw : '',
-          'serial': widget.originalIndices[i], // NEW: Use original index
-        };
-      }).toList(),
-      pinImgDataUrl: _pinDataUrl,
-      fallbackImgDataUrl: _fallbackImgUrl,
-    );
-
-    _web.loadHtmlString(html);
-  }
-
+  /// Filter out the excluded place (for Details screen use-case)
   List<Places> _filteredPlaces() {
     final exLat = widget.excludeLat;
     final exLng = widget.excludeLng;
     if (exLat == null || exLng == null) {
       return widget.places;
     }
-    return widget.places.asMap().entries.where((entry) {
-      final p = entry.value;
+    return widget.places.where((p) {
       final lat = p.latitude;
       final lng = p.longitude;
       if (lat == null || lng == null) return true;
@@ -142,315 +71,112 @@ class _GoogleMapWebViewState extends State<GoogleMapWebView> {
       final sameLng = (lng - exLng).abs() < _eps;
       // Exclude if both lat & lng match within tolerance
       return !(sameLat && sameLng);
-    }).map((entry) => entry.value).toList();
-  }
-
-  Future<String> _assetToDataUrl(String assetPath, {required String mime}) async {
-    final bytes = await rootBundle.load(assetPath);
-    final b64 = base64Encode(bytes.buffer.asUint8List());
-    return 'data:$mime;base64,$b64';
-  }
-
-  /// Recenter the JS map
-  Future<void> _centerOn(double lat, double lng, {int? zoom}) async {
-    if (!_mapReady) return;
-    final z = zoom != null ? zoom.toString() : 'null';
-    final js = 'window._setCenter(${lat.toStringAsFixed(7)}, ${lng.toStringAsFixed(7)}, $z);';
-    try {
-      await _web.runJavaScript(js);
-    } catch (_) {}
-  }
-
-  /// Push the (filtered) places to the JS map (refresh markers)
-  void _pushPlacesToWeb() {
-    if (!_mapReady) return;
-    final arr = _filteredPlaces().asMap().entries.map((entry) {
-      final i = entry.key;
-      final p = entry.value;
-      final raw = (p.thumbnail ?? '').trim();
-      final isHttp = raw.startsWith('http://') || raw.startsWith('https://');
-      final img = isHttp ? raw : '';
-      return {
-        'lat': p.latitude ?? 0.0,
-        'lng': p.longitude ?? 0.0,
-        'name': p.name ?? 'Unknown',
-        'img': img,
-        'serial': widget.originalIndices[i], // NEW: Use original index
-      };
     }).toList();
+  }
 
-    final jsArg = jsonEncode(arr);
-    final js = 'window._setPlaces(${jsonEncode(jsArg)});';
-    _web.runJavaScript(js);
+  /// Build a Google Static Maps URL with numbered markers.
+  String _buildStaticMapUrl() {
+    const size = '600x360'; // width x height in px
+    const scale = 2; // higher scale = sharper on high DPI
+
+    final places = _filteredPlaces();
+
+    // 🔹 compute maximum distance (km) from center to any place
+    double maxDistanceKm = 0;
+    for (final p in places) {
+      final lat = p.latitude;
+      final lng = p.longitude;
+      if (lat == null || lng == null) continue;
+      final d = _haversineKm(widget.originLat, widget.originLng, lat, lng);
+      if (d > maxDistanceKm) maxDistanceKm = d;
+    }
+
+    // 🔹 choose zoom based on that max distance
+    final int zoom = places.isEmpty ? 14 : _zoomFromMaxDistanceKm(maxDistanceKm);
+
+    final buffer = StringBuffer('https://maps.googleapis.com/maps/api/staticmap');
+
+    buffer.write('?key=${widget.googleApiKey}');
+    buffer.write('&center=${widget.originLat},${widget.originLng}');
+    buffer.write('&zoom=$zoom');
+    buffer.write('&size=$size');
+    buffer.write('&scale=$scale');
+    buffer.write('&maptype=roadmap');
+
+    // Add markers with numeric labels 1..5 (from originalIndices)
+    for (int i = 0; i < places.length && i < widget.originalIndices.length; i++) {
+      final p = places[i];
+      final lat = p.latitude;
+      final lng = p.longitude;
+      if (lat == null || lng == null) continue;
+
+      // Static Maps label must be a single alphanumeric character.
+      // Since your list is Top 5, serials 1-5 are fine.
+      final labelInt = widget.originalIndices[i];
+      final label = labelInt.toString(); // "1".."5"
+
+      buffer.write(
+        '&markers=color:0x00A896FF|label:$label|${lat.toStringAsFixed(6)},${lng.toStringAsFixed(6)}',
+      );
+    }
+
+    return buffer.toString();
+  }
+
+  /// Haversine distance in km
+  double _haversineKm(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadiusKm = 6371.0;
+    final dLat = _degToRad(lat2 - lat1);
+    final dLon = _degToRad(lon2 - lon1);
+    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(_degToRad(lat1)) *
+            math.cos(_degToRad(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    return earthRadiusKm * c;
+  }
+
+  double _degToRad(double deg) => deg * math.pi / 180.0;
+
+  /// Rough mapping distance (km) → zoom so all markers are on-screen
+  int _zoomFromMaxDistanceKm(double d) {
+    // small buffer so markers are not at the very edge
+    d = d * 3;
+
+    if (d <= 0.3) return 17; // very close — street level
+    if (d <= 0.6) return 16;
+    if (d <= 1.2) return 15;
+    if (d <= 2.5) return 14;
+    if (d <= 5) return 13;
+    if (d <= 10) return 12;
+    if (d <= 20) return 11;
+    if (d <= 40) return 10;
+    if (d <= 80) return 9;
+    return 8; // very spread out — city/region level
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(child: WebViewWidget(controller: _web)),
-        Obx(() {
-          if (_mapError.isEmpty) return const SizedBox.shrink();
-          return Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.35),
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(12),
-              child: Text(
-                _mapError.value,
-                style: const TextStyle(color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8), // optional, to look nicer
+      child: Image.network(
+        _staticMapUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            alignment: Alignment.center,
+            child: const Text(
+              'Map failed to load',
+              style: TextStyle(color: Colors.black54),
             ),
           );
-        }),
-      ],
+        },
+      ),
     );
-  }
-
-  String _htmlTemplate({
-    required String apiKey,
-    required double originLat,
-    required double originLng,
-    required List<Map<String, dynamic>> places,
-    required String pinImgDataUrl,
-    required String fallbackImgDataUrl,
-  }) {
-    final placesJs = places.map((m) {
-      final lat = (m['lat'] ?? 0.0).toString();
-      final lng = (m['lng'] ?? 0.0).toString();
-      final name = (m['name'] ?? 'Unknown').toString().replaceAll("'", "\\'");
-      final img = (m['img'] ?? '').toString().replaceAll("'", "\\'");
-      final serial = (m['serial'] ?? 0).toString();
-      return "{lat:$lat, lng:$lng, name:'$name', img:'$img', serial:$serial}";
-    }).join(',');
-
-    return """
-<!doctype html>
-<html>
-<head>
-  <meta name="viewport" content="initial-scale=1, width=device-width, height=device-height, user-scalable=no">
-  <style>
-    html, body { margin:0; padding:0; height:100vh; width:100vw; }
-    #map { height:100vh; width:100vw; }
-
-    .pin {
-      position: relative;
-      width: 23px;
-      height: 56px;
-      background: url('${pinImgDataUrl}') no-repeat center center / contain;
-      pointer-events: auto;
-      display: grid;
-      place-items: center;
-      transform: translateZ(0);
-    }
-    .pin .num {
-      color: #fff;
-      font-weight: 600;
-      font-size: 10px;
-      line-height: 1;
-      text-shadow: 0 1px 2px rgba(0,0,0,.35);
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-    }
-
-    .popup {
-      position: absolute;
-      transform: translate(-50%, -65%) translateY(-70px);
-      background: #00A896;
-      border-radius: 8px;
-      padding: 6px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #fff;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-      z-index: 10;
-      pointer-events: auto;
-    }
-    .popup .title {
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 6px;
-      text-align: center;
-      white-space: nowrap;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .popup img {
-      width: 104px;
-      height: 64px;
-      border-radius: 6px;
-      object-fit: cover;
-      display: block;
-      background: rgba(255 Ascending
-      .popup {
-        width: 104px;
-        height: 64px;
-        border-radius: 6px;
-        object-fit: cover;
-        display: block;
-        background: rgba(255,255,255,.12);
-      }
-    </style>
-</head>
-<body>
-  <div id="map"></div>
-
-  <script>
-    function post(type, payload) {
-      try { if (window.MapBridge && window.MapBridge.postMessage) {
-        MapBridge.postMessage(JSON.stringify({ type, ...payload }));
-      } } catch (_) {}
-    }
-
-    window.gm_authFailure = function() { post('gm_authFailure', {}); };
-    function mapsScriptError(evt) {
-      post('gm_script_error', { message: 'Failed to load Maps JS', detail: String(evt && evt.message || '') });
-    }
-
-    let map;
-    const origin = {lat: ${originLat.toString()}, lng: ${originLng.toString()}};
-    const places = [${placesJs}];
-    const FALLBACK_IMG = '${fallbackImgDataUrl}';
-
-    function buildPin(serial) {
-      const el = document.createElement('div');
-      el.className = 'pin';
-      const label = document.createElement('span');
-      label.className = 'num';
-      label.textContent = String(serial);
-      el.appendChild(label);
-      return el;
-    }
-
-    // ----- Custom popup overlay (no InfoWindow) -----
-    let popupOverlay = null;
-    let popupDiv = null;
-    let popupLatLng = null;
-
-    function ensurePopup() {
-      if (popupOverlay) return;
-
-      popupOverlay = new google.maps.OverlayView();
-      popupOverlay.onAdd = function() {
-        popupDiv = document.createElement('div');
-        this.getPanes().floatPane.appendChild(popupDiv);
-      };
-      popupOverlay.draw = function() {
-        if (!popupDiv || !popupLatLng) return;
-        const proj = this.getProjection();
-        const pos = proj.fromLatLngToDivPixel(popupLatLng);
-        if (!pos) return;
-        popupDiv.style.left = pos.x + 'px';
-        popupDiv.style.top  = pos.y + 'px';
-      };
-      popupOverlay.onRemove = function() {
-        if (popupDiv && popupDiv.parentNode) popupDiv.parentNode.removeChild(popupDiv);
-        popupDiv = null;
-      };
-      popupOverlay.setMap(map);
-
-      map.addListener('bounds_changed', () => popupOverlay.draw());
-      window.addEventListener('resize', () => popupOverlay.draw());
-    }
-
-    function showPopup(lat, lng, name, imgUrl) {
-      ensurePopup();
-      popupLatLng = new google.maps.LatLng(lat, lng);
-      const src = (imgUrl && imgUrl.length) ? imgUrl : FALLBACK_IMG;
-      const safeName = name || 'Unknown';
-
-      popupDiv.className = 'popup';
-      popupDiv.innerHTML = \`
-        <div class="title">\${safeName}</div>
-        <img src="\${src}" onerror="this.src='${fallbackImgDataUrl}'" />
-      \`;
-      popupOverlay.draw();
-    }
-
-    function hidePopup() {
-      if (popupDiv) {
-        popupDiv.innerHTML = '';
-        popupDiv.className = '';
-      }
-      popupLatLng = null;
-    }
-    // -----------------------------------------------
-
-    // --- marker management (support dynamic updates) ---
-    let advMarkers = [];
-
-    function clearMarkers() {
-      advMarkers.forEach(m => m.map = null);
-      advMarkers = [];
-    }
-
-    function renderMarkers() {
-      clearMarkers();
-      places.forEach((p) => {
-        const content = buildPin(p.serial); // use provided serial number
-        const marker = new google.maps.marker.AdvancedMarkerElement({
-          map,
-          position: { lat: p.lat, lng: p.lng },
-          content,
-          gmpClickable: true
-        });
-        marker.addListener('gmp-click', () => {
-          showPopup(p.lat, p.lng, p.name, p.img);
-        });
-        advMarkers.push(marker);
-      });
-    }
-
-    // Called from Flutter: center map (and optionally set zoom)
-    window._setCenter = function(lat, lng, zoom) {
-      try {
-        if (!map) return;
-        const p = new google.maps.LatLng(lat, lng);
-        map.setCenter(p);
-        if (typeof zoom === 'number' && isFinite(zoom)) map.setZoom(zoom);
-      } catch (e) {}
-    };
-
-    // Called from Flutter: replace markers with a new list (stringified JSON)
-    window._setPlaces = function(placesJsonStr) {
-      try {
-        const arr = JSON.parse(placesJsonStr);
-        places.length = 0;
-        arr.forEach(o => places.push(o));
-        renderMarkers();
-      } catch (e) { /* ignore */ }
-    };
-
-    function initMap() {
-      try {
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: origin,
-          zoom: 14,
-          disableDefaultUI: true,
-          gestureHandling: 'greedy',
-          mapId: 'DEMO_MAP'
-        });
-
-        renderMarkers();
-        map.addListener('click', hidePopup);
-        post('map_ready', {});
-      } catch (e) {
-        post('map_init_error', { message: String(e) });
-      }
-    }
-  </script>
-
-  <script async
-          src="https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap&v=beta&libraries=marker&loading=async"
-          onerror="mapsScriptError(event)"></script>
-</body>
-</html>
-""";
   }
 }
 

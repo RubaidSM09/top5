@@ -354,21 +354,6 @@ class DetailsView extends GetView<HomeController> {
                             textSize: 12,
                             onTap: _openDirections,
                           ),
-
-                          CustomButton(
-                            text: '',
-                            icon: 'assets/images/home/call.svg',
-                            paddingLeft: 40,
-                            paddingRight: 20,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            borderRadius: 6,
-                            color: AppColors.top5Transparent,
-                            borderColor: AppColors.serviceGray,
-                            textColor: AppColors.serviceGray,
-                            textSize: 12,
-                            onTap: () {}, // kept unchanged intentionally
-                          ),
                         ],
                       ),
                     ],
@@ -535,7 +520,7 @@ class DetailsView extends GetView<HomeController> {
                     SizedBox(height: 22.h,),
 
                     // ✅ Replaced static map_bg with live GoogleMapWebView
-                    SizedBox(
+                    /*SizedBox(
                       height: 194.h,
                       width: double.infinity,
                       child: otherPlaces.isNotEmpty
@@ -551,7 +536,7 @@ class DetailsView extends GetView<HomeController> {
                           : const Center(
                         child: Text('No other nearby places to show on map'),
                       ),
-                    ),
+                    ),*/
                   ],
                 ),
               ],

@@ -310,8 +310,8 @@ class SearchController extends GetxController {
       searchText.value = searchBarTextController.text;
     });
 
-    _wireChipListeners();
-    fetchTop5();
+    // _wireChipListeners();
+    // fetchTop5();
   }
 
   @override
