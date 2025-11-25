@@ -15,6 +15,10 @@ class SubscriptionController extends GetxController {
   RxList<Map<String, dynamic>> subscriptionPlans =
       <Map<String, dynamic>>[].obs;
 
+  /// Active paid plan from /subscription/user/current-active-plan/
+  final RxBool hasActivePaidPlan = false.obs;
+  final Rxn<int> activePlanId = Rxn<int>(); // backend's plan id
+
   /// Change this to whatever `success_url` your backend is using for Stripe.
   static const String stripeSuccessUrlPrefix =
       'http://0.0.0.0:8080/success'; // TODO: set real success URL
@@ -23,6 +27,7 @@ class SubscriptionController extends GetxController {
   void onInit() {
     super.onInit();
     fetchSubscriptionPlans();
+    fetchCurrentActivePlan();
   }
 
   Future<void> fetchSubscriptionPlans() async {
@@ -106,6 +111,51 @@ class SubscriptionController extends GetxController {
       print('Error fetching subscription list: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> fetchCurrentActivePlan() async {
+    try {
+      final response = await _apiService.getCurrentActivePlan();
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
+
+        // e.g. "paid" or maybe something else for free
+        final String planType = body['plan']?.toString() ?? '';
+
+        final Map<String, dynamic>? data =
+        body['data'] as Map<String, dynamic>?;
+        final Map<String, dynamic>? details =
+        body['plan_details'] as Map<String, dynamic>?;
+
+        final bool isActive = data?['is_active'] == true;
+
+        int? planId;
+        if (details?['id'] is int) {
+          planId = details?['id'] as int;
+        } else if (details?['id'] != null) {
+          planId = int.tryParse(details!['id'].toString());
+        }
+
+        if (planType == 'paid' && isActive && planId != null) {
+          hasActivePaidPlan.value = true;
+          activePlanId.value = planId; // 👈 e.g. 2 for BASIC
+        } else {
+          hasActivePaidPlan.value = false;
+          activePlanId.value = null;
+        }
+      } else {
+        // No active subscription or error → treat as free user
+        hasActivePaidPlan.value = false;
+        activePlanId.value = null;
+      }
+    } catch (e) {
+      // On error, also treat as free
+      hasActivePaidPlan.value = false;
+      activePlanId.value = null;
+      print('Error fetching current active plan: $e');
     }
   }
 

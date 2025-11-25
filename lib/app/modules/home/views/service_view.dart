@@ -70,6 +70,7 @@ class ServiceView extends GetView<HomeController> {
                                   controller.selectedCategory[0].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 CategorySelectionCard(
@@ -84,6 +85,7 @@ class ServiceView extends GetView<HomeController> {
                                   textColor: controller.selectedCategory[1].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 CategorySelectionCard(
@@ -98,6 +100,7 @@ class ServiceView extends GetView<HomeController> {
                                   textColor: controller.selectedCategory[2].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 CategorySelectionCard(
@@ -112,6 +115,7 @@ class ServiceView extends GetView<HomeController> {
                                   textColor: controller.selectedCategory[3].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 CategorySelectionCard(
@@ -126,6 +130,7 @@ class ServiceView extends GetView<HomeController> {
                                   textColor: controller.selectedCategory[4].value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
                               ],
                             ),
@@ -155,6 +160,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 FilterSelectionCard(
@@ -168,6 +174,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 FilterSelectionCard(
@@ -181,6 +188,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 FilterSelectionCard(
@@ -194,6 +202,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 FilterSelectionCard(
@@ -207,6 +216,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
 
                                 FilterSelectionCard(
@@ -220,6 +230,7 @@ class ServiceView extends GetView<HomeController> {
                                       .value
                                       ? AppColors.homeWhite
                                       : AppColors.homeGray,
+                                  page: 'Service',
                                 ),
                               ],
                             ),
@@ -230,7 +241,7 @@ class ServiceView extends GetView<HomeController> {
                       ),
                     ),
 
-                    controller.isListView.value
+                    /*controller.isListView.value
                         ? Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20.w),
                       child: Column(
@@ -352,28 +363,39 @@ class ServiceView extends GetView<HomeController> {
                         ],
                       ),
                     )
-                        : SizedBox(
-                      height: 360.h,
-                      width: double.infinity,
-                      child: GoogleMapWebView(
-                        googleApiKey: googleApiKey,
-                        originLat: controller.userLat.value ??
-                            (controller.top5Places.isNotEmpty
-                                ? (controller.top5Places.first.latitude ?? 23.7809063)
-                                : 23.7809063),
-                        originLng: controller.userLng.value ??
-                            (controller.top5Places.isNotEmpty
-                                ? (controller.top5Places.first.longitude ?? 90.4075592)
-                                : 90.4075592),
-                        places: controller.top5Places.isNotEmpty ? (controller.top5Places) : [],
-                        originalIndices: [1, 2, 3, 4, 5],
-                      ),
-                    ),
+                        : */Obx(() {
+                      return SizedBox(
+                        height: 360.h,
+                        width: double.infinity,
+                        child: Get
+                            .find<HomeController>()
+                            .top5Places
+                            .isNotEmpty ? GoogleMapWebView(
+                          googleApiKey: googleApiKey,
+                          originLat: controller.userLat.value ??
+                              (controller.top5Places.isNotEmpty
+                                  ? (controller.top5Places.first.latitude ??
+                                  23.7809063)
+                                  : 23.7809063),
+                          originLng: controller.userLng.value ??
+                              (controller.top5Places.isNotEmpty
+                                  ? (controller.top5Places.first.longitude ??
+                                  90.4075592)
+                                  : 90.4075592),
+                          places: controller.top5Places.isNotEmpty ? (controller
+                              .top5Places) : [],
+                          originalIndices: [1, 2, 3, 4, 5],
+                        ) : Image.asset(
+                          'assets/images/home/blurred_map.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),
 
-              controller.isListView.value == false ? DraggableScrollableSheet(
+              /*controller.isListView.value == false ? */DraggableScrollableSheet(
                 initialChildSize: 0.48,
                 minChildSize: 0.48,
                 maxChildSize: 1.0,
@@ -420,7 +442,7 @@ class ServiceView extends GetView<HomeController> {
                               ),
                             ),
 
-                            GestureDetector(
+                            /*GestureDetector(
                               onTap: () {
                                 controller.isListView.value =
                                 !controller.isListView.value;
@@ -444,7 +466,7 @@ class ServiceView extends GetView<HomeController> {
                                   ),
                                 ),
                               ),
-                            ),
+                            ),*/
                           ],
                         ),
 
@@ -460,7 +482,7 @@ class ServiceView extends GetView<HomeController> {
                                   final c = Get.find<HomeController>();
 
                                   // Observe AI summaries for reactive rebuild
-                                  final _ = c.aiSummaries.length;
+                                  // final _ = c.aiSummaries.length;
 
                                   if (c.top5Loading.value) {
                                     return Row(
@@ -520,7 +542,7 @@ class ServiceView extends GetView<HomeController> {
                     ),
                   );
                 },
-              ) : SizedBox.shrink(),
+              )/* : SizedBox.shrink()*/,
             ],
           );
         }),
@@ -1056,24 +1078,26 @@ class Top5NearYouMapCard extends StatelessWidget {
           }
         }
 
-        Get.to(
-          DetailsView(
-            serialNo: serialNo,
-            title: title,
-            rating: rating,
-            image: image,
-            isPromo: isPromo,
-            status: status,
-            distance: distance,
-            time: time,
-            type: type,
-            reasons: reasons,
-            isSaved: isSaved,
-            placeId: placeId,
-            destLat: destLat,
-            destLng: destLng,
-          ),
-        );
+        if (status == 'Open') {
+          Get.to(
+            DetailsView(
+              serialNo: serialNo,
+              title: title,
+              rating: rating,
+              image: image,
+              isPromo: isPromo,
+              status: status,
+              distance: distance,
+              time: time,
+              type: type,
+              reasons: reasons,
+              isSaved: isSaved,
+              placeId: placeId,
+              destLat: destLat,
+              destLng: destLng,
+            ),
+          );
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
@@ -1127,34 +1151,56 @@ class Top5NearYouMapCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: EdgeInsets.only(
-                    left: 8.w,
-                    right: 7.w,
-                    top: 5.h,
-                    bottom: 42.h,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6.r),
-                    image: DecorationImage(
-                      image: imgProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: AppColors.top5Transparent,
-                      borderRadius: BorderRadius.circular(16.r),
-                    ),
-                    child: Text(
-                      'Promo',
-                      style: h4.copyWith(
-                        color: AppColors.top5Transparent,
-                        fontSize: 10.sp,
+                Stack(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(
+                        left: 8.w,
+                        right: 7.w,
+                        top: 5.h,
+                        bottom: 42.h,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6.r),
+                        image: DecorationImage(
+                          image: imgProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: AppColors.top5Transparent,
+                          borderRadius: BorderRadius.circular(16.r),
+                        ),
+                        child: Text(
+                          'Promo',
+                          style: h4.copyWith(
+                            color: AppColors.top5Transparent,
+                            fontSize: 10.sp,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+
+                    if (status == 'Closed')
+                      Positioned.fill(
+                        child: Container(
+                          padding: EdgeInsets.all(20.r),
+                          color: AppColors.top5Black.withAlpha(127),
+                          /*child: Center(
+                            child: Text(
+                              '$title is closed now.',
+                              style: h3.copyWith(
+                                color: AppColors.homeWhite,
+                                fontSize: 10.sp,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),*/
+                        ),
+                      ),
+                  ],
                 ),
 
                 Column(
@@ -1216,13 +1262,13 @@ class Top5NearYouMapCard extends StatelessWidget {
                               vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.serviceSearchBg,
+                              color: status == 'Open' ? AppColors.serviceSearchBg : AppColors.profileDeleteButtonColor,
                               borderRadius: BorderRadius.circular(50.r),
                             ),
                             child: Text(
                               status,
                               style: h3.copyWith(
-                                color: AppColors.servicePromoGreen,
+                                color: status == 'Open' ? AppColors.servicePromoGreen : AppColors.profileDeleteButtonTextColor,
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -1305,32 +1351,36 @@ class Top5NearYouMapCard extends StatelessWidget {
             SizedBox(height: 16.h,),
 
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 18.w,
               children: [
-                CustomButton(
-                  text: 'Directions'.tr,
-                  prefixIcon: 'assets/images/home/directions.svg',
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                  paddingTop: 8,
-                  paddingBottom: 8,
-                  borderRadius: 6,
-                  textSize: 12,
-                  onTap: _openDirections, // NEW
+                Expanded(
+                  child: CustomButton(
+                    text: 'Directions'.tr,
+                    prefixIcon: 'assets/images/home/directions.svg',
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    borderRadius: 6,
+                    textSize: 12,
+                    onTap: _openDirections, // NEW
+                  ),
                 ),
 
-                CustomButton(
-                  text: 'Book'.tr,
-                  paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
-                  paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
-                  paddingTop: 8,
-                  paddingBottom: 8,
-                  borderRadius: 6,
-                  color: AppColors.top5Transparent,
-                  borderColor: AppColors.serviceGray,
-                  textColor: AppColors.serviceGray,
-                  textSize: 12,
-                  onTap: _searchOnGoogle,
+                Expanded(
+                  child: CustomButton(
+                    text: 'Book'.tr,
+                    paddingLeft: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
+                    paddingRight: Get.find<LocalizationController>().selectedLanguage.value == 'English' ? 35: 25,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    borderRadius: 6,
+                    color: AppColors.top5Transparent,
+                    borderColor: AppColors.serviceGray,
+                    textColor: AppColors.serviceGray,
+                    textSize: 12,
+                    onTap: _searchOnGoogle,
+                  ),
                 ),
               ],
             ),

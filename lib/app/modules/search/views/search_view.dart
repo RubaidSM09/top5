@@ -27,7 +27,7 @@ class SearchView extends GetView<SearchController> {
   Widget build(BuildContext context) {
     Get.put(SearchController());
     final profileController = Get.put(ProfileController());
-    final homeController = Get.put(HomeController());
+    final homeController = Get.find<HomeController>();
 
     // If navigated with pre-filled search text (from ideas, etc.)
     final args = Get.arguments as Map<String, dynamic>?;
@@ -226,6 +226,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[0].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                         FilterSelectionCard(
                           text: '10 min',
@@ -237,6 +238,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[1].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                         FilterSelectionCard(
                           text: profileController.selectedDistanceUnit[0].value
@@ -250,6 +252,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[2].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                         FilterSelectionCard(
                           text: 'Outdoor'.tr,
@@ -261,6 +264,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[3].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                         FilterSelectionCard(
                           text: 'Vegetarian'.tr,
@@ -272,6 +276,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[4].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                         FilterSelectionCard(
                           text: 'Bookable'.tr,
@@ -283,6 +288,7 @@ class SearchView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[5].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Search',
                         ),
                       ],
                     ),
@@ -637,43 +643,19 @@ class SearchListCard extends StatelessWidget {
   });
 
   Future<void> _openDirections() async {
-    final c = Get.find<SearchController>();
-    double oLat, oLng;
-    if (Get.isRegistered<HomeController>() &&
-        Get.find<HomeController>().manualOverride.value &&
-        Get.find<HomeController>().manualLat.value != null &&
-        Get.find<HomeController>().manualLng.value != null) {
-      oLat = Get.find<HomeController>().manualLat.value!;
-      oLng = Get.find<HomeController>().manualLng.value!;
-    } else {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Location', 'Location services disabled.');
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar('Location', 'Permission denied for location.');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      oLat = pos.latitude;
-      oLng = pos.longitude;
-    }
+    final c = Get.find<HomeController>();
+    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
-    Get.to(() => DirectionsMapWebView(
-      googleApiKey: googleApiKey,
-      originLat: oLat,
-      originLng: oLng,
-      destLat: destLat,
-      destLng: destLng,
-      travelMode: 'WALKING',
-      destName: title,
-      destImgUrl: image,
-    ));
+    // (Optional) keep your recents tracking:
+    if (placeId.isNotEmpty) {
+      await c.submitActionPlaces(placeId, 'recent');
+      await c.fetchRecentPlaces();
+    }
+  }
+
+  Future<void> _searchOnGoogle() async {
+    final c = Get.find<HomeController>();
+    await c.openGoogleAppSearch(title);
   }
 
   @override
@@ -819,31 +801,36 @@ class SearchListCard extends StatelessWidget {
             ),
             SizedBox(height: 16.h),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 18.w,
               children: [
-                CustomButton(
-                  text: 'Directions'.tr,
-                  prefixIcon: 'assets/images/home/directions.svg',
-                  paddingLeft: 12,
-                  paddingRight: 12,
-                  paddingTop: 8,
-                  paddingBottom: 8,
-                  borderRadius: 6,
-                  textSize: 12,
-                  onTap: _openDirections, // Updated
+                Expanded(
+                  child: CustomButton(
+                    text: 'Directions'.tr,
+                    prefixIcon: 'assets/images/home/directions.svg',
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    borderRadius: 6,
+                    textSize: 12,
+                    onTap: _openDirections, // Updated
+                  ),
                 ),
-                CustomButton(
-                  text: 'Book'.tr,
-                  paddingLeft: 35,
-                  paddingRight: 35,
-                  paddingTop: 8,
-                  paddingBottom: 8,
-                  borderRadius: 6,
-                  color: AppColors.top5Transparent,
-                  borderColor: AppColors.serviceGray,
-                  textColor: AppColors.serviceGray,
-                  textSize: 12,
-                  onTap: () {},
+
+                Expanded(
+                  child: CustomButton(
+                    text: 'Book'.tr,
+                    paddingLeft: 35,
+                    paddingRight: 35,
+                    paddingTop: 8,
+                    paddingBottom: 8,
+                    borderRadius: 6,
+                    color: AppColors.top5Transparent,
+                    borderColor: AppColors.serviceGray,
+                    textColor: AppColors.serviceGray,
+                    textSize: 12,
+                    onTap: _searchOnGoogle,
+                  ),
                 ),
               ],
             ),

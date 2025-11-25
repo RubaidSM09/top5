@@ -63,6 +63,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[0].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                         FilterSelectionCard(
                           text: '10 min',
@@ -74,6 +75,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[1].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                         FilterSelectionCard(
                           text: Get.find<ProfileController>().selectedDistanceUnit[0].value
@@ -87,6 +89,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[2].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                         FilterSelectionCard(
                           text: 'Outdoor'.tr,
@@ -98,6 +101,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[3].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                         FilterSelectionCard(
                           text: 'Vegetarian'.tr,
@@ -109,6 +113,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[4].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                         FilterSelectionCard(
                           text: 'Bookable'.tr,
@@ -120,6 +125,7 @@ class ResultsView extends GetView<SearchController> {
                           textColor: controller.selectedFilter[5].value
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
+                          page: 'Results',
                         ),
                       ],
                     ),

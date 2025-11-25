@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import '../../../data/model/top_5_place_list.dart';
 import '../../../data/services/api_services.dart';
 import '../../home/controllers/home_controller.dart';
+import '../../subscription/views/subscription_dialog_view.dart';
 
 class SearchController extends GetxController {
   /// UI fields
@@ -174,11 +175,16 @@ class SearchController extends GetxController {
         results.assignAll(data.places ?? []);
 
         // NEW: Lazily fetch AI summaries for visible places (cache)
-        for (final p in results) {
+        /*for (final p in results) {
           final id = p.placeId ?? '';
           if (id.isNotEmpty && !aiSummaries.containsKey(id)) {
             _fetchAiForPlace(id);
           }
+        }*/
+      } else if (resp.statusCode == 403) {
+        final Map<String, dynamic> json = jsonDecode(resp.body);
+        if (json['error'] == 'You have reached your plan limit for places.') {
+          Get.dialog(SubscriptionDialogView(purpose: 'Place List'));
         }
       } else {
         error.value = 'Failed: ${resp.statusCode}';

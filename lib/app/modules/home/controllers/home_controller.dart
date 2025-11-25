@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:top5/app/modules/subscription/views/subscription_dialog_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/action_places_details.dart';
@@ -142,6 +143,11 @@ class HomeController extends GetxController {
         final json = jsonDecode(res.body) as Map<String, dynamic>;
         final List<dynamic> raw = (json['ideas_list'] ?? []) as List<dynamic>;
         ideas.assignAll(raw.map((e) => e.toString()));
+      } else if (res.statusCode == 403) {
+        final Map<String, dynamic> json = jsonDecode(res.body);
+        if (json['error'] == 'You have reached your plan limit for places.') {
+          Get.dialog(SubscriptionDialogView(purpose: 'Ideas'));
+        }
       } else {
         final msg = _safeMsg(res.body) ?? 'Failed to generate ideas.';
         Get.snackbar('Ideas', msg);
@@ -155,11 +161,19 @@ class HomeController extends GetxController {
     }
   }
 
-  void onCategoryChanged(int index) {
+  void onCategoryChangedHome(int index) {
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
     refreshIdeas();
+    // fetchTop5Places(search: searchText.value); // Refresh with current search
+  }
+
+  void onCategoryChangedService(int index) {
+    for (int i = 0; i < selectedCategory.length; i++) {
+      selectedCategory[i].value = (i == index);
+    }
+    // refreshIdeas();
     fetchTop5Places(search: searchText.value); // Refresh with current search
   }
 
@@ -367,6 +381,11 @@ class HomeController extends GetxController {
             _fetchAiForPlace(id);
           }
         }*/
+      } else if (res.statusCode == 403) {
+        final Map<String, dynamic> json = jsonDecode(res.body);
+        if (json['error'] == 'You have reached your plan limit for places.') {
+          Get.dialog(SubscriptionDialogView(purpose: 'Place list'));
+        }
       } else {
         final msg = _safeMsg(res.body) ?? 'Failed to fetch places.';
         Get.snackbar('Top 5', msg);
@@ -421,6 +440,11 @@ class HomeController extends GetxController {
         tempC.value        = (td.data?.tempCelsius ?? 0).toDouble();
         serverDay.value    = td.data?.dayName ?? '';
         serverTimeStr.value= td.data?.timeStr ?? '';
+      } else if (res.statusCode == 403) {
+        final Map<String, dynamic> json = jsonDecode(res.body);
+        if (json['error'] == 'You have reached your plan limit for places.') {
+          Get.dialog(SubscriptionDialogView(purpose: 'Weather Info'));
+        }
       } else {
         Get.snackbar('Weather', _safeMsg(res.body) ?? 'Failed to fetch weather.');
       }

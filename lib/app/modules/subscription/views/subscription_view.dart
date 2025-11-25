@@ -137,30 +137,45 @@ class SubscriptionView extends GetView<SubscriptionController> {
                         child: Obx(() {
                           final plans = controller.subscriptionPlans;
                           final bool showLoader =
-                              controller.isLoading.value &&
-                                  plans.isNotEmpty; // fetching or checkout
+                              controller.isLoading.value && plans.isNotEmpty;
+
+                          // Default text
+                          String buttonText = 'Get started';
+
+                          if (showLoader) {
+                            buttonText = 'Processing...';
+                          } else if (plans.isNotEmpty &&
+                              controller.hasActivePaidPlan.value &&
+                              controller.activePlanId.value != null) {
+                            final currentPlan = plans[controller.current.value];
+                            final int? currentPlanId = currentPlan['id'] as int?;
+
+                            // 🔁 If this card's plan id == active plan id → show Renew
+                            if (currentPlanId != null &&
+                                currentPlanId == controller.activePlanId.value) {
+                              buttonText = 'Renew';
+                            }
+                          }
 
                           return CustomButton(
-                            text: showLoader ? 'Processing...' : 'Get started',
+                            text: buttonText,
                             onTap: showLoader
                                 ? null
                                 : () {
-                              final plans =
-                                  controller.subscriptionPlans;
+                              final plans = controller.subscriptionPlans;
                               if (plans.isEmpty) return;
 
-                              final currentPlan =
-                              plans[controller.current.value];
-                              final String name = (currentPlan[
-                              'plan_name'] as String?)
-                                  ?.toUpperCase() ??
-                                  '';
+                              final currentPlan = plans[controller.current.value];
+                              final String name =
+                                  (currentPlan['plan_name'] as String?)
+                                      ?.toUpperCase() ??
+                                      '';
 
-                              // FREE → go to dashboard
+                              // FREE → go to dashboard (unchanged)
                               if (name == 'FREE') {
                                 Get.offAll(() => DashboardView());
                               } else {
-                                // BASIC / PREMIUM → Stripe checkout
+                                // BASIC / PREMIUM → Stripe checkout (new or renew)
                                 controller.checkoutCurrentPlan();
                               }
                             },

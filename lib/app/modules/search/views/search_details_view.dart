@@ -49,46 +49,34 @@ class SearchDetailsView extends GetView<SearchController> {
   });
 
   Future<void> _openDirections() async {
-    double oLat, oLng;
-    if (Get.isRegistered<HomeController>() &&
-        Get.find<HomeController>().manualOverride.value &&
-        Get.find<HomeController>().manualLat.value != null &&
-        Get.find<HomeController>().manualLng.value != null) {
-      oLat = Get.find<HomeController>().manualLat.value!;
-      oLng = Get.find<HomeController>().manualLng.value!;
-    } else {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Location', 'Location services disabled.');
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar('Location', 'Permission denied for location.');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      oLat = pos.latitude;
-      oLng = pos.longitude;
-    }
+    final c = Get.find<HomeController>();
+    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
-    Get.to(() => DirectionsMapWebView(
-      googleApiKey: googleApiKey,
-      originLat: oLat,
-      originLng: oLng,
-      destLat: destLat,
-      destLng: destLng,
-      travelMode: 'WALKING',
-      destName: title,
-      destImgUrl: image,
-    ));
+    // (Optional) keep your recents tracking:
+    if (placeId.isNotEmpty) {
+      await c.submitActionPlaces(placeId, 'recent');
+      await c.fetchRecentPlaces();
+    }
+  }
+
+  Future<void> _searchOnGoogle() async {
+    final c = Get.find<HomeController>();
+    await c.openGoogleAppSearch(title);
+  }
+
+  Future<void> _toggleSave() async {
+    final c = Get.find<HomeController>();
+    final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
+
+    await c.submitActionPlaces(placeId, activityType);
+    await c.fetchSavedPlaces(); // Refresh saved places list
+    await c.fetchSavedCount();
+    isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.find<HomeController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchPlaceDetails(placeId);
     });
@@ -157,9 +145,7 @@ class SearchDetailsView extends GetView<SearchController> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                isSaved.value = !isSaved.value;
-                              },
+                              onTap: _toggleSave,
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 10.w,
@@ -173,7 +159,7 @@ class SearchDetailsView extends GetView<SearchController> {
                                   spacing: 6.w,
                                   children: [
                                     Text(
-                                      isSaved.value == false ? 'Save'.tr : 'Saved'.tr,
+                                      c.isPlaceSaved(placeId) ? 'Saved'.tr : 'Save'.tr,
                                       style: h3.copyWith(
                                         color: isSaved.value == false
                                             ? AppColors.serviceGray
@@ -182,9 +168,7 @@ class SearchDetailsView extends GetView<SearchController> {
                                       ),
                                     ),
                                     SvgPicture.asset(
-                                      isSaved.value == false
-                                          ? 'assets/images/home/save.svg'
-                                          : 'assets/images/home/saved.svg',
+                                        c.isPlaceSaved(placeId) ? 'assets/images/home/saved.svg' : 'assets/images/home/save.svg'
                                     ),
                                   ],
                                 ),
@@ -289,45 +273,35 @@ class SearchDetailsView extends GetView<SearchController> {
                         ),
                       SizedBox(height: 24.h),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 25.w,
                         children: [
-                          CustomButton(
-                            text: 'Book'.tr,
-                            paddingLeft: 35,
-                            paddingRight: 35,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            borderRadius: 6,
-                            textSize: 12,
-                            onTap: () => Get.dialog(
-                              ContactUsView(
-                                placeId: placeId,
-                                destLat: destLat,
-                                destLng: destLng,
-                                title: title,
-                                image: image,
-                                rating: rating,
-                                status: status,
-                                distance: distance,
-                                time: time,
-                                type: type,
-                                reasons: reasons,
-                              ),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Book'.tr,
+                              paddingLeft: 35,
+                              paddingRight: 35,
+                              paddingTop: 8,
+                              paddingBottom: 8,
+                              borderRadius: 6,
+                              textSize: 12,
+                              onTap: _searchOnGoogle,
                             ),
                           ),
-                          CustomButton(
-                            text: 'Directions'.tr,
-                            prefixIcon: 'assets/images/home/directions2.svg',
-                            paddingLeft: 12,
-                            paddingRight: 12,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            borderRadius: 6,
-                            color: AppColors.top5Transparent,
-                            borderColor: AppColors.serviceGray,
-                            textColor: AppColors.serviceGray,
-                            textSize: 12,
-                            onTap: _openDirections,
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Directions'.tr,
+                              prefixIcon: 'assets/images/home/directions2.svg',
+                              paddingLeft: 12,
+                              paddingRight: 12,
+                              paddingTop: 8,
+                              paddingBottom: 8,
+                              borderRadius: 6,
+                              color: AppColors.top5Transparent,
+                              borderColor: AppColors.serviceGray,
+                              textColor: AppColors.serviceGray,
+                              textSize: 12,
+                              onTap: _openDirections,
+                            ),
                           ),
                         ],
                       ),

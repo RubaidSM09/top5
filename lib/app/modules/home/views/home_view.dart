@@ -61,6 +61,7 @@ class HomeView extends GetView<HomeController> {
                             index: 0,
                             color: controller.selectedCategory[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedCategory[0].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           CategorySelectionCard(
@@ -70,6 +71,7 @@ class HomeView extends GetView<HomeController> {
                             index: 1,
                             color: controller.selectedCategory[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedCategory[1].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           CategorySelectionCard(
@@ -79,6 +81,7 @@ class HomeView extends GetView<HomeController> {
                             index: 2,
                             color: controller.selectedCategory[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedCategory[2].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           CategorySelectionCard(
@@ -88,6 +91,7 @@ class HomeView extends GetView<HomeController> {
                             index: 3,
                             color: controller.selectedCategory[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedCategory[3].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           CategorySelectionCard(
@@ -97,6 +101,7 @@ class HomeView extends GetView<HomeController> {
                             index: 4,
                             color: controller.selectedCategory[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedCategory[4].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
                         ],
                       ),
@@ -121,6 +126,7 @@ class HomeView extends GetView<HomeController> {
                             index: 0,
                             color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           FilterSelectionCard(
@@ -129,6 +135,7 @@ class HomeView extends GetView<HomeController> {
                             index: 1,
                             color: controller.selectedFilter[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           FilterSelectionCard(
@@ -137,6 +144,7 @@ class HomeView extends GetView<HomeController> {
                             index: 2,
                             color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           FilterSelectionCard(
@@ -145,6 +153,7 @@ class HomeView extends GetView<HomeController> {
                             index: 3,
                             color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           FilterSelectionCard(
@@ -153,6 +162,7 @@ class HomeView extends GetView<HomeController> {
                             index: 4,
                             color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
 
                           FilterSelectionCard(
@@ -161,6 +171,7 @@ class HomeView extends GetView<HomeController> {
                             index: 5,
                             color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
                           ),
                         ],
                       ),
@@ -410,6 +421,7 @@ class CategorySelectionCard extends StatelessWidget {
   final int index;
   final Color color;
   final Color textColor;
+  final String page;
 
   const CategorySelectionCard({
     required this.text,
@@ -418,6 +430,7 @@ class CategorySelectionCard extends StatelessWidget {
     required this.index,
     required this.color,
     required this.textColor,
+    required this.page,
     super.key
   });
 
@@ -425,9 +438,13 @@ class CategorySelectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        print("Hellow");
-        final c = Get.find<HomeController>();
-        c.onCategoryChanged(index); // will toggle + refresh
+        if (page == 'Home') {
+          final c = Get.find<HomeController>();
+          c.onCategoryChangedHome(index);
+        } else {
+          final c = Get.find<HomeController>();
+          c.onCategoryChangedService(index);
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -556,6 +573,7 @@ class FilterSelectionCard extends StatelessWidget {
   final int index;
   final Color color;
   final Color textColor;
+  final String page;
 
   const FilterSelectionCard({
     required this.text,
@@ -563,6 +581,7 @@ class FilterSelectionCard extends StatelessWidget {
     required this.index,
     required this.color,
     required this.textColor,
+    required this.page,
     super.key
   });
 
@@ -571,7 +590,9 @@ class FilterSelectionCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         selectedFilter[index].value = !selectedFilter[index].value;
-        Get.find<HomeController>().fetchTop5Places(search: Get.find<HomeController>().searchText.value);
+        if (page != 'Home') {
+          Get.find<HomeController>().fetchTop5Places(search: Get.find<HomeController>().searchText.value);
+        }
       },
       child: Container(
         width: 90.w,
@@ -622,7 +643,7 @@ class QuickGlanceCard extends StatelessWidget {
         GestureDetector(
           onTap: () {
             final c = Get.find<HomeController>();
-            c.onCategoryChanged(index);
+            c.onCategoryChangedService(index);
             Get.to(ServiceView(appBarTitle: text,));
           },
           child: Container(

@@ -7,6 +7,7 @@ import 'package:top5/app/modules/authentication/controllers/authentication_contr
 import 'package:top5/app/modules/authentication/views/forgot_password_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_view.dart';
 import 'package:top5/app/modules/dashboard/views/dashboard_view.dart';
+import 'package:top5/app/modules/subscription/views/subscription_dialog_view.dart';
 import 'package:top5/common/widgets/custom_text_field.dart';
 
 import '../../../../common/app_colors.dart';
@@ -111,6 +112,7 @@ class SignInView extends GetView<AuthenticationController> {
                           text: 'Sign In'.tr,
                           onTap: () {
                             _handleLogin();
+                            // Get.dialog(SubscriptionDialogView(purpose: 'Place Search',));
                           },
                         ),
 

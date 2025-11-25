@@ -51,43 +51,13 @@ class DetailsView extends GetView<HomeController> {
 
   Future<void> _openDirections() async {
     final c = Get.find<HomeController>();
+    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
-    double oLat, oLng;
-    if (c.manualOverride.value && c.manualLat.value != null && c.manualLng.value != null) {
-      oLat = c.manualLat.value!;
-      oLng = c.manualLng.value!;
-    } else {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        Get.snackbar('Location', 'Location services disabled.');
-        return;
-      }
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        Get.snackbar('Location', 'Permission denied for location.');
-        return;
-      }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      oLat = pos.latitude;
-      oLng = pos.longitude;
+    // (Optional) keep your recents tracking:
+    if (placeId.isNotEmpty) {
+      await c.submitActionPlaces(placeId, 'recent');
+      await c.fetchRecentPlaces();
     }
-
-    Get.to(() => DirectionsMapWebView(
-      googleApiKey: googleApiKey,
-      originLat: oLat,
-      originLng: oLng,
-      destLat: destLat,
-      destLng: destLng,
-      travelMode: 'WALKING',
-      destName: title,
-      destImgUrl: image,
-    ));
-
-    await c.submitActionPlaces(placeId, 'recent');
-    await c.fetchRecentPlaces();
   }
 
   Future<void> _toggleSave() async {
@@ -98,6 +68,11 @@ class DetailsView extends GetView<HomeController> {
     await c.fetchSavedPlaces(); // Refresh saved places list
     await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
+  }
+
+  Future<void> _searchOnGoogle() async {
+    final c = Get.find<HomeController>();
+    await c.openGoogleAppSearch(title);
   }
 
   @override
@@ -313,46 +288,36 @@ class DetailsView extends GetView<HomeController> {
                       SizedBox(height: 24.h,),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 25.w,
                         children: [
-                          CustomButton(
-                            text: 'Book'.tr,
-                            paddingLeft: 35,
-                            paddingRight: 35,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            borderRadius: 6,
-                            textSize: 12,
-                            onTap: () => Get.dialog(
-                              ContactUsView(
-                                placeId: placeId,
-                                destLat: destLat,
-                                destLng: destLng,
-                                title: title,
-                                image: image,
-                                rating: rating,
-                                status: status,
-                                distance: distance,
-                                time: time,
-                                type: type,
-                                reasons: reasons,
-                              ),
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Book'.tr,
+                              paddingLeft: 35,
+                              paddingRight: 35,
+                              paddingTop: 8,
+                              paddingBottom: 8,
+                              borderRadius: 6,
+                              textSize: 12,
+                              onTap: _searchOnGoogle
                             ),
                           ),
 
-                          CustomButton(
-                            text: 'Directions'.tr,
-                            prefixIcon: 'assets/images/home/directions2.svg',
-                            paddingLeft: 12,
-                            paddingRight: 12,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            borderRadius: 6,
-                            color: AppColors.top5Transparent,
-                            borderColor: AppColors.serviceGray,
-                            textColor: AppColors.serviceGray,
-                            textSize: 12,
-                            onTap: _openDirections,
+                          Expanded(
+                            child: CustomButton(
+                              text: 'Directions'.tr,
+                              prefixIcon: 'assets/images/home/directions2.svg',
+                              paddingLeft: 12,
+                              paddingRight: 12,
+                              paddingTop: 8,
+                              paddingBottom: 8,
+                              borderRadius: 6,
+                              color: AppColors.top5Transparent,
+                              borderColor: AppColors.serviceGray,
+                              textColor: AppColors.serviceGray,
+                              textSize: 12,
+                              onTap: _openDirections,
+                            ),
                           ),
                         ],
                       ),
