@@ -26,7 +26,7 @@ class SearchView extends GetView<SearchController> {
   @override
   Widget build(BuildContext context) {
     Get.put(SearchController());
-    final profileController = Get.put(ProfileController());
+    final profileController = Get.find<ProfileController>();
     final homeController = Get.find<HomeController>();
 
     // If navigated with pre-filled search text (from ideas, etc.)
@@ -39,7 +39,7 @@ class SearchView extends GetView<SearchController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const SearchAppBar(),
+        title: SearchAppBar(profileController: profileController,),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -352,6 +352,7 @@ class SearchView extends GetView<SearchController> {
                         placeId: p.placeId ?? '', // NEW
                         destLat: p.latitude ?? 0.0, // NEW
                         destLng: p.longitude ?? 0.0, // NEW
+                        directionUrl: p.directionUrl ?? '',
                       );
                     }),
                   );
@@ -384,7 +385,13 @@ String _typeFromPlace(dynamic p) {
 }
 
 class SearchAppBar extends StatelessWidget {
-  const SearchAppBar({super.key});
+  final ProfileController profileController;
+
+  const SearchAppBar({
+    required this.profileController,
+    super.key
+  });
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -399,7 +406,14 @@ class SearchAppBar extends StatelessWidget {
           ),
           child: CircleAvatar(
             radius: 16.r,
-            backgroundImage: const AssetImage('assets/images/home/profile_pic.jpg'),
+            backgroundImage: profileController.image.value == '' ?
+            const AssetImage(
+              'assets/images/home/profile_pic.jpg',
+            )
+                :
+            NetworkImage(
+              'http://10.10.13.99:8090${profileController.image.value}',
+            ) as ImageProvider,
           ),
         ),
       ],
@@ -622,6 +636,7 @@ class SearchListCard extends StatelessWidget {
   final String placeId; // NEW
   final double destLat; // NEW
   final double destLng; // NEW
+  final String directionUrl;
 
   const SearchListCard({
     required this.serialNo,
@@ -639,6 +654,7 @@ class SearchListCard extends StatelessWidget {
     required this.placeId, // NEW
     required this.destLat, // NEW
     required this.destLng, // NEW
+    required this.directionUrl,
     super.key,
   });
 
@@ -647,10 +663,10 @@ class SearchListCard extends StatelessWidget {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    /*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*/
   }
 
   Future<void> _searchOnGoogle() async {
@@ -678,6 +694,7 @@ class SearchListCard extends StatelessWidget {
             placeId: placeId,
             destLat: destLat,
             destLng: destLng,
+            directionUrl: directionUrl,
           ),
         );
       },

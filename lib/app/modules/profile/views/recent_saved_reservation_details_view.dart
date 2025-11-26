@@ -53,10 +53,10 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    /*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*/
   }
 
   Future<void> _searchOnGoogle() async {
@@ -68,7 +68,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
     final c = Get.find<HomeController>();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
-    await c.submitActionPlaces(placeId, activityType);
+    // await c.submitActionPlaces(placeId, activityType);
     await c.fetchSavedPlaces(); // Refresh saved places list
     await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved

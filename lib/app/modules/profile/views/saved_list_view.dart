@@ -73,28 +73,29 @@ class SavedListView extends GetView<HomeController> {
 
                   return SavedListCard(
                     serialNo: index + 1,
-                    title: place.name ?? 'Unknown',
+                    title: place.placeName ?? 'Unknown',
                     rating: place.rating?.toDouble() ?? 0.0,
-                    image: place.photo ?? 'assets/images/home/restaurant.jpg',
+                    image: place.image ?? 'assets/images/home/restaurant.jpg',
                     isPromo: false, // Adjust based on API response if available
-                    status: place.openNow == true ? 'Open'.tr : 'Closed'.tr,
-                    distance: profileController.selectedDistanceUnit[0].value
+                    // status: place.openNow == true ? 'Open'.tr : 'Closed'.tr,
+                    /*distance: profileController.selectedDistanceUnit[0].value
                         ? place.distanceText ?? '—'
-                        : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",
-                    time: controller.parseMinutes(place.durationText),
+                        : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",*/
+                    // time: controller.parseMinutes(place.durationText),
                     type: controller.currentCategoryLabel,
-                    reasons: <String>[
+                    /*reasons: <String>[
                       '⭐ ${place.rating!.toStringAsFixed(1)}',
                       if (place.distanceText!.isNotEmpty) profileController.selectedDistanceUnit[0].value
                           ? place.distanceText ?? '—'
                           : "${controller.convertToMiles(place.distanceText ?? '0 m').toStringAsFixed(2)} miles",
                       if ((place.phone ?? '').isNotEmpty) (place.phone ?? ''),
-                    ],
+                    ],*/
                     isSaved: controller.isPlaceSaved(place.placeId).obs,
                     selectedLocations: controller.selectedLocations,
                     placeId: place.placeId ?? '',
                     destLat: place.latitude?.toDouble() ?? 0.0,
                     destLng: place.longitude?.toDouble() ?? 0.0,
+                    directionUrl: place.directionsUrl ?? '',
                   );
                 }).toList(),
               ),
@@ -112,16 +113,17 @@ class SavedListCard extends StatelessWidget {
   final double rating;
   final String image;
   final bool isPromo;
-  final String status;
-  final String distance;
-  final double time;
+  // final String status;
+  // final String distance;
+  // final double time;
   final String type;
-  final List<String> reasons;
+  // final List<String> reasons;
   final RxBool isSaved;
   final RxList<RxBool> selectedLocations;
   final String placeId;
   final double destLat;
   final double destLng;
+  final String directionUrl;
 
   const SavedListCard({
     required this.serialNo,
@@ -129,16 +131,17 @@ class SavedListCard extends StatelessWidget {
     required this.rating,
     required this.image,
     required this.isPromo,
-    required this.status,
-    required this.distance,
-    required this.time,
+    // required this.status,
+    // required this.distance,
+    // required this.time,
     required this.type,
-    required this.reasons,
+    // required this.reasons,
     required this.isSaved,
     required this.selectedLocations,
     required this.placeId,
     required this.destLat,
     required this.destLng,
+    required this.directionUrl,
     super.key,
   });
 
@@ -147,10 +150,10 @@ class SavedListCard extends StatelessWidget {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    /*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*/
   }
 
   Future<void> _searchOnGoogle() async {
@@ -158,11 +161,13 @@ class SavedListCard extends StatelessWidget {
     await c.openGoogleAppSearch(title);
   }
 
-  Future<void> _toggleSave() async {
+  Future<void> _toggleSave(double destLat, double destLng, String title, double rating, String directionUrl) async {
     final c = Get.find<HomeController>();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
-    await c.submitActionPlaces(placeId, activityType);
+    print(activityType);
+
+    await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, '', '', '', '€€.', activityType, image);
     await c.fetchSavedPlaces(); // Refresh saved places list
     await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
@@ -175,7 +180,7 @@ class SavedListCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Get.to(
+        /*Get.to(
           RecentSavedReservationDetailsView(
             serialNo: serialNo,
             title: title,
@@ -192,7 +197,7 @@ class SavedListCard extends StatelessWidget {
             destLat: destLat,
             destLng: destLng,
           ),
-        );
+        );*/
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
@@ -206,7 +211,9 @@ class SavedListCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: _toggleSave,
+                  onTap: () {
+                    _toggleSave(destLng, destLng, title, rating, directionUrl);
+                  },
                   child: SvgPicture.asset(
                       'assets/images/profile/remove_cross.svg'
                   ),

@@ -37,9 +37,9 @@ class ProfileView extends GetView<ProfileController> {
     // Fetch the recent count once when the screen first appears
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Avoid duplicate concurrent calls
-      if (!homeController.recentCountLoading.value) {
+      /*if (!homeController.recentCountLoading.value) {
         homeController.fetchRecentCount();
-      }
+      }*/
     });
 
     return Scaffold(

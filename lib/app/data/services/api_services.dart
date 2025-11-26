@@ -545,7 +545,7 @@ class ApiService {
 
 
   /// Recent, Saved, Reserved
-  Future<http.Response> actionPlaces (String placeId, String latitude, String longitude, String activityType) async {
+  Future<http.Response> actionPlaces (String placeId, double latitude, double longitude, String placeName, double rating, String directionUrl, String phone, String email, String website, String priceCurrency, String activityType, String image) async {
     String? accessToken = await _storage.read(key: 'access_token');
 
     final Uri url = Uri.parse('$baseUrl/api/v1/actions/action_places/');
@@ -559,7 +559,15 @@ class ApiService {
       "place_id": placeId,
       "latitude": latitude,
       "longitude": longitude,
-      "activity_type": activityType,
+      "place_name": placeName,
+      "rating": rating,
+      "directions_url": directionUrl,
+      "phone": phone,
+      "email": email,
+      "website": website,
+      "price_currency": priceCurrency,
+      "activity_type": activityType, // saved, recent, reservation, saved-delete, recent-delete, reservation-delete
+      "image": image,
     };
 
     return await http.post(
@@ -569,7 +577,7 @@ class ApiService {
     );
   }
 
-  Future<http.Response> actionPlacesDetails (String actionType, String currentLatitude, String currentLongitude) async {
+  Future<http.Response> actionPlacesDetails () async {
     String? accessToken = await _storage.read(key: 'access_token');
 
     final Uri url = Uri.parse('$baseUrl/api/v1/actions/action_places_details/');
@@ -579,16 +587,9 @@ class ApiService {
       "Authorization": "Bearer $accessToken",
     };
 
-    final Map<String, dynamic> body = {
-      "action_type": actionType,
-      "current_latitude": currentLatitude,
-      "current_longitude": currentLongitude,
-    };
-
-    return await http.post(
+    return await http.get(
       url,
       headers: headers,
-      body: jsonEncode(body),
     );
   }
 

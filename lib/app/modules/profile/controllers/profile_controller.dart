@@ -276,11 +276,11 @@ class ProfileController extends GetxController {
 
 
   /// Recent, Saved, Reservation
-  Future<void> actionPlaces (String placeId, String latitude, String longitude, String activityType) async {
+  Future<void> actionPlaces (String placeId, double latitude, double longitude, String placeName, double rating, String directionUrl, String phone, String email, String website, String priceCurrency, String activityType, String image) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.actionPlaces(placeId, latitude, longitude, activityType);
+      final http.Response response = await _service.actionPlaces(placeId, latitude, longitude, placeName, rating, directionUrl, phone, email, website, priceCurrency, activityType, image);
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -302,11 +302,11 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> actionPlacesDetails (String actionType, String currentLatitude, String currentLongitude) async {
+  Future<void> actionPlacesDetails (String actionType) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.actionPlacesDetails(actionType, currentLatitude, currentLongitude,);
+      final http.Response response = await _service.actionPlacesDetails();
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -320,14 +320,6 @@ class ProfileController extends GetxController {
         if (actionType == 'saved') {
           savedPlaces.assignAll(responseBody);
           Get.snackbar('Success', 'Saved list fetched successfully');
-          return;
-        } else if (actionType == 'recent') {
-          recentPlaces.assignAll(responseBody);
-          Get.snackbar('Success', 'Recent list fetched successfully');
-          return;
-        } else {
-          reservedPlaces.assignAll(responseBody);
-          Get.snackbar('Success', 'Reserved list fetched successfully');
           return;
         }
 
@@ -346,6 +338,7 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProfileInfo();
+    actionPlacesDetails('saved');
   }
 
   @override

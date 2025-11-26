@@ -23,7 +23,7 @@ class HomeView extends GetView<HomeController> {
       appBar: AppBar(
         backgroundColor: AppColors.homeBgColorGradient,
         automaticallyImplyLeading: false,
-        title: Obx(() => HomeAppBar(time: controller.formatted,)),
+        title: Obx(() => HomeAppBar(time: controller.formatted, profileController: profileController,)),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -344,8 +344,9 @@ class HomeView extends GetView<HomeController> {
 
 class HomeAppBar extends StatelessWidget {
   final RxString time;
+  final ProfileController profileController;
 
-  const HomeAppBar({required this.time, super.key});
+  const HomeAppBar({required this.time, required this.profileController, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -406,7 +407,17 @@ class HomeAppBar extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
           ),
-          child: CircleAvatar(radius: 16.r, backgroundImage: const AssetImage('assets/images/home/profile_pic.jpg')),
+          child: CircleAvatar(
+            radius: 16.r,
+            backgroundImage: profileController.image.value == '' ?
+            const AssetImage(
+              'assets/images/home/profile_pic.jpg',
+            )
+                :
+            NetworkImage(
+              'http://10.10.13.99:8090${profileController.image.value}',
+            ) as ImageProvider,
+          ),
         )
       ],
     );

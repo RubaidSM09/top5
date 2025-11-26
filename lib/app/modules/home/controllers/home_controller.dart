@@ -192,12 +192,12 @@ class HomeController extends GetxController {
     _weatherTicker = Timer.periodic(const Duration(minutes: 10), (_) {
       _fetchAndSetWeather();
     });
-    fetchRecentPlaces();
+    // fetchRecentPlaces();
     fetchSavedCount();
     fetchSavedPlaces();
     fetchSavedCount();
-    fetchReservationPlaces();
-    fetchReservationCount();
+    // fetchReservationPlaces();
+    // fetchReservationCount();
   }
 
   @override
@@ -533,17 +533,11 @@ class HomeController extends GetxController {
 
 
   /// Recents
-  Future<void> submitActionPlaces(String placeId, String type) async {
+  Future<void> submitActionPlaces(String placeId, double latitude, double longitude, String placeName, double rating, String directionUrl, String phone, String email, String website, String priceCurrency, String activityType, String image) async {
     // Use specific loading state based on type
-    if (type == 'recent') {
-      recentLoading.value = true;
-      recentError.value = '';
-    } else if (type == 'saved' || type == 'saved-delete') {
+    if (activityType == 'saved' || activityType == 'saved-delete') {
       savedLoading.value = true;
       savedError.value = '';
-    } else if (type == 'reservation' || type == 'reservation-delete') {
-      reservationLoading.value = true;
-      reservationError.value = '';
     }
 
     try {
@@ -554,15 +548,9 @@ class HomeController extends GetxController {
       } else {
         final hasLoc = await _ensureLocationPermission();
         if (!hasLoc) {
-          if (type == 'recent') {
-            recentError.value = 'Location permission denied.';
-            recentPlaces.clear();
-          } else if (type == 'saved' || type == 'saved-delete') {
+          if (activityType == 'saved' || activityType == 'saved-delete') {
             savedError.value = 'Location permission denied.';
             savedPlaces.clear();
-          } else if (type == 'reservation' || type == 'reservation-delete') {
-            reservationError.value = 'Location permission denied.';
-            reservationPlaces.clear();
           }
           return;
         }
@@ -571,118 +559,27 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
-      final res = await _service.actionPlaces(placeId, lat.toString(), lng.toString(), type);
+      final res = await _service.actionPlaces(placeId, latitude, longitude, placeName, rating, directionUrl, phone, email, website, priceCurrency, activityType, image);
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         Get.snackbar('Success', 'Action completed successfully');
       } else {
         final errorMsg = _safeMsg(res.body) ?? 'Failed to perform action.';
-        if (type == 'recent') {
-          recentError.value = errorMsg;
-          recentPlaces.clear();
-        } else if (type == 'saved' || type == 'saved-delete') {
+        if (activityType == 'saved' || activityType == 'saved-delete') {
           savedError.value = errorMsg;
           savedPlaces.clear();
-        } else if (type == 'reservation' || type == 'reservation-delete') {
-          reservationError.value = errorMsg;
-          reservationPlaces.clear();
         }
       }
     } catch (e) {
       final errorMsg = 'Unexpected error.';
-      if (type == 'recent') {
-        recentError.value = errorMsg;
-        recentPlaces.clear();
-      } else if (type == 'saved' || type == 'saved-delete') {
+      if (activityType == 'saved' || activityType == 'saved-delete') {
         savedError.value = errorMsg;
         savedPlaces.clear();
-      } else if (type == 'reservation' || type == 'reservation-delete') {
-        reservationError.value = errorMsg;
-        reservationPlaces.clear();
       }
     } finally {
-      if (type == 'recent') {
-        recentLoading.value = false;
-      } else if (type == 'saved' || type == 'saved-delete') {
+      if (activityType == 'saved' || activityType == 'saved-delete') {
         savedLoading.value = false;
-      } else if (type == 'reservation' || type == 'reservation-delete') {
-        reservationLoading.value = false;
       }
-    }
-  }
-
-  Future<void> fetchRecentPlaces() async {
-    recentLoading.value = true;
-    recentError.value = '';
-    try {
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          recentError.value = 'Location permission denied.';
-          recentPlaces.clear();
-          recentLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
-      // API expects strings for lat/lng in this endpoint
-      final res = await _service.actionPlacesDetails('recent', lat.toString(), lng.toString());
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final map = jsonDecode(res.body) as Map<String, dynamic>;
-        final parsed = ActionPlacesDetails.fromJson(map);
-        recentPlaces.assignAll(parsed.places ?? <ActionPlace>[]);
-      } else {
-        recentError.value = _safeMsg(res.body) ?? 'Failed to fetch recent places.';
-        recentPlaces.clear();
-      }
-    } catch (e) {
-      recentError.value = 'Unexpected error.';
-      recentPlaces.clear();
-    } finally {
-      recentLoading.value = false;
-    }
-  }
-
-  Future<void> fetchRecentCount() async {
-    try {
-      recentCountLoading.value = true;
-
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          recentCount.value = 0;
-          recentCountLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
-      final res = await _service.actionPlacesDetails('recent', lat.toString(), lng.toString());
-      if (res.statusCode == 200) {
-        final map = jsonDecode(res.body) as Map<String, dynamic>;
-        final list = (map['places'] as List?) ?? const [];
-        recentCount.value = list.length;
-      } else {
-        recentCount.value = 0;
-      }
-    } catch (_) {
-      recentCount.value = 0;
-    } finally {
-      recentCountLoading.value = false;
     }
   }
 
@@ -714,12 +611,12 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
-      final res = await _service.actionPlacesDetails('saved', lat.toString(), lng.toString());
+      final res = await _service.actionPlacesDetails();
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         final map = jsonDecode(res.body) as Map<String, dynamic>;
         final parsed = ActionPlacesDetails.fromJson(map);
-        savedPlaces.assignAll(parsed.places ?? <ActionPlace>[]);
+        savedPlaces.assignAll(parsed.actionPlace ?? <ActionPlace>[]);
       } else {
         savedError.value = _safeMsg(res.body) ?? 'Failed to fetch saved places.';
         savedPlaces.clear();
@@ -753,7 +650,7 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
-      final res = await _service.actionPlacesDetails('saved', lat.toString(), lng.toString());
+      final res = await _service.actionPlacesDetails();
       if (res.statusCode == 200) {
         final map = jsonDecode(res.body) as Map<String, dynamic>;
         final list = (map['places'] as List?) ?? const [];
@@ -765,88 +662,6 @@ class HomeController extends GetxController {
       savedCount.value = 0;
     } finally {
       savedCountLoading.value = false;
-    }
-  }
-
-  // Check if a place is reserved
-  bool isPlaceReserved(String? placeId) {
-    if (placeId == null || placeId.isEmpty) return false;
-    return reservationPlaces.any((place) => place.placeId == placeId);
-  }
-
-  // Fetch reservation places
-  Future<void> fetchReservationPlaces() async {
-    reservationLoading.value = true;
-    reservationError.value = '';
-    try {
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          reservationError.value = 'Location permission denied.';
-          reservationPlaces.clear();
-          reservationLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
-      final res = await _service.actionPlacesDetails('reservation', lat.toString(), lng.toString());
-
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        final map = jsonDecode(res.body) as Map<String, dynamic>;
-        final parsed = ActionPlacesDetails.fromJson(map);
-        reservationPlaces.assignAll(parsed.places ?? <ActionPlace>[]);
-      } else {
-        reservationError.value = _safeMsg(res.body) ?? 'Failed to fetch reservation places.';
-        reservationPlaces.clear();
-      }
-    } catch (e) {
-      reservationError.value = 'Unexpected error.';
-      reservationPlaces.clear();
-    } finally {
-      reservationLoading.value = false;
-    }
-  }
-
-  // Fetch reservation places count
-  Future<void> fetchReservationCount() async {
-    try {
-      reservationCountLoading.value = true;
-
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          reservationCount.value = 0;
-          reservationCountLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
-      final res = await _service.actionPlacesDetails('reservation', lat.toString(), lng.toString());
-      if (res.statusCode == 200) {
-        final map = jsonDecode(res.body) as Map<String, dynamic>;
-        final list = (map['places'] as List?) ?? const [];
-        reservationCount.value = list.length;
-      } else {
-        reservationCount.value = 0;
-      }
-    } catch (_) {
-      reservationCount.value = 0;
-    } finally {
-      reservationCountLoading.value = false;
     }
   }
 

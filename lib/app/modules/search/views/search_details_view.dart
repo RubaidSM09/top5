@@ -29,6 +29,7 @@ class SearchDetailsView extends GetView<SearchController> {
   final String placeId;
   final double destLat;
   final double destLng;
+  final String directionUrl;
 
   const SearchDetailsView({
     required this.serialNo,
@@ -45,6 +46,7 @@ class SearchDetailsView extends GetView<SearchController> {
     required this.placeId,
     required this.destLat,
     required this.destLng,
+    required this.directionUrl,
     super.key,
   });
 
@@ -53,10 +55,10 @@ class SearchDetailsView extends GetView<SearchController> {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    /*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*/
   }
 
   Future<void> _searchOnGoogle() async {
@@ -64,11 +66,11 @@ class SearchDetailsView extends GetView<SearchController> {
     await c.openGoogleAppSearch(title);
   }
 
-  Future<void> _toggleSave() async {
+  Future<void> _toggleSave(String phone, String email, String website) async {
     final c = Get.find<HomeController>();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
-    await c.submitActionPlaces(placeId, activityType);
+    await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, phone, email, website, '€€.', activityType, image);
     await c.fetchSavedPlaces(); // Refresh saved places list
     await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
@@ -145,7 +147,9 @@ class SearchDetailsView extends GetView<SearchController> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: _toggleSave,
+                              onTap: () {
+                                _toggleSave(controller.placeDetails['phone'], '', controller.placeDetails['website'],);
+                              },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 10.w,

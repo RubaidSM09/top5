@@ -22,7 +22,7 @@ class ResultsView extends GetView<SearchController> {
     if (!Get.isRegistered<SearchController>()) {
       Get.put(SearchController());
     }
-    final profileController = Get.put(ProfileController());
+    final profileController = Get.find<ProfileController>();
     final homeController = Get.put(HomeController());
 
     // run the query for results screen
@@ -31,7 +31,7 @@ class ResultsView extends GetView<SearchController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const ResultsAppBar(),
+        title: ResultsAppBar(profileController: profileController),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -189,6 +189,7 @@ class ResultsView extends GetView<SearchController> {
                         placeId: p.placeId ?? '', // NEW
                         destLat: p.latitude ?? 0.0, // NEW
                         destLng: p.longitude ?? 0.0, // NEW
+                        directionUrl: p.directionUrl ?? '',
                       );
                     }),
                   );
@@ -205,7 +206,13 @@ class ResultsView extends GetView<SearchController> {
 }
 
 class ResultsAppBar extends StatelessWidget {
-  const ResultsAppBar({super.key});
+  final ProfileController profileController;
+
+  const ResultsAppBar({
+    required this.profileController,
+    super.key
+  });
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -229,9 +236,16 @@ class ResultsAppBar extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
           ),
-          child: CircleAvatar(
+          child:CircleAvatar(
             radius: 16.r,
-            backgroundImage: const AssetImage('assets/images/home/profile_pic.jpg'),
+            backgroundImage: profileController.image.value == '' ?
+            const AssetImage(
+              'assets/images/home/profile_pic.jpg',
+            )
+                :
+            NetworkImage(
+              'http://10.10.13.99:8090${profileController.image.value}',
+            ) as ImageProvider,
           ),
         )
       ],

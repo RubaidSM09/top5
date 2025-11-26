@@ -528,6 +528,7 @@ class ServiceView extends GetView<HomeController> {
                                         // aiSummary: aiText,
                                         destLat: p.latitude ?? 0.0,      // NEW
                                         destLng: p.longitude ?? 0.0,     // NEW
+                                        directionUrl: p.directionUrl ?? '',
                                       );
                                     }).toList(),
                                   );
@@ -558,6 +559,8 @@ class ServiceAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ProfileController profileController = Get.find<ProfileController>();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -592,7 +595,14 @@ class ServiceAppBar extends StatelessWidget {
           ),
           child: CircleAvatar(
             radius: 16.r,
-            backgroundImage: AssetImage('assets/images/home/profile_pic.jpg'),
+            backgroundImage: profileController.image.value == '' ?
+            const AssetImage(
+              'assets/images/home/profile_pic.jpg',
+            )
+                :
+            NetworkImage(
+              'http://10.10.13.99:8090${profileController.image.value}',
+            ) as ImageProvider,
           ),
         ),
       ],
@@ -600,7 +610,7 @@ class ServiceAppBar extends StatelessWidget {
   }
 }
 
-class Top5NearYouListCard extends StatelessWidget {
+/*class Top5NearYouListCard extends StatelessWidget {
   final int serialNo;
   final String title;
   final double rating;
@@ -647,10 +657,10 @@ class Top5NearYouListCard extends StatelessWidget {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    *//*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*//*
   }
 
   Future<void> _searchOnGoogle() async {
@@ -658,11 +668,11 @@ class Top5NearYouListCard extends StatelessWidget {
     await c.openGoogleAppSearch(title);
   }
 
-  Future<void> _toggleSave() async {
+  Future<void> _toggleSave(double destLat, double destLng, String title, double rating, String directionUrl) async {
     final c = Get.find<HomeController>();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
-    await c.submitActionPlaces(placeId, activityType);
+    await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, '', '', '', '€€.', activityType);
     await c.fetchSavedPlaces(); // Refresh saved places list
     await c.fetchSavedCount();
   }
@@ -943,7 +953,7 @@ class Top5NearYouListCard extends StatelessWidget {
                   ),
 
                   // Why this pick — show AI summary if available (max 2, comma-separated)
-                  /*Row(
+                  *//*Row(
                     children: [
                       Text(
                         'Why this pick: '.tr,
@@ -965,7 +975,7 @@ class Top5NearYouListCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),*/
+                  ),*//*
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1005,7 +1015,7 @@ class Top5NearYouListCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/
 
 class Top5NearYouMapCard extends StatelessWidget {
   final int serialNo;
@@ -1024,6 +1034,7 @@ class Top5NearYouMapCard extends StatelessWidget {
   // final String aiSummary; // NEW
   final double destLat;   // NEW
   final double destLng;   // NEW
+  final String directionUrl;
 
   const Top5NearYouMapCard({
     required this.serialNo,
@@ -1042,6 +1053,7 @@ class Top5NearYouMapCard extends StatelessWidget {
     // required this.aiSummary,
     required this.destLat,
     required this.destLng,
+    required this.directionUrl,
     super.key,
   });
 
@@ -1050,10 +1062,10 @@ class Top5NearYouMapCard extends StatelessWidget {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
-    if (placeId.isNotEmpty) {
+    /*if (placeId.isNotEmpty) {
       await c.submitActionPlaces(placeId, 'recent');
       await c.fetchRecentPlaces();
-    }
+    }*/
   }
 
   Future<void> _searchOnGoogle() async {
@@ -1095,6 +1107,7 @@ class Top5NearYouMapCard extends StatelessWidget {
               placeId: placeId,
               destLat: destLat,
               destLng: destLng,
+              directionUrl: directionUrl,
             ),
           );
         }

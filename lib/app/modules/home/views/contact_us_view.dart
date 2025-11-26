@@ -37,7 +37,7 @@ class ContactUsView extends GetView<HomeController> {
     super.key,
   });
 
-  Future<void> _toggleReservation() async {
+  /*Future<void> _toggleReservation() async {
     final c = Get.find<HomeController>();
     final activityType = c.isPlaceReserved(placeId) ? 'reservation-delete' : 'reservation';
 
@@ -48,7 +48,7 @@ class ContactUsView extends GetView<HomeController> {
       'Reservation',
       c.isPlaceReserved(placeId) ? 'Place added to reservation list' : 'Place removed from reservation list',
     );
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,7 @@ class ContactUsView extends GetView<HomeController> {
             ),
             SizedBox(height: 13.h),
             Text(
-              c.isPlaceReserved(placeId) ? 'You have already reserved this place'.tr : 'Your reservation is just a call away!'.tr,
+              /*c.isPlaceReserved(placeId) ? 'You have already reserved this place'.tr : */'Your reservation is just a call away!'.tr,
               style: h4.copyWith(
                 fontSize: 16.sp,
                 color: AppColors.serviceGreen,
@@ -95,10 +95,10 @@ class ContactUsView extends GetView<HomeController> {
             ),
             SizedBox(height: 30.h),
             Obx(() => CustomButton(
-              text: c.isPlaceReserved(placeId) ? 'Remove from Reservation'.tr : 'Save to Reservation'.tr,
+              text: /*c.isPlaceReserved(placeId) ? 'Remove from Reservation'.tr : */'Save to Reservation'.tr,
               textSize: 16.sp,
-              color: c.isPlaceReserved(placeId) ? AppColors.profileDeleteButtonTextColor : AppColors.authenticationGreen,
-              onTap: _toggleReservation,
+              color: /*c.isPlaceReserved(placeId) ? AppColors.profileDeleteButtonTextColor : */AppColors.authenticationGreen,
+              onTap: /*_toggleReservation*/ () {  },
             )),
           ],
         ),

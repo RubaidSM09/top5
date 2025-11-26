@@ -1,108 +1,107 @@
 class ActionPlacesDetails {
-  List<ActionPlace>? places;
+  List<ActionPlace>? actionPlace;
 
-  ActionPlacesDetails({this.places});
+  ActionPlacesDetails({this.actionPlace});
 
   ActionPlacesDetails.fromJson(Map<String, dynamic> json) {
-    if (json['places'] is List) {
-      places = (json['places'] as List)
-          .map((e) => ActionPlace.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } else {
-      places = <ActionPlace>[];
+    if (json['data'] != null) {
+      actionPlace = <ActionPlace>[];
+      json['data'].forEach((v) {
+        actionPlace!.add(new ActionPlace.fromJson(v));
+      });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    if (places != null) {
-      data['places'] = places!.map((e) => e.toJson()).toList();
+    final Map<String, dynamic> actionPlace = new Map<String, dynamic>();
+    if (this.actionPlace != null) {
+      actionPlace['data'] = this.actionPlace!.map((v) => v.toJson()).toList();
     }
-    return data;
+    return actionPlace;
   }
 }
 
 class ActionPlace {
+  int? id;
   String? placeId;
-  double? latitude;   // NEW
-  double? longitude;  // NEW
-  String? name;
-  String? photo;
+  double? latitude;
+  double? longitude;
+  String? placeName;
+  String? image;
   double? rating;
-  bool? openNow;
-  String? website;
+  String? directionsUrl;
   String? phone;
-  String? distanceText;
-  String? durationText;
-  String? mapUrl;
+  String? email;
+  String? website;
+  String? priceCurrency;
+  String? activityType;
+  bool? isSaved;
+  bool? isRecent;
+  bool? isReservation;
+  String? createdAt;
+  String? updatedAt;
 
-  ActionPlace({
-    this.placeId,
-    this.latitude,   // NEW
-    this.longitude,  // NEW
-    this.name,
-    this.photo,
-    this.rating,
-    this.openNow,
-    this.website,
-    this.phone,
-    this.distanceText,
-    this.durationText,
-    this.mapUrl,
-  });
+  ActionPlace(
+      {this.id,
+        this.placeId,
+        this.latitude,
+        this.longitude,
+        this.placeName,
+        this.image,
+        this.rating,
+        this.directionsUrl,
+        this.phone,
+        this.email,
+        this.website,
+        this.priceCurrency,
+        this.activityType,
+        this.isSaved,
+        this.isRecent,
+        this.isReservation,
+        this.createdAt,
+        this.updatedAt});
 
-  factory ActionPlace.fromJson(Map<String, dynamic> json) {
-    return ActionPlace(
-      placeId: _s(json['place_id']),
-      latitude: _d(json['latitude']),     // NEW
-      longitude: _d(json['longitude']),   // NEW
-      name: _s(json['name']),
-      photo: _s(json['photo']),
-      rating: _d(json['rating']),
-      openNow: _b(json['open_now']),
-      website: _s(json['website']),
-      phone: _s(json['phone']),
-      distanceText: _s(json['distance_text']),
-      durationText: _s(json['duration_text']),
-      mapUrl: _s(json['map_url']),
-    );
+  ActionPlace.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    placeId = json['place_id'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+    placeName = json['place_name'];
+    image = json['image'];
+    rating = json['rating'];
+    directionsUrl = json['directions_url'];
+    phone = json['phone'];
+    email = json['email'];
+    website = json['website'];
+    priceCurrency = json['price_currency'];
+    activityType = json['activity_type'];
+    isSaved = json['is_saved'];
+    isRecent = json['is_recent'];
+    isReservation = json['is_reservation'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'place_id': placeId,
-      'latitude': latitude,     // NEW
-      'longitude': longitude,   // NEW
-      'name': name,
-      'photo': photo,
-      'rating': rating,
-      'open_now': openNow,
-      'website': website,
-      'phone': phone,
-      'distance_text': distanceText,
-      'duration_text': durationText,
-      'map_url': mapUrl,
-    };
+    final Map<String, dynamic> actionPlace = new Map<String, dynamic>();
+    actionPlace['id'] = this.id;
+    actionPlace['place_id'] = this.placeId;
+    actionPlace['latitude'] = this.latitude;
+    actionPlace['longitude'] = this.longitude;
+    actionPlace['place_name'] = this.placeName;
+    actionPlace['image'] = this.image;
+    actionPlace['rating'] = this.rating;
+    actionPlace['directions_url'] = this.directionsUrl;
+    actionPlace['phone'] = this.phone;
+    actionPlace['email'] = this.email;
+    actionPlace['website'] = this.website;
+    actionPlace['price_currency'] = this.priceCurrency;
+    actionPlace['activity_type'] = this.activityType;
+    actionPlace['is_saved'] = this.isSaved;
+    actionPlace['is_recent'] = this.isRecent;
+    actionPlace['is_reservation'] = this.isReservation;
+    actionPlace['created_at'] = this.createdAt;
+    actionPlace['updated_at'] = this.updatedAt;
+    return actionPlace;
   }
-}
-
-/// helpers
-String? _s(dynamic v) => v == null ? null : v.toString();
-double? _d(dynamic v) {
-  if (v == null) return null;
-  if (v is double) return v;
-  if (v is int) return v.toDouble();
-  if (v is String) return double.tryParse(v);
-  return null;
-}
-bool? _b(dynamic v) {
-  if (v == null) return null;
-  if (v is bool) return v;
-  if (v is int) return v == 1;
-  if (v is String) {
-    final s = v.toLowerCase();
-    if (s == 'true' || s == '1') return true;
-    if (s == 'false' || s == '0') return false;
-  }
-  return null;
 }
