@@ -32,6 +32,120 @@ class HomeController extends GetxController {
   final RxBool isMoreDetails = false.obs;
   final RxBool isMapClicked = false.obs;
 
+  // ========= Activities / Services category hierarchy =========
+  final List<CategoryNode> activitiesCategories = const [
+    CategoryNode(
+      id: 'activities_must_see_culture',
+      label: 'Must-See & Culture',
+      children: [
+        CategoryNode(id: 'landmarks', label: 'Landmarks & Monuments'),
+        CategoryNode(id: 'museums', label: 'Museums'),
+        CategoryNode(id: 'historical_sites', label: 'Historical Sites'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_entertainment_nightlife',
+      label: 'Entertainment & Nightlife',
+      children: [
+        CategoryNode(id: 'cruises', label: 'Cruises & River Tours'),
+        CategoryNode(id: 'shows', label: 'Cabarets & Shows'),
+        CategoryNode(id: 'nightclubs', label: 'Nightclubs & Bars'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_local_experiences',
+      label: 'Local Experiences',
+      children: [
+        CategoryNode(id: 'walking_tours', label: 'Walking Tours'),
+        CategoryNode(id: 'food_tours', label: 'Food & Wine Tours'),
+        CategoryNode(id: 'workshops', label: 'Workshops & Classes'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_day_trips_parks',
+      label: 'Day Trips & Parks',
+      children: [
+        CategoryNode(id: 'palaces', label: 'Palaces & Castles'),
+        CategoryNode(id: 'theme_parks', label: 'Theme Parks'),
+        CategoryNode(id: 'gardens_parks', label: 'Gardens & Parks'),
+      ],
+    ),
+  ];
+
+  final List<CategoryNode> servicesCategories = const [
+    CategoryNode(
+      id: 'services_hotels',
+      label: 'Hotels',
+      children: [
+        CategoryNode(id: 'budget_hotels', label: 'Budget Hotels'),
+        CategoryNode(id: 'boutique_hotels', label: 'Boutique'),
+        CategoryNode(id: 'luxury_hotels', label: 'Luxury Hotels'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_hairdressers',
+      label: 'Hairdressers',
+      children: [
+        CategoryNode(id: 'men_hair', label: 'Men\'s Hair'),
+        CategoryNode(id: 'women_hair', label: 'Women\'s Hair'),
+        CategoryNode(id: 'barbers', label: 'Barbers'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_beauty_salon',
+      label: 'Beauty Salons',
+      children: [
+        CategoryNode(id: 'nails', label: 'Nails'),
+        CategoryNode(id: 'makeup', label: 'Makeup'),
+        CategoryNode(id: 'skincare', label: 'Skincare'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_spa_massage',
+      label: 'Spa & Massage',
+      children: [
+        CategoryNode(id: 'day_spa', label: 'Day Spa'),
+        CategoryNode(id: 'massage', label: 'Massage'),
+        CategoryNode(id: 'hammam', label: 'Sauna & Hammam'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_gyms',
+      label: 'Gyms',
+      children: [
+        CategoryNode(id: 'fitness_clubs', label: 'Fitness Clubs'),
+        CategoryNode(id: 'yoga', label: 'Yoga & Pilates'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_coworking',
+      label: 'Coworking Spaces',
+      children: [
+        CategoryNode(id: 'open_space', label: 'Open Space'),
+        CategoryNode(id: 'private_office', label: 'Private Offices'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_health_wellness',
+      label: 'Health & Wellness',
+      children: [
+        CategoryNode(id: 'clinics', label: 'Clinics'),
+        CategoryNode(id: 'pharmacies', label: 'Pharmacies'),
+        CategoryNode(id: 'alternative', label: 'Alternative Therapies'),
+      ],
+    ),
+  ];
+
+  // state for selected sub / sub-sub categories
+  final Rx<CategoryNode?> selectedActivitiesParent = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedActivitiesChild  = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesParent   = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesChild    = Rx<CategoryNode?>(null);
+
+  // whether dropdown is open
+  final RxBool showActivitiesDropdown = false.obs;
+  final RxBool showServicesDropdown   = false.obs;
+
   final ApiService _service = ApiService();
 
   // Weather/time data
@@ -127,6 +241,26 @@ class HomeController extends GetxController {
     }
   }
 
+  void selectActivitiesParent(CategoryNode node) {
+    selectedActivitiesParent.value = node;
+    selectedActivitiesChild.value = null;
+    // If later you want: fetchTop5Places() with this context, you can hook here.
+  }
+
+  void selectActivitiesChild(CategoryNode node) {
+    selectedActivitiesChild.value = node;
+    // Hook for more specific filtering if backend supports it.
+  }
+
+  void selectServicesParent(CategoryNode node) {
+    selectedServicesParent.value = node;
+    selectedServicesChild.value = null;
+  }
+
+  void selectServicesChild(CategoryNode node) {
+    selectedServicesChild.value = node;
+  }
+
   String get _fallbackDayName => DateFormat('EEEE').format(DateTime.now());
   String get _fallbackTimeStr => DateFormat('hh:mm a').format(DateTime.now());
 
@@ -165,16 +299,45 @@ class HomeController extends GetxController {
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
+
+    // Toggle dropdown visibility for Activities / Services
+    showActivitiesDropdown.value = (index == 3);
+    showServicesDropdown.value   = (index == 4);
+
+    // Reset selections when leaving a section
+    if (index != 3) {
+      selectedActivitiesParent.value = null;
+      selectedActivitiesChild.value  = null;
+    }
+    if (index != 4) {
+      selectedServicesParent.value = null;
+      selectedServicesChild.value  = null;
+    }
+
     refreshIdeas();
-    // fetchTop5Places(search: searchText.value); // Refresh with current search
+    // fetchTop5Places(search: searchText.value); // still commented as in your code
   }
 
   void onCategoryChangedService(int index) {
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
-    // refreshIdeas();
-    fetchTop5Places(search: searchText.value); // Refresh with current search
+
+    // Toggle dropdown visibility for Activities / Services
+    showActivitiesDropdown.value = (index == 3);
+    showServicesDropdown.value   = (index == 4);
+
+    if (index != 3) {
+      selectedActivitiesParent.value = null;
+      selectedActivitiesChild.value  = null;
+    }
+    if (index != 4) {
+      selectedServicesParent.value = null;
+      selectedServicesChild.value  = null;
+    }
+
+    // refreshIdeas();  // you had this commented out
+    fetchTop5Places(search: searchText.value); // keep your existing behavior
   }
 
   @override
@@ -772,4 +935,17 @@ class HomeController extends GetxController {
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
     }
   }
+}
+
+
+class CategoryNode {
+  final String id;
+  final String label;
+  final List<CategoryNode> children;
+
+  const CategoryNode({
+    required this.id,
+    required this.label,
+    this.children = const [],
+  });
 }

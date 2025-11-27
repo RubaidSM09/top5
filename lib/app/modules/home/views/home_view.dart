@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:top5/app/modules/home/views/service_view.dart';
 import 'package:top5/app/modules/home/views/set_your_location_view.dart';
 import 'package:top5/app/modules/profile/controllers/profile_controller.dart';
+import 'package:top5/app/modules/profile/views/profile_view.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 
@@ -103,6 +104,147 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedCategory[4].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
+                        ],
+                      ),
+                    );
+                  }),
+
+                  Obx(() {
+                    final c = Get.find<HomeController>();
+                    final bool showActivities =
+                        c.showActivitiesDropdown.value && c.selectedCategory[3].value;
+                    final bool showServices =
+                        c.showServicesDropdown.value && c.selectedCategory[4].value;
+
+                    if (!showActivities && !showServices) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final bool isActivities = showActivities;
+                    final List<CategoryNode> parents = isActivities
+                        ? c.activitiesCategories
+                        : c.servicesCategories;
+
+                    final CategoryNode? selectedParent = isActivities
+                        ? c.selectedActivitiesParent.value
+                        : c.selectedServicesParent.value;
+
+                    final CategoryNode? selectedChild = isActivities
+                        ? c.selectedActivitiesChild.value
+                        : c.selectedServicesChild.value;
+
+                    // Dropdown background color = same as category selection card
+                    final Color bgColor = isActivities
+                        ? (c.selectedCategory[3].value
+                        ? AppColors.homeGreen
+                        : AppColors.homeInactiveBg)
+                        : (c.selectedCategory[4].value
+                        ? AppColors.homeGreen
+                        : AppColors.homeInactiveBg);
+
+                    // Inner chip colors
+                    final Color chipBgActive   = AppColors.homeWhite;
+                    final Color chipBgInactive = bgColor.withOpacity(0.85);
+                    final Color chipTextActive   = AppColors.homeGreen;
+                    final Color chipTextInactive = AppColors.homeWhite;
+
+                    return Container(
+                      margin: EdgeInsets.only(top: 12.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 12.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(16.r),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Sub-categories
+                          Wrap(
+                            spacing: 8.w,
+                            runSpacing: 8.h,
+                            children: parents.map((node) {
+                              final bool isSelected =
+                                  selectedParent?.id == node.id;
+                              return GestureDetector(
+                                onTap: () {
+                                  if (isActivities) {
+                                    c.selectActivitiesParent(node);
+                                  } else {
+                                    c.selectServicesParent(node);
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                    vertical: 6.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? chipBgActive
+                                        : chipBgInactive,
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                  child: Text(
+                                    node.label.tr,
+                                    style: h4.copyWith(
+                                      color: isSelected
+                                          ? chipTextActive
+                                          : chipTextInactive,
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+
+                          // Sub-sub-categories (only when parent selected)
+                          if (selectedParent != null &&
+                              selectedParent.children.isNotEmpty) ...[
+                            SizedBox(height: 12.h),
+                            Wrap(
+                              spacing: 8.w,
+                              runSpacing: 8.h,
+                              children: selectedParent.children.map((node) {
+                                final bool isSelectedChild =
+                                    selectedChild?.id == node.id;
+                                return GestureDetector(
+                                  onTap: () {
+                                    if (isActivities) {
+                                      c.selectActivitiesChild(node);
+                                    } else {
+                                      c.selectServicesChild(node);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 6.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelectedChild
+                                          ? chipBgActive
+                                          : chipBgInactive,
+                                      borderRadius:
+                                      BorderRadius.circular(20.r),
+                                    ),
+                                    child: Text(
+                                      node.label.tr,
+                                      style: h4.copyWith(
+                                        color: isSelectedChild
+                                            ? chipTextActive
+                                            : chipTextInactive,
+                                        fontSize: 11.sp,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ],
                       ),
                     );
@@ -402,21 +544,24 @@ class HomeAppBar extends StatelessWidget {
           ],
         ),
 
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
-          ),
-          child: CircleAvatar(
-            radius: 16.r,
-            backgroundImage: profileController.image.value == '' ?
-            const AssetImage(
-              'assets/images/home/profile_pic.jpg',
-            )
-                :
-            NetworkImage(
-              'http://10.10.13.99:8090${profileController.image.value}',
-            ) as ImageProvider,
+        GestureDetector(
+          onTap: () => Get.to(ProfileView()),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 16.r,
+              backgroundImage: profileController.image.value == '' ?
+              const AssetImage(
+                'assets/images/home/profile_pic.jpg',
+              )
+                  :
+              NetworkImage(
+                'http://10.10.13.99:8090${profileController.image.value}',
+              ) as ImageProvider,
+            ),
           ),
         )
       ],
