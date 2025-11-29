@@ -23,7 +23,7 @@ class SavedListView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    ProfileController profileController = Get.put(ProfileController());
+    // ProfileController profileController = Get.put(ProfileController());
 
     return Scaffold(
       appBar: AppBar(
@@ -163,19 +163,21 @@ class SavedListCard extends StatelessWidget {
 
   Future<void> _toggleSave(double destLat, double destLng, String title, double rating, String directionUrl) async {
     final c = Get.find<HomeController>();
+    c.fetchSavedPlaces();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
     print(activityType);
 
     await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, '', '', '', '€€.', activityType, image);
     await c.fetchSavedPlaces(); // Refresh saved places list
-    await c.fetchSavedCount();
+    // await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
   }
 
   @override
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
+    // c.fetchSavedPlaces();
     final ImageProvider imgProvider = image.startsWith('http') ? NetworkImage(image) : AssetImage(image) as ImageProvider;
 
     return GestureDetector(

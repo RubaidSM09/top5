@@ -58,11 +58,12 @@ class DetailsView extends GetView<HomeController> {
 
   Future<void> _toggleSave(String phone, String email, String website) async {
     final c = Get.find<HomeController>();
+    c.fetchSavedPlaces();
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
     await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, phone, email, website, '€€.', activityType, image);
     await c.fetchSavedPlaces(); // Refresh saved places list
-    await c.fetchSavedCount();
+    // await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
   }
 
@@ -76,6 +77,7 @@ class DetailsView extends GetView<HomeController> {
     final c = Get.find<HomeController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.fetchPlaceDetails(placeId);
+      controller.fetchSavedPlaces();
     });
 
     return Scaffold(

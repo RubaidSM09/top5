@@ -70,7 +70,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
 
     // await c.submitActionPlaces(placeId, activityType);
     await c.fetchSavedPlaces(); // Refresh saved places list
-    await c.fetchSavedCount();
+    // await c.fetchSavedCount();
     isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
   }
 

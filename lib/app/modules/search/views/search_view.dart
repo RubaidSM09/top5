@@ -39,7 +39,9 @@ class SearchView extends GetView<SearchController> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: SearchAppBar(profileController: profileController,),
+        title: SearchAppBar(
+          profileController: profileController,
+        ),
         centerTitle: true,
         scrolledUnderElevation: 0,
       ),
@@ -56,7 +58,8 @@ class SearchView extends GetView<SearchController> {
 
                 Text(
                   'Recent searches'.tr,
-                  style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
+                  style: h2.copyWith(
+                      color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
 
@@ -67,15 +70,25 @@ class SearchView extends GetView<SearchController> {
                       spacing: 4.w,
                       children: [
                         if (!controller.isRemoved[0].value)
-                          RecentSearchCard(search: 'New', isRemoved: controller.isRemoved[0]),
+                          RecentSearchCard(
+                              search: 'New',
+                              isRemoved: controller.isRemoved[0]),
                         if (!controller.isRemoved[1].value)
-                          RecentSearchCard(search: 'Famous', isRemoved: controller.isRemoved[1]),
+                          RecentSearchCard(
+                              search: 'Famous',
+                              isRemoved: controller.isRemoved[1]),
                         if (!controller.isRemoved[2].value)
-                          RecentSearchCard(search: 'Drinks', isRemoved: controller.isRemoved[2]),
+                          RecentSearchCard(
+                              search: 'Drinks',
+                              isRemoved: controller.isRemoved[2]),
                         if (!controller.isRemoved[3].value)
-                          RecentSearchCard(search: 'Lunch', isRemoved: controller.isRemoved[3]),
+                          RecentSearchCard(
+                              search: 'Lunch',
+                              isRemoved: controller.isRemoved[3]),
                         if (!controller.isRemoved[4].value)
-                          RecentSearchCard(search: 'Dinner', isRemoved: controller.isRemoved[4]),
+                          RecentSearchCard(
+                              search: 'Dinner',
+                              isRemoved: controller.isRemoved[4]),
                       ],
                     ),
                   );
@@ -85,7 +98,8 @@ class SearchView extends GetView<SearchController> {
 
                 Text(
                   'Popular near you'.tr,
-                  style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
+                  style: h2.copyWith(
+                      color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
 
@@ -106,11 +120,12 @@ class SearchView extends GetView<SearchController> {
 
                 Text(
                   'By category'.tr,
-                  style: h2.copyWith(color: AppColors.searchBlack, fontSize: 20.sp),
+                  style: h2.copyWith(
+                      color: AppColors.searchBlack, fontSize: 20.sp),
                 ),
                 SizedBox(height: 12.h),
 
-                /// Category chips (unchanged) – listening is wired in controller
+                /// Category chips – Search
                 Obx(() {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -182,6 +197,154 @@ class SearchView extends GetView<SearchController> {
                   );
                 }),
 
+                /// NEW: Activities / Services subcategory container (Search)
+                Obx(() {
+                  final c = Get.find<SearchController>();
+                  final bool showActivities = c.showActivitiesDropdown.value &&
+                      c.selectedCategory[3].value;
+                  final bool showServices = c.showServicesDropdown.value &&
+                      c.selectedCategory[4].value;
+
+                  if (!showActivities && !showServices) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final bool isActivities = showActivities;
+                  final List<CategoryNode> parents = isActivities
+                      ? c.activitiesCategories
+                      : c.servicesCategories;
+
+                  final CategoryNode? selectedParent = isActivities
+                      ? c.selectedActivitiesParent.value
+                      : c.selectedServicesParent.value;
+
+                  final CategoryNode? selectedChild = isActivities
+                      ? c.selectedActivitiesChild.value
+                      : c.selectedServicesChild.value;
+
+                  // Background color similar to selected category chip
+                  final Color bgColor = isActivities
+                      ? (c.selectedCategory[3].value
+                      ? AppColors.homeGreen
+                      : AppColors.homeInactiveBg)
+                      : (c.selectedCategory[4].value
+                      ? AppColors.homeGreen
+                      : AppColors.homeInactiveBg);
+
+                  // Inner chip colors
+                  final Color chipBgActive = AppColors.homeWhite;
+                  final Color chipBgInactive = bgColor.withOpacity(0.85);
+                  final Color chipTextActive = AppColors.homeGreen;
+                  final Color chipTextInactive = AppColors.homeWhite;
+
+                  return Container(
+                    margin: EdgeInsets.only(top: 12.h),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 12.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: bgColor,
+                      borderRadius: BorderRadius.circular(16.r),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Sub-categories
+                        Wrap(
+                          spacing: 8.w,
+                          runSpacing: 8.h,
+                          children: parents.map((node) {
+                            final bool isSelected =
+                                selectedParent?.id == node.id;
+                            return GestureDetector(
+                              onTap: () {
+                                if (isActivities) {
+                                  c.selectActivitiesParent(node);
+                                } else {
+                                  c.selectServicesParent(node);
+                                }
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.w,
+                                  vertical: 6.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? chipBgActive
+                                      : chipBgInactive,
+                                  borderRadius: BorderRadius.circular(20.r),
+                                ),
+                                child: Text(
+                                  node.label.tr,
+                                  style: h4.copyWith(
+                                    color: isSelected
+                                        ? chipTextActive
+                                        : chipTextInactive,
+                                    fontSize: 11.sp,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+
+                        // Sub-sub-categories (only when parent selected)
+                        if (selectedParent != null &&
+                            selectedParent.children.isNotEmpty) ...[
+                          SizedBox(height: 6.h),
+                          Divider(
+                            color: chipBgActive,
+                          ),
+                          SizedBox(height: 6.h),
+                          Wrap(
+                            spacing: 8.w,
+                            runSpacing: 8.h,
+                            children:
+                            selectedParent.children.map((node) {
+                              final bool isSelectedChild =
+                                  selectedChild?.id == node.id;
+                              return GestureDetector(
+                                onTap: () {
+                                  if (isActivities) {
+                                    c.selectActivitiesChild(node);
+                                  } else {
+                                    c.selectServicesChild(node);
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                    vertical: 6.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isSelectedChild
+                                        ? chipBgActive
+                                        : chipBgInactive,
+                                    borderRadius:
+                                    BorderRadius.circular(20.r),
+                                  ),
+                                  child: Text(
+                                    node.label.tr,
+                                    style: h4.copyWith(
+                                      color: isSelectedChild
+                                          ? chipTextActive
+                                          : chipTextInactive,
+                                      fontSize: 11.sp,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }),
+
                 SizedBox(height: 28.h),
 
                 Row(
@@ -192,16 +355,19 @@ class SearchView extends GetView<SearchController> {
                         width: 261.w,
                         child: Text(
                           'Top 5 ${controller.searchText.value}',
-                          style: h2.copyWith(color: AppColors.searchBlack, fontSize: 24.sp),
+                          style: h2.copyWith(
+                              color: AppColors.searchBlack,
+                              fontSize: 24.sp),
                         ),
                       );
                     }),
                     GestureDetector(
-                      onTap: () =>
-                          Get.to(ResultsView(searchText: controller.searchText.value)),
+                      onTap: () => Get.to(
+                          ResultsView(searchText: controller.searchText.value)),
                       child: Text(
                         'See all'.tr,
-                        style: h4.copyWith(color: AppColors.searchGreen, fontSize: 14.sp),
+                        style: h4.copyWith(
+                            color: AppColors.searchGreen, fontSize: 14.sp),
                       ),
                     )
                   ],
@@ -241,7 +407,8 @@ class SearchView extends GetView<SearchController> {
                           page: 'Search',
                         ),
                         FilterSelectionCard(
-                          text: profileController.selectedDistanceUnit[0].value
+                          text: profileController
+                              .selectedDistanceUnit[0].value
                               ? '1 km'
                               : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
                           selectedFilter: controller.selectedFilter,
@@ -300,17 +467,19 @@ class SearchView extends GetView<SearchController> {
                 /// DYNAMIC RESULTS (Top 5)
                 Obx(() {
                   if (controller.loading.value) {
-                    return const Center(child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: CircularProgressIndicator(),
-                    ));
+                    return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: CircularProgressIndicator(),
+                        ));
                   }
                   if (controller.error.isNotEmpty) {
                     return Padding(
                       padding: EdgeInsets.only(top: 12.h),
                       child: Text(
                         controller.error.value,
-                        style: h3.copyWith(color: Colors.red, fontSize: 12.sp),
+                        style: h3.copyWith(
+                            color: Colors.red, fontSize: 12.sp),
                       ),
                     );
                   }
@@ -319,7 +488,8 @@ class SearchView extends GetView<SearchController> {
                       padding: EdgeInsets.only(top: 12.h),
                       child: Text(
                         'No results found.',
-                        style: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+                        style: h4.copyWith(
+                            color: AppColors.homeGray, fontSize: 14.sp),
                       ),
                     );
                   }
@@ -327,10 +497,13 @@ class SearchView extends GetView<SearchController> {
                   final selected = homeController.selectedLocations;
                   return Column(
                     spacing: 16.h,
-                    children: List.generate(controller.results.length, (i) {
+                    children:
+                    List.generate(controller.results.length, (i) {
                       final p = controller.results[i];
-                      final status = (p.openNow == true) ? 'Open'.tr : 'Closed'.tr;
-                      final timeMins = _parseMinutes(p.durationText ?? '');
+                      final status =
+                      (p.openNow == true) ? 'Open'.tr : 'Closed'.tr;
+                      final timeMins =
+                      _parseMinutes(p.durationText ?? '');
                       final type = _typeFromPlace(p);
                       final reasons = [
                         '⭐ ${p.rating?.toStringAsFixed(1) ?? '-'} • ${p.reviewsCount ?? 0} reviews',
@@ -389,7 +562,7 @@ class SearchAppBar extends StatelessWidget {
 
   const SearchAppBar({
     required this.profileController,
-    super.key
+    super.key,
   });
 
   @override
@@ -398,20 +571,22 @@ class SearchAppBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SvgPicture.asset('assets/images/home/top_5_green_logo.svg'),
-        Text('Search'.tr, style: h3.copyWith(color: AppColors.top5Black, fontSize: 24.sp)),
+        Text('Search'.tr,
+            style: h3.copyWith(
+                color: AppColors.top5Black, fontSize: 24.sp)),
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.homeProfileBorderColor, width: 2),
+            border: Border.all(
+                color: AppColors.homeProfileBorderColor, width: 2),
           ),
           child: CircleAvatar(
             radius: 16.r,
-            backgroundImage: profileController.image.value == '' ?
-            const AssetImage(
+            backgroundImage: profileController.image.value == ''
+                ? const AssetImage(
               'assets/images/home/profile_pic.jpg',
             )
-                :
-            NetworkImage(
+                : NetworkImage(
               'http://10.10.13.99:8090${profileController.image.value}',
             ) as ImageProvider,
           ),
@@ -450,24 +625,30 @@ class SearchBar extends StatelessWidget {
         homeController.performSearch(value);
       },
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+        contentPadding:
+        EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
         filled: true,
         fillColor: AppColors.homeSearchBg,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
+          borderSide:
+          const BorderSide(color: AppColors.top5Transparent),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
+          borderSide:
+          const BorderSide(color: AppColors.top5Transparent),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
+          borderSide:
+          const BorderSide(color: AppColors.top5Transparent),
         ),
         hintText: searchBarText.text,
-        hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
-        prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
+        hintStyle:
+        h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+        prefixIcon:
+        Image.asset('assets/images/home/search.png', scale: 4),
 
         // ↓ Only this part changed: we call _handleVoice()
         suffixIcon: Row(
@@ -477,11 +658,17 @@ class SearchBar extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: _handleVoice,
-              child: Image.asset('assets/images/home/voice.png', scale: 4),
+              child: Image.asset('assets/images/home/voice.png',
+                  scale: 4),
             ),
-            Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
+            Container(
+                width: 1.w,
+                height: 20.h,
+                color: AppColors.homeSearchBarLineColor),
             Image.asset('assets/images/home/filter.png', scale: 4),
-            Text('Filter'.tr, style: h4.copyWith(color: AppColors.homeGray, fontSize: 12.sp)),
+            Text('Filter'.tr,
+                style: h4.copyWith(
+                    color: AppColors.homeGray, fontSize: 12.sp)),
             SizedBox(width: 20.w),
           ],
         ),
@@ -490,7 +677,6 @@ class SearchBar extends StatelessWidget {
   }
 }
 
-
 class RecentSearchCard extends StatelessWidget {
   final String search;
   final RxBool isRemoved;
@@ -498,13 +684,14 @@ class RecentSearchCard extends StatelessWidget {
   const RecentSearchCard({
     required this.search,
     required this.isRemoved,
-    super.key
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding:
+      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         color: AppColors.searchSearchBg,
@@ -519,7 +706,6 @@ class RecentSearchCard extends StatelessWidget {
               fontSize: 12.sp,
             ),
           ),
-
           GestureDetector(
             onTap: () {
               isRemoved.value = true;
@@ -536,19 +722,19 @@ class RecentSearchCard extends StatelessWidget {
   }
 }
 
-
 class PopularNearYouCard extends StatelessWidget {
   final String text;
 
   const PopularNearYouCard({
     required this.text,
-    super.key
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding:
+      EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.r),
         color: AppColors.searchSearchBg,
@@ -568,8 +754,6 @@ class PopularNearYouCard extends StatelessWidget {
     );
   }
 }
-
-
 
 class CategorySelectionCardSearch extends StatelessWidget {
   final String text;
@@ -594,11 +778,12 @@ class CategorySelectionCardSearch extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         print("Hellow");
-        // 🔁 Switch from HomeController to SearchController
+        // 🔁 Use SearchController category selection
         Get.find<SearchController>().selectCategory(index);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+        padding:
+        EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(20),
@@ -608,7 +793,8 @@ class CategorySelectionCardSearch extends StatelessWidget {
           children: [
             Text(
               text,
-              style: h3.copyWith(color: textColor, fontSize: 12.sp),
+              style:
+              h3.copyWith(color: textColor, fontSize: 12.sp),
             ),
             SvgPicture.asset(icon, color: textColor),
           ],
@@ -617,8 +803,6 @@ class CategorySelectionCardSearch extends StatelessWidget {
     );
   }
 }
-
-
 
 class SearchListCard extends StatelessWidget {
   final int serialNo;
@@ -660,7 +844,10 @@ class SearchListCard extends StatelessWidget {
 
   Future<void> _openDirections() async {
     final c = Get.find<HomeController>();
-    await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
+    await c.openDirectionsTo(
+        destLat: destLat,
+        destLng: destLng,
+        travelMode: 'walking');
 
     // (Optional) keep your recents tracking:
     /*if (placeId.isNotEmpty) {
@@ -699,15 +886,18 @@ class SearchListCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
+        padding:
+        EdgeInsets.symmetric(horizontal: 15.w, vertical: 17.h),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AppColors.serviceGray, width: 0.5.r),
+          border:
+          Border.all(color: AppColors.serviceGray, width: 0.5.r),
         ),
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding: EdgeInsets.only(
@@ -724,27 +914,35 @@ class SearchListCard extends StatelessWidget {
                     ),
                   ),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 8.w, vertical: 4.h),
                     decoration: BoxDecoration(
-                      color: isPromo ? AppColors.servicePromoGreen : AppColors.top5Transparent,
+                      color: isPromo
+                          ? AppColors.servicePromoGreen
+                          : AppColors.top5Transparent,
                       borderRadius: BorderRadius.circular(16.r),
                     ),
                     child: Text(
                       'Promo',
                       style: h4.copyWith(
-                        color: isPromo ? AppColors.serviceWhite : AppColors.top5Transparent,
+                        color: isPromo
+                            ? AppColors.serviceWhite
+                            : AppColors.top5Transparent,
                         fontSize: 10.sp,
                       ),
                     ),
                   ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
                   spacing: 8.h,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                      CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: 135.w,
@@ -791,13 +989,17 @@ class SearchListCard extends StatelessWidget {
                               vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.serviceSearchBg,
-                              borderRadius: BorderRadius.circular(50.r),
+                              color: AppColors
+                                  .serviceSearchBg,
+                              borderRadius:
+                              BorderRadius.circular(
+                                  50.r),
                             ),
                             child: Text(
                               status,
                               style: h3.copyWith(
-                                color: AppColors.servicePromoGreen,
+                                color:
+                                AppColors.servicePromoGreen,
                                 fontSize: 12.sp,
                               ),
                             ),
@@ -823,7 +1025,8 @@ class SearchListCard extends StatelessWidget {
                 Expanded(
                   child: CustomButton(
                     text: 'Directions'.tr,
-                    prefixIcon: 'assets/images/home/directions.svg',
+                    prefixIcon:
+                    'assets/images/home/directions.svg',
                     paddingLeft: 12,
                     paddingRight: 12,
                     paddingTop: 8,
@@ -833,7 +1036,6 @@ class SearchListCard extends StatelessWidget {
                     onTap: _openDirections, // Updated
                   ),
                 ),
-
                 Expanded(
                   child: CustomButton(
                     text: 'Book'.tr,

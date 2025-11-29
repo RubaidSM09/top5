@@ -338,7 +338,7 @@ class ProfileController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProfileInfo();
-    actionPlacesDetails('saved');
+    // actionPlacesDetails('saved');
   }
 
   @override

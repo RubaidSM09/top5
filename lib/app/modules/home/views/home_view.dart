@@ -49,6 +49,7 @@ class HomeView extends GetView<HomeController> {
                 children: [
                   SizedBox(height: 12.62.h,),
 
+                  // TOP CATEGORY CHIPS (unchanged)
                   Obx(() {
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -109,6 +110,7 @@ class HomeView extends GetView<HomeController> {
                     );
                   }),
 
+                  // HEADER DROPDOWN FOR ACTIVITIES/SERVICES (unchanged behaviour)
                   Obx(() {
                     final c = Get.find<HomeController>();
                     final bool showActivities =
@@ -133,7 +135,6 @@ class HomeView extends GetView<HomeController> {
                         ? c.selectedActivitiesChild.value
                         : c.selectedServicesChild.value;
 
-                    // Dropdown background color = same as category selection card
                     final Color bgColor = isActivities
                         ? (c.selectedCategory[3].value
                         ? AppColors.homeGreen
@@ -142,7 +143,6 @@ class HomeView extends GetView<HomeController> {
                         ? AppColors.homeGreen
                         : AppColors.homeInactiveBg);
 
-                    // Inner chip colors
                     final Color chipBgActive   = AppColors.homeWhite;
                     final Color chipBgInactive = bgColor.withOpacity(0.85);
                     final Color chipTextActive   = AppColors.homeGreen;
@@ -150,6 +150,7 @@ class HomeView extends GetView<HomeController> {
 
                     return Container(
                       margin: EdgeInsets.only(top: 12.h),
+                      width: double.infinity,
                       padding: EdgeInsets.symmetric(
                         horizontal: 12.w,
                         vertical: 12.h,
@@ -161,7 +162,6 @@ class HomeView extends GetView<HomeController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Sub-categories
                           Wrap(
                             spacing: 8.w,
                             runSpacing: 8.h,
@@ -201,10 +201,12 @@ class HomeView extends GetView<HomeController> {
                             }).toList(),
                           ),
 
-                          // Sub-sub-categories (only when parent selected)
                           if (selectedParent != null &&
                               selectedParent.children.isNotEmpty) ...[
-                            SizedBox(height: 12.h),
+                            SizedBox(height: 6.h),
+                            Divider(color: chipBgActive,),
+                            SizedBox(height: 6.h),
+
                             Wrap(
                               spacing: 8.w,
                               runSpacing: 8.h,
@@ -214,9 +216,10 @@ class HomeView extends GetView<HomeController> {
                                 return GestureDetector(
                                   onTap: () {
                                     if (isActivities) {
-                                      c.selectActivitiesChild(node);
+                                      // header → allow ideas
+                                      c.selectActivitiesChild(node, refreshIdeasFlag: true);
                                     } else {
-                                      c.selectServicesChild(node);
+                                      c.selectServicesChild(node, refreshIdeasFlag: true);
                                     }
                                   },
                                   child: Container(
@@ -270,7 +273,6 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
-
                           FilterSelectionCard(
                             text: '10 min',
                             selectedFilter: controller.selectedFilter,
@@ -279,16 +281,16 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
-
                           FilterSelectionCard(
-                            text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                            text: profileController.selectedDistanceUnit[0].value
+                                ? '1 km'
+                                : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
                             selectedFilter: controller.selectedFilter,
                             index: 2,
                             color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
                             textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
-
                           FilterSelectionCard(
                             text: 'Outdoor'.tr,
                             selectedFilter: controller.selectedFilter,
@@ -297,7 +299,6 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
-
                           FilterSelectionCard(
                             text: 'Vegetarian'.tr,
                             selectedFilter: controller.selectedFilter,
@@ -306,7 +307,6 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
-
                           FilterSelectionCard(
                             text: 'Bookable'.tr,
                             selectedFilter: controller.selectedFilter,
@@ -332,6 +332,7 @@ class HomeView extends GetView<HomeController> {
 
                   SizedBox(height: 20.h,),
 
+                  // MAIN QUICK GLANCE CARDS
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -344,7 +345,6 @@ class HomeView extends GetView<HomeController> {
                           selectedCategory: controller.selectedCategory,
                           index: 0,
                         ),
-
                         QuickGlanceCard(
                           image: 'assets/images/home/cafes.jpg',
                           text: 'Cafes'.tr,
@@ -352,7 +352,6 @@ class HomeView extends GetView<HomeController> {
                           selectedCategory: controller.selectedCategory,
                           index: 1,
                         ),
-
                         QuickGlanceCard(
                           image: 'assets/images/home/bar.jpg',
                           text: 'Bar'.tr,
@@ -360,7 +359,6 @@ class HomeView extends GetView<HomeController> {
                           selectedCategory: controller.selectedCategory,
                           index: 2,
                         ),
-
                         QuickGlanceCard(
                           image: 'assets/images/home/services.jpg',
                           text: 'Services'.tr,
@@ -368,7 +366,6 @@ class HomeView extends GetView<HomeController> {
                           selectedCategory: controller.selectedCategory,
                           index: 4,
                         ),
-
                         QuickGlanceCard(
                           image: 'assets/images/home/activities.jpg',
                           text: 'Activities'.tr,
@@ -379,6 +376,102 @@ class HomeView extends GetView<HomeController> {
                       ],
                     ),
                   ),
+
+                  // QUICK GLANCE SUBCATEGORIES (Activities / Services)
+                  Obx(() {
+                    final c = Get.find<HomeController>();
+                    final bool showActivities = c.showActivitiesQuickGlance.value;
+                    final bool showServices   = c.showServicesQuickGlance.value;
+
+                    if (!showActivities && !showServices) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final bool isActivities = showActivities;
+                    final List<CategoryNode> parents = isActivities
+                        ? c.activitiesCategories
+                        : c.servicesCategories;
+
+                    final CategoryNode? selectedParent = isActivities
+                        ? c.selectedActivitiesParent.value
+                        : c.selectedServicesParent.value;
+
+                    final CategoryNode? selectedChild = isActivities
+                        ? c.selectedActivitiesChild.value
+                        : c.selectedServicesChild.value;
+
+                    final String bgImage = isActivities
+                        ? 'assets/images/home/activities.jpg'
+                        : 'assets/images/home/services.jpg';
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 16.h),
+
+                        // Parent sub-categories as Quick Glance style
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            spacing: 16.w,
+                            children: parents.map((node) {
+                              final bool isSelected = selectedParent?.id == node.id;
+                              return QuickGlanceCategoryCard(
+                                image: bgImage,
+                                text: node.label.tr,
+                                rating: 4.6,
+                                isSelected: isSelected,
+                                onTap: () {
+                                  if (isActivities) {
+                                    c.selectActivitiesParent(node);
+                                  } else {
+                                    c.selectServicesParent(node);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        ),
+
+                        // Child sub-sub-categories
+                        if (selectedParent != null &&
+                            selectedParent.children.isNotEmpty) ...[
+                          SizedBox(height: 16.h),
+
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              spacing: 16.w,
+                              children: selectedParent.children.map((node) {
+                                final bool isSelectedChild = selectedChild?.id == node.id;
+                                return QuickGlanceCategoryCard(
+                                  image: bgImage,
+                                  text: node.label.tr,
+                                  rating: 4.6,
+                                  isSelected: isSelectedChild,
+                                  onTap: () {
+                                    final c = Get.find<HomeController>();
+                                    if (isActivities) {
+                                      // Quick Glance → do NOT trigger ideas
+                                      c.selectActivitiesChild(node, refreshIdeasFlag: false);
+                                      // mark that ServiceView was opened from Quick Glance
+                                      c.navigatedFromQuickGlance.value = true;
+                                      c.onCategoryChangedService(3);
+                                    } else {
+                                      c.selectServicesChild(node, refreshIdeasFlag: false);
+                                      c.navigatedFromQuickGlance.value = true;
+                                      c.onCategoryChangedService(4);
+                                    }
+                                    Get.to(ServiceView(appBarTitle: node.label.tr));
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
+                      ],
+                    );
+                  }),
 
                   SizedBox(height: 30.h,),
 
@@ -411,8 +504,7 @@ class HomeView extends GetView<HomeController> {
                                 color: AppColors.homeGreen,
                                 fontSize: 12.sp,
                               ),
-                            ),
-                            ),
+                            )),
                           ),
 
                           Obx(() => Container(
@@ -465,10 +557,12 @@ class HomeView extends GetView<HomeController> {
                     return Wrap(
                       spacing: 10.w,
                       runSpacing: 16.h,
-                      children: c.ideas.map((txt) => GestureDetector(
+                      children: c.ideas
+                          .map((txt) => GestureDetector(
                         onTap: () => c.onIdeaClicked(txt),
                         child: IdeasToTryCard(text: txt),
-                      )).toList(),
+                      ))
+                          .toList(),
                     );
                   }),
 
@@ -482,7 +576,6 @@ class HomeView extends GetView<HomeController> {
     );
   }
 }
-
 
 class HomeAppBar extends StatelessWidget {
   final RxString time;
@@ -526,12 +619,12 @@ class HomeAppBar extends StatelessWidget {
                   spacing: 4.w,
                   children: [
                     Icon(
-                      c.weatherIcon,               // 🌤 dynamic icon
-                      color: c.weatherIconColor,   // 🎨 matching color
+                      c.weatherIcon,
+                      color: c.weatherIconColor,
                       size: 15.r,
                     ),
                     Text(
-                      c.tempText, // "31°C"
+                      c.tempText,
                       style: h4.copyWith(
                         color: AppColors.homeGreen,
                         fontSize: 12.sp,
@@ -553,12 +646,11 @@ class HomeAppBar extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 16.r,
-              backgroundImage: profileController.image.value == '' ?
-              const AssetImage(
+              backgroundImage: profileController.image.value == ''
+                  ? const AssetImage(
                 'assets/images/home/profile_pic.jpg',
               )
-                  :
-              NetworkImage(
+                  : NetworkImage(
                 'http://10.10.13.99:8090${profileController.image.value}',
               ) as ImageProvider,
             ),
@@ -568,7 +660,6 @@ class HomeAppBar extends StatelessWidget {
     );
   }
 }
-
 
 class CategorySelectionCard extends StatelessWidget {
   final String text;
@@ -587,7 +678,7 @@ class CategorySelectionCard extends StatelessWidget {
     required this.color,
     required this.textColor,
     required this.page,
-    super.key
+    super.key,
   });
 
   @override
@@ -621,7 +712,6 @@ class CategorySelectionCard extends StatelessWidget {
                 fontSize: 12.sp,
               ),
             ),
-
             SvgPicture.asset(
               icon,
               color: textColor,
@@ -633,13 +723,12 @@ class CategorySelectionCard extends StatelessWidget {
   }
 }
 
-
 class HomeSearchBar extends StatelessWidget {
   final String searchBarText;
 
   const HomeSearchBar({
     required this.searchBarText,
-    super.key
+    super.key,
   });
 
   @override
@@ -682,8 +771,6 @@ class HomeSearchBar extends StatelessWidget {
         hintText: searchBarText,
         hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
         prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
-
-        // ↓ Only this part changed: we call _handleVoice()
         suffixIcon: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           mainAxisSize: MainAxisSize.min,
@@ -722,7 +809,6 @@ class HomeSearchBar extends StatelessWidget {
   }
 }
 
-
 class FilterSelectionCard extends StatelessWidget {
   final String text;
   final RxList<RxBool> selectedFilter;
@@ -738,7 +824,7 @@ class FilterSelectionCard extends StatelessWidget {
     required this.color,
     required this.textColor,
     required this.page,
-    super.key
+    super.key,
   });
 
   @override
@@ -747,7 +833,9 @@ class FilterSelectionCard extends StatelessWidget {
       onTap: () {
         selectedFilter[index].value = !selectedFilter[index].value;
         if (page != 'Home') {
-          Get.find<HomeController>().fetchTop5Places(search: Get.find<HomeController>().searchText.value);
+          Get.find<HomeController>().fetchTop5Places(
+            search: Get.find<HomeController>().searchText.value,
+          );
         }
       },
       child: Container(
@@ -774,7 +862,6 @@ class FilterSelectionCard extends StatelessWidget {
   }
 }
 
-
 class QuickGlanceCard extends StatelessWidget {
   final String image;
   final String text;
@@ -788,7 +875,7 @@ class QuickGlanceCard extends StatelessWidget {
     required this.rating,
     required this.selectedCategory,
     required this.index,
-    super.key
+    super.key,
   });
 
   @override
@@ -799,21 +886,41 @@ class QuickGlanceCard extends StatelessWidget {
         GestureDetector(
           onTap: () {
             final c = Get.find<HomeController>();
-            c.onCategoryChangedService(index);
-            Get.to(ServiceView(appBarTitle: text,));
+
+            // Restaurant / Cafes / Bar → navigate to ServiceView (same as before)
+            if (index == 0 || index == 1 || index == 2) {
+              c.onCategoryChangedService(index);
+              Get.to(ServiceView(appBarTitle: text));
+            }
+            // Activities from Quick Glance → ONLY show Quick Glance sub-categories
+            else if (index == 3) {
+              // *** IMPORTANT: do NOT touch top selectedCategory, do NOT call onCategoryChangedHome
+              c.showActivitiesQuickGlance.value = true;
+              c.showServicesQuickGlance.value   = false;
+              c.selectedActivitiesParent.value  = null;
+              c.selectedActivitiesChild.value   = null;
+            }
+            // Services from Quick Glance → ONLY show Quick Glance sub-categories
+            else if (index == 4) {
+              // *** IMPORTANT: do NOT touch top selectedCategory, do NOT call onCategoryChangedHome
+              c.showServicesQuickGlance.value   = true;
+              c.showActivitiesQuickGlance.value = false;
+              c.selectedServicesParent.value    = null;
+              c.selectedServicesChild.value     = null;
+            }
           },
           child: Container(
             width: 96.w,
             height: 88.h,
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.top5Black.withAlpha(64),
-                    blurRadius: 4.r,
-                    offset: Offset(1.w, 1.h),
-                  )
-                ]
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.top5Black.withAlpha(64),
+                  blurRadius: 4.r,
+                  offset: Offset(1.w, 1.h),
+                )
+              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16.r),
@@ -846,7 +953,6 @@ class QuickGlanceCard extends StatelessWidget {
               color: AppColors.homeGreen,
               size: 12.r,
             ),
-
             Text(
               '$rating',
               style: h3.copyWith(
@@ -861,13 +967,97 @@ class QuickGlanceCard extends StatelessWidget {
   }
 }
 
+// Quick Glance-style card used for sub-categories & sub-sub-categories
+class QuickGlanceCategoryCard extends StatelessWidget {
+  final String image;
+  final String text;
+  final double rating;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const QuickGlanceCategoryCard({
+    required this.image,
+    required this.text,
+    required this.rating,
+    required this.isSelected,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: 96.w,
+            height: 88.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.top5Black.withAlpha(64),
+                  blurRadius: 4.r,
+                  offset: Offset(1.w, 1.h),
+                )
+              ],
+              border: isSelected
+                  ? Border.all(color: AppColors.homeGreen, width: 2)
+                  : null,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16.r),
+              child: Image.asset(
+                image,
+                scale: 4,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+
+        SizedBox(height: 12.h,),
+
+        Text(
+          text,
+          style: h3.copyWith(
+            color: AppColors.homeBlack,
+            fontSize: 16.sp,
+          ),
+        ),
+
+        SizedBox(height: 4.h,),
+
+        Row(
+          spacing: 6.w,
+          children: [
+            Icon(
+              Icons.star,
+              color: AppColors.homeGreen,
+              size: 12.r,
+            ),
+            Text(
+              '$rating',
+              style: h3.copyWith(
+                color: AppColors.top5Black,
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 class IdeasToTryCard extends StatelessWidget {
   final String text;
 
   const IdeasToTryCard({
     required this.text,
-    super.key
+    super.key,
   });
 
   @override

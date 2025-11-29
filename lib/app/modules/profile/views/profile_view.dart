@@ -29,10 +29,12 @@ class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
   @override
   Widget build(BuildContext context) {
-    ProfileController profileController = Get.put(ProfileController());
-    HomeController homeController = Get.put(HomeController());
+    ProfileController profileController = Get.find<ProfileController>();
+    HomeController homeController = Get.find<HomeController>();
     SearchController searchController = Get.put(SearchController());
     final LocalizationController localizationController = Get.find<LocalizationController>();
+
+    homeController.fetchSavedPlaces();
 
     // Fetch the recent count once when the screen first appears
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -40,6 +42,7 @@ class ProfileView extends GetView<ProfileController> {
       /*if (!homeController.recentCountLoading.value) {
         homeController.fetchRecentCount();
       }*/
+
     });
 
     return Scaffold(
@@ -115,7 +118,7 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     Expanded(
                       child: Obx(() {
-                        final count = homeController.savedCount.value;
+                        final count = homeController.savedPlaces.length;
                         final loading = homeController.savedCountLoading.value;
                         final label = localizationController.selectedLanguage.value == 'English' ? loading ? 'Saved …' : 'Saved $count' : loading ? 'économiser …' : 'économiser $count';
                         return CustomButton(
@@ -173,7 +176,7 @@ class ProfileView extends GetView<ProfileController> {
                       child: ProfileQuickActionButton(
                         text: 'Saved'.tr,
                         icon: 'assets/images/profile/saved.svg',
-                        onTap: () => Get.to(const SavedListView()),
+                        onTap: () => Get.to(SavedListView()),
                       ),
                     ),
 

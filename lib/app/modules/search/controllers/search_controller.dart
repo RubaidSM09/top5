@@ -16,9 +16,133 @@ class SearchController extends GetxController {
   RxList<RxBool> isRemoved =
       [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxList<RxBool> selectedCategory =
-      [true.obs, false.obs, false.obs, false.obs, false.obs].obs; // Restaurant, Cafes, Bars, Activities, Services
-  RxList<RxBool> selectedFilter =
-      [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs; // open now, 10m, 1km, outdoor, vegetarian, bookable
+      [true.obs, false.obs, false.obs, false.obs, false.obs]
+          .obs; // Restaurant, Cafes, Bars, Activities, Services
+  RxList<RxBool> selectedFilter = [
+    true.obs,
+    false.obs,
+    false.obs,
+    false.obs,
+    false.obs,
+    false.obs
+  ].obs; // open now, 10m, 1km, outdoor, vegetarian, bookable
+
+  /// ========= Activities / Services category hierarchy (for Search) =========
+  /// Reuse same structure as Service/Home (id = Google type, label = UI)
+  final List<CategoryNode> activitiesCategories = const [
+    CategoryNode(
+      id: 'activities_must_see_culture',
+      label: 'Must-See & Culture',
+      children: [
+        CategoryNode(id: 'museum', label: 'Museum'),
+        CategoryNode(id: 'park', label: 'Park'),
+        CategoryNode(id: 'church', label: 'Church'),
+        CategoryNode(id: 'mosque', label: 'Mosque'),
+        CategoryNode(id: 'synagogue', label: 'Synagogue'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_entertainment_nightlife',
+      label: 'Entertainment & Nightlife',
+      children: [
+        CategoryNode(id: 'night_club', label: 'Night Club'),
+        CategoryNode(id: 'movie_theater', label: 'Movie Theater'),
+        CategoryNode(id: 'casino', label: 'Casino'),
+        CategoryNode(id: 'stadium', label: 'Stadium'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_local_experiences',
+      label: 'Local Experiences',
+      children: [
+        CategoryNode(id: 'park', label: 'Park'),
+        CategoryNode(id: 'museum', label: 'Museum'),
+        CategoryNode(id: 'travel_agency', label: 'Travel Agency'),
+      ],
+    ),
+    CategoryNode(
+      id: 'activities_day_trips_parks',
+      label: 'Day Trips & Parks',
+      children: [
+        CategoryNode(id: 'park', label: 'Park'),
+        CategoryNode(id: 'museum', label: 'Museum'),
+      ],
+    ),
+  ];
+
+  final List<CategoryNode> servicesCategories = const [
+    CategoryNode(
+      id: 'services_hotels',
+      label: 'Hotels',
+      children: [
+        CategoryNode(id: 'lodging', label: 'Lodging'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_hairdressers',
+      label: 'Hairdressers',
+      children: [
+        CategoryNode(id: 'hair_care', label: 'Hair Care'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_beauty_salon',
+      label: 'Beauty Salons',
+      children: [
+        CategoryNode(id: 'beauty_salon', label: 'Beauty Salon'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_spa_massage',
+      label: 'Spa & Massage',
+      children: [
+        CategoryNode(id: 'spa', label: 'Spa'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_gyms',
+      label: 'Gyms',
+      children: [
+        CategoryNode(id: 'gym', label: 'Gym'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_coworking_spaces',
+      label: 'Coworking Spaces',
+      children: [
+        CategoryNode(id: 'library', label: 'Library'),
+        CategoryNode(
+            id: 'local_government_office', label: 'Office Building'),
+      ],
+    ),
+    CategoryNode(
+      id: 'services_health_wellness',
+      label: 'Health & Wellness',
+      children: [
+        CategoryNode(id: 'doctor', label: 'Doctor'),
+        CategoryNode(id: 'hospital', label: 'Hospital'),
+        CategoryNode(id: 'pharmacy', label: 'Pharmacy'),
+        CategoryNode(id: 'physiotherapist', label: 'Physiotherapist'),
+        CategoryNode(id: 'health', label: 'Health Service'),
+        CategoryNode(id: 'dentist', label: 'Dentist'),
+        CategoryNode(id: 'spa', label: 'Spa'),
+      ],
+    ),
+  ];
+
+  // State for selected sub / sub-sub categories (Search)
+  final Rx<CategoryNode?> selectedActivitiesParent =
+  Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedActivitiesChild =
+  Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesParent =
+  Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesChild =
+  Rx<CategoryNode?>(null);
+
+  // Whether dropdown is open (Search)
+  final RxBool showActivitiesDropdown = false.obs;
+  final RxBool showServicesDropdown = false.obs;
 
   /// State for API + results
   final ApiService _api = ApiService();
@@ -34,11 +158,12 @@ class SearchController extends GetxController {
   final RxDouble originLat = 0.0.obs;
   final RxDouble originLng = 0.0.obs;
 
-  /// NEW: Place details and AI summaries
+  /// Place details and AI summaries
   final RxMap<dynamic, dynamic> placeDetails = {}.obs;
   final RxMap<dynamic, dynamic> placeAiDetails = {}.obs;
   final RxBool detailsLoading = false.obs;
-  final RxMap<String, List<String>> aiSummaries = <String, List<String>>{}.obs;
+  final RxMap<String, List<String>> aiSummaries =
+      <String, List<String>>{}.obs;
 
   /// Debounce so we don’t spam API per key stroke
   Timer? _debounce;
@@ -61,9 +186,53 @@ class SearchController extends GetxController {
   }
 
   void selectCategory(int index) {
+    // Update top-level selection
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
+
+    // Toggle dropdown visibility for Activities / Services (Search)
+    showActivitiesDropdown.value = (index == 3);
+    showServicesDropdown.value = (index == 4);
+
+    // Reset selections when leaving a section
+    if (index != 3) {
+      selectedActivitiesParent.value = null;
+      selectedActivitiesChild.value = null;
+    }
+    if (index != 4) {
+      selectedServicesParent.value = null;
+      selectedServicesChild.value = null;
+    }
+
+    // ✅ IMPORTANT: Only fetch immediately for Restaurant / Cafes / Bars
+    // For Activities / Services we WAIT until sub-sub-category is selected
+    if (index == 0 || index == 1 || index == 2) {
+      fetchTop5();
+    }
+  }
+
+  /// Sub / sub-sub category selectors (Search)
+  void selectActivitiesParent(CategoryNode node) {
+    selectedActivitiesParent.value = node;
+    selectedActivitiesChild.value = null;
+    // No API call yet – wait for sub-sub-category
+  }
+
+  void selectActivitiesChild(CategoryNode node) {
+    selectedActivitiesChild.value = node;
+    // Now that a specific sub-sub-category is chosen, refresh results.
+    fetchTop5();
+  }
+
+  void selectServicesParent(CategoryNode node) {
+    selectedServicesParent.value = node;
+    selectedServicesChild.value = null;
+  }
+
+  void selectServicesChild(CategoryNode node) {
+    selectedServicesChild.value = node;
+    // Now that a specific sub-sub-category is chosen, refresh results.
     fetchTop5();
   }
 
@@ -77,8 +246,16 @@ class SearchController extends GetxController {
       case 2:
         return 'bar';
       case 3:
+      // Activities: if sub-sub-category selected, use its Google type id
+        if (selectedActivitiesChild.value != null) {
+          return selectedActivitiesChild.value!.id;
+        }
         return 'activities';
       case 4:
+      // Services: if sub-sub-category selected, use its Google type id
+        if (selectedServicesChild.value != null) {
+          return selectedServicesChild.value!.id;
+        }
         return 'services';
       default:
         return 'restaurant';
@@ -114,9 +291,14 @@ class SearchController extends GetxController {
   }
 
   Future<void> _ensureOrigin() async {
-    final hc = Get.isRegistered<HomeController>() ? Get.find<HomeController>() : null;
+    final hc = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>()
+        : null;
 
-    if (hc != null && hc.manualOverride.value && hc.manualLat.value != null && hc.manualLng.value != null) {
+    if (hc != null &&
+        hc.manualOverride.value &&
+        hc.manualLat.value != null &&
+        hc.manualLng.value != null) {
       originLat.value = hc.manualLat.value!;
       originLng.value = hc.manualLng.value!;
       return;
@@ -129,11 +311,13 @@ class SearchController extends GetxController {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       return;
     }
 
-    final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     originLat.value = pos.latitude;
     originLng.value = pos.longitude;
   }
@@ -173,14 +357,6 @@ class SearchController extends GetxController {
       if (resp.statusCode >= 200 && resp.statusCode < 300) {
         final data = Top5PlaceList.fromJson(_parseJsonObject(resp.body));
         results.assignAll(data.places ?? []);
-
-        // NEW: Lazily fetch AI summaries for visible places (cache)
-        /*for (final p in results) {
-          final id = p.placeId ?? '';
-          if (id.isNotEmpty && !aiSummaries.containsKey(id)) {
-            _fetchAiForPlace(id);
-          }
-        }*/
       } else if (resp.statusCode == 403) {
         final Map<String, dynamic> json = jsonDecode(resp.body);
         if (json['error'] == 'You have reached your plan limit for places.') {
@@ -198,13 +374,14 @@ class SearchController extends GetxController {
     }
   }
 
-  /// NEW: Per-place AI summary fetch + cache
+  /// Per-place AI summary fetch + cache (if you use it)
   Future<void> _fetchAiForPlace(String placeId) async {
     try {
       final res = await _api.placeDetailsWithAi(placeId);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
-        final List<String> summary = (data['ai_summary'] as List<dynamic>? ?? [])
+        final List<String> summary =
+        (data['ai_summary'] as List<dynamic>? ?? [])
             .map((e) => e.toString())
             .toList();
         aiSummaries[placeId] = summary;
@@ -214,7 +391,6 @@ class SearchController extends GetxController {
     }
   }
 
-  /// NEW: Helper to format up to 2 summary items as comma-separated text
   String aiSummaryTextFor(String? placeId) {
     if (placeId == null || placeId.isEmpty) return '';
     final list = aiSummaries[placeId] ?? const <String>[];
@@ -222,10 +398,11 @@ class SearchController extends GetxController {
     return list.take(2).join(', ');
   }
 
-  /// NEW: Fetch place details
+  /// Fetch place details
   Future<void> fetchPlaceDetails(String placeId) async {
     if (placeId.isEmpty) return;
-    if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
+    if (placeDetails['place_id'] == placeId &&
+        placeAiDetails['place_id'] == placeId) return;
 
     detailsLoading.value = true;
     try {
@@ -239,11 +416,13 @@ class SearchController extends GetxController {
       } else {
         final hasLoc = await _ensureLocationPermission();
         if (!hasLoc) {
-          Get.snackbar('Location', 'Permission denied. Unable to fetch place details.');
+          Get.snackbar(
+              'Location', 'Permission denied. Unable to fetch place details.');
           detailsLoading.value = false;
           return;
         }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        final pos = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
         lat = pos.latitude;
         lng = pos.longitude;
       }
@@ -256,23 +435,24 @@ class SearchController extends GetxController {
       if (res1.statusCode == 200) {
         placeDetails.value = jsonDecode(res1.body);
       } else {
-        Get.snackbar('Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
+        Get.snackbar(
+            'Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
       }
 
       final res2 = await _api.placeDetailsWithAi(placeId);
       if (res2.statusCode == 200) {
         placeAiDetails.value = jsonDecode(res2.body);
       } else {
-        Get.snackbar('Details', _safeMsg(res2.body) ?? 'Failed to fetch AI details.');
+        Get.snackbar(
+            'Details', _safeMsg(res2.body) ?? 'Failed to fetch AI details.');
       }
-    } catch (e) {
+    } catch (_) {
       Get.snackbar('Details', 'Unexpected error occurred');
     } finally {
       detailsLoading.value = false;
     }
   }
 
-  /// NEW: Helper for permission check
   Future<bool> _ensureLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return false;
@@ -280,13 +460,13 @@ class SearchController extends GetxController {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       return false;
     }
     return true;
   }
 
-  /// NEW: Safe message parsing
   String? _safeMsg(String body) {
     try {
       final m = jsonDecode(body);
@@ -296,7 +476,6 @@ class SearchController extends GetxController {
     }
   }
 
-  /// React to chip changes
   void _wireChipListeners() {
     for (final rx in selectedCategory) {
       ever(rx, (_) => fetchTop5());

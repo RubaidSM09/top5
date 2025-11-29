@@ -32,42 +32,46 @@ class HomeController extends GetxController {
   final RxBool isMoreDetails = false.obs;
   final RxBool isMapClicked = false.obs;
 
+  final RxBool navigatedFromQuickGlance = false.obs;
+
   // ========= Activities / Services category hierarchy =========
   final List<CategoryNode> activitiesCategories = const [
     CategoryNode(
       id: 'activities_must_see_culture',
       label: 'Must-See & Culture',
       children: [
-        CategoryNode(id: 'landmarks', label: 'Landmarks & Monuments'),
-        CategoryNode(id: 'museums', label: 'Museums'),
-        CategoryNode(id: 'historical_sites', label: 'Historical Sites'),
+        CategoryNode(id: 'museum',   label: 'Museum'),
+        CategoryNode(id: 'park',     label: 'Park'),
+        CategoryNode(id: 'church',   label: 'Church'),
+        CategoryNode(id: 'mosque',   label: 'Mosque'),
+        CategoryNode(id: 'synagogue',label: 'Synagogue'),
       ],
     ),
     CategoryNode(
       id: 'activities_entertainment_nightlife',
       label: 'Entertainment & Nightlife',
       children: [
-        CategoryNode(id: 'cruises', label: 'Cruises & River Tours'),
-        CategoryNode(id: 'shows', label: 'Cabarets & Shows'),
-        CategoryNode(id: 'nightclubs', label: 'Nightclubs & Bars'),
+        CategoryNode(id: 'night_club',    label: 'Night Club'),
+        CategoryNode(id: 'movie_theater', label: 'Movie Theater'),
+        CategoryNode(id: 'casino',        label: 'Casino'),
+        CategoryNode(id: 'stadium',       label: 'Stadium'),
       ],
     ),
     CategoryNode(
       id: 'activities_local_experiences',
       label: 'Local Experiences',
       children: [
-        CategoryNode(id: 'walking_tours', label: 'Walking Tours'),
-        CategoryNode(id: 'food_tours', label: 'Food & Wine Tours'),
-        CategoryNode(id: 'workshops', label: 'Workshops & Classes'),
+        CategoryNode(id: 'park',          label: 'Park'),
+        CategoryNode(id: 'museum',        label: 'Museum'),
+        CategoryNode(id: 'travel_agency', label: 'Travel Agency'),
       ],
     ),
     CategoryNode(
       id: 'activities_day_trips_parks',
       label: 'Day Trips & Parks',
       children: [
-        CategoryNode(id: 'palaces', label: 'Palaces & Castles'),
-        CategoryNode(id: 'theme_parks', label: 'Theme Parks'),
-        CategoryNode(id: 'gardens_parks', label: 'Gardens & Parks'),
+        CategoryNode(id: 'park',   label: 'Park'),
+        CategoryNode(id: 'museum', label: 'Museum'),
       ],
     ),
   ];
@@ -77,61 +81,56 @@ class HomeController extends GetxController {
       id: 'services_hotels',
       label: 'Hotels',
       children: [
-        CategoryNode(id: 'budget_hotels', label: 'Budget Hotels'),
-        CategoryNode(id: 'boutique_hotels', label: 'Boutique'),
-        CategoryNode(id: 'luxury_hotels', label: 'Luxury Hotels'),
+        CategoryNode(id: 'lodging', label: 'Lodging'),
       ],
     ),
     CategoryNode(
       id: 'services_hairdressers',
       label: 'Hairdressers',
       children: [
-        CategoryNode(id: 'men_hair', label: 'Men\'s Hair'),
-        CategoryNode(id: 'women_hair', label: 'Women\'s Hair'),
-        CategoryNode(id: 'barbers', label: 'Barbers'),
+        CategoryNode(id: 'hair_care', label: 'Hair Care'),
       ],
     ),
     CategoryNode(
       id: 'services_beauty_salon',
       label: 'Beauty Salons',
       children: [
-        CategoryNode(id: 'nails', label: 'Nails'),
-        CategoryNode(id: 'makeup', label: 'Makeup'),
-        CategoryNode(id: 'skincare', label: 'Skincare'),
+        CategoryNode(id: 'beauty_salon', label: 'Beauty Salon'),
       ],
     ),
     CategoryNode(
       id: 'services_spa_massage',
       label: 'Spa & Massage',
       children: [
-        CategoryNode(id: 'day_spa', label: 'Day Spa'),
-        CategoryNode(id: 'massage', label: 'Massage'),
-        CategoryNode(id: 'hammam', label: 'Sauna & Hammam'),
+        CategoryNode(id: 'spa', label: 'Spa'),
       ],
     ),
     CategoryNode(
       id: 'services_gyms',
       label: 'Gyms',
       children: [
-        CategoryNode(id: 'fitness_clubs', label: 'Fitness Clubs'),
-        CategoryNode(id: 'yoga', label: 'Yoga & Pilates'),
+        CategoryNode(id: 'gym', label: 'Gym'),
       ],
     ),
     CategoryNode(
-      id: 'services_coworking',
+      id: 'services_coworking_spaces',
       label: 'Coworking Spaces',
       children: [
-        CategoryNode(id: 'open_space', label: 'Open Space'),
-        CategoryNode(id: 'private_office', label: 'Private Offices'),
+        CategoryNode(id: 'library', label: 'Library'),
+        CategoryNode(id: 'local_government_office', label: 'Office Building'),
       ],
     ),
     CategoryNode(
       id: 'services_health_wellness',
       label: 'Health & Wellness',
       children: [
-        CategoryNode(id: 'clinics', label: 'Clinics'),
-        CategoryNode(id: 'pharmacies', label: 'Pharmacies'),
-        CategoryNode(id: 'alternative', label: 'Alternative Therapies'),
+        CategoryNode(id: 'doctor',         label: 'Doctor'),
+        CategoryNode(id: 'hospital',       label: 'Hospital'),
+        CategoryNode(id: 'pharmacy',       label: 'Pharmacy'),
+        CategoryNode(id: 'physiotherapist',label: 'Physiotherapist'),
+        CategoryNode(id: 'health',         label: 'Health Service'),
+        CategoryNode(id: 'dentist',        label: 'Dentist'),
+        CategoryNode(id: 'spa',            label: 'Spa'),
       ],
     ),
   ];
@@ -142,9 +141,17 @@ class HomeController extends GetxController {
   final Rx<CategoryNode?> selectedServicesParent   = Rx<CategoryNode?>(null);
   final Rx<CategoryNode?> selectedServicesChild    = Rx<CategoryNode?>(null);
 
-  // whether dropdown is open
+  // === FOR HOME VIEW (existing) ===
   final RxBool showActivitiesDropdown = false.obs;
   final RxBool showServicesDropdown   = false.obs;
+
+  // === NEW: FOR SERVICE VIEW ONLY (independent) ===
+  final RxBool showActivitiesDropdownService = false.obs;
+  final RxBool showServicesDropdownService   = false.obs;
+
+  // whether quick-glance subcategories are visible (below Quick Glance cards)
+  final RxBool showActivitiesQuickGlance = false.obs;
+  final RxBool showServicesQuickGlance   = false.obs;
 
   final ApiService _service = ApiService();
 
@@ -171,7 +178,7 @@ class HomeController extends GetxController {
   // Search state
   final RxString searchText = ''.obs;
 
-  // NEW: cache AI summaries by placeId
+  // cache AI summaries by placeId
   final RxMap<String, List<String>> aiSummaries = <String, List<String>>{}.obs;
 
   final RxBool recentLoading = false.obs;
@@ -229,27 +236,62 @@ class HomeController extends GetxController {
   final RxBool ideasLoading = false.obs;
   final RxList<String> ideas = <String>[].obs;
 
+  /// Category used by ideas & Top 5 API. For Activities/Services we use
+  /// the selected sub-sub-category ID when available.
   String get _currentCategory {
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
-      case 0: return 'restaurant';
-      case 1: return 'cafe';
-      case 2: return 'bar';
-      case 3: return 'activities';
+      case 0:
+        return 'restaurant';
+      case 1:
+        return 'cafe';
+      case 2:
+        return 'bar';
+      case 3:
+        if (selectedActivitiesChild.value != null) {
+          return selectedActivitiesChild.value!.id;
+        }
+        return 'activities';
       case 4:
-      default: return 'services';
+        if (selectedServicesChild.value != null) {
+          return selectedServicesChild.value!.id;
+        }
+        return 'services';
+      default:
+        return 'services';
+    }
+  }
+
+  // kept for compatibility (not used by API anymore)
+  String get _apiPlaceType {
+    final i = selectedCategory.indexWhere((e) => e.value);
+    switch (i) {
+      case 0:
+        return 'restaurant';
+      case 1:
+        return 'cafe';
+      case 2:
+        return 'bar';
+      case 3:
+        return 'activities';
+      case 4:
+        return 'services';
+      default:
+        return 'services';
     }
   }
 
   void selectActivitiesParent(CategoryNode node) {
     selectedActivitiesParent.value = node;
     selectedActivitiesChild.value = null;
-    // If later you want: fetchTop5Places() with this context, you can hook here.
   }
 
-  void selectActivitiesChild(CategoryNode node) {
+  // *** CHANGED: added flag to avoid idea generation from Quick Glance
+  void selectActivitiesChild(CategoryNode node, {bool refreshIdeasFlag = true}) {
     selectedActivitiesChild.value = node;
-    // Hook for more specific filtering if backend supports it.
+    if (refreshIdeasFlag) {
+      refreshIdeas();
+    }
   }
 
   void selectServicesParent(CategoryNode node) {
@@ -257,22 +299,35 @@ class HomeController extends GetxController {
     selectedServicesChild.value = null;
   }
 
-  void selectServicesChild(CategoryNode node) {
+  // *** CHANGED: added flag to avoid idea generation from Quick Glance
+  void selectServicesChild(CategoryNode node, {bool refreshIdeasFlag = true}) {
     selectedServicesChild.value = node;
+    if (refreshIdeasFlag) {
+      refreshIdeas();
+    }
   }
 
   String get _fallbackDayName => DateFormat('EEEE').format(DateTime.now());
   String get _fallbackTimeStr => DateFormat('hh:mm a').format(DateTime.now());
 
   Future<void> refreshIdeas() async {
+    // If we are on Activities or Services but no sub-sub-category selected,
+    // do NOT refresh ideas (keep the current ones).
+    final currentIndex = selectedCategory.indexWhere((e) => e.value);
+    if ((currentIndex == 3 && selectedActivitiesChild.value == null) ||
+        (currentIndex == 4 && selectedServicesChild.value == null)) {
+      return;
+    }
+
     final wd = (weatherDesc.value.isNotEmpty ? weatherDesc.value : weather.value).toLowerCase();
     final day = (serverDay.value.isNotEmpty ? serverDay.value : _fallbackDayName);
     final tStr = (serverTimeStr.value.isNotEmpty ? serverTimeStr.value : _fallbackTimeStr);
     final temp = tempC.value;
+    final category = _currentCategory;
 
     ideasLoading.value = true;
     try {
-      final res = await _service.generateIdeas(wd, day, tStr, temp, _currentCategory);
+      final res = await _service.generateIdeas(wd, day, tStr, temp, category);
       if (res.statusCode == 200 || res.statusCode == 201) {
         final json = jsonDecode(res.body) as Map<String, dynamic>;
         final List<dynamic> raw = (json['ideas_list'] ?? []) as List<dynamic>;
@@ -296,15 +351,17 @@ class HomeController extends GetxController {
   }
 
   void onCategoryChangedHome(int index) {
+    showActivitiesQuickGlance.value = false;
+    showServicesQuickGlance.value   = false;
+
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
 
-    // Toggle dropdown visibility for Activities / Services
+    // Use Home-specific dropdown flags
     showActivitiesDropdown.value = (index == 3);
     showServicesDropdown.value   = (index == 4);
 
-    // Reset selections when leaving a section
     if (index != 3) {
       selectedActivitiesParent.value = null;
       selectedActivitiesChild.value  = null;
@@ -315,17 +372,19 @@ class HomeController extends GetxController {
     }
 
     refreshIdeas();
-    // fetchTop5Places(search: searchText.value); // still commented as in your code
   }
 
   void onCategoryChangedService(int index) {
+    showActivitiesQuickGlance.value = false;
+    showServicesQuickGlance.value   = false;
+
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
     }
 
-    // Toggle dropdown visibility for Activities / Services
-    showActivitiesDropdown.value = (index == 3);
-    showServicesDropdown.value   = (index == 4);
+    // Use Service-specific dropdown flags
+    showActivitiesDropdownService.value = (index == 3);
+    showServicesDropdownService.value   = (index == 4);
 
     if (index != 3) {
       selectedActivitiesParent.value = null;
@@ -336,8 +395,34 @@ class HomeController extends GetxController {
       selectedServicesChild.value  = null;
     }
 
-    // refreshIdeas();  // you had this commented out
-    fetchTop5Places(search: searchText.value); // keep your existing behavior
+    if (index <= 2) {
+      fetchTop5Places(search: searchText.value);
+    } else if (index == 3 && selectedActivitiesChild.value != null) {
+      fetchTop5Places(search: searchText.value);
+    } else if (index == 4 && selectedServicesChild.value != null) {
+      fetchTop5Places(search: searchText.value);
+    }
+  }
+
+  void resetHeaderSelectionIfFromQuickGlance() {
+    if (!navigatedFromQuickGlance.value) return;
+
+    for (int i = 0; i < selectedCategory.length; i++) {
+      selectedCategory[i].value = (i == 0);
+    }
+
+    // Reset BOTH Home and Service dropdowns
+    showActivitiesDropdown.value = false;
+    showServicesDropdown.value   = false;
+    showActivitiesDropdownService.value = false;
+    showServicesDropdownService.value   = false;
+
+    selectedActivitiesParent.value = null;
+    selectedActivitiesChild.value  = null;
+    selectedServicesParent.value   = null;
+    selectedServicesChild.value    = null;
+
+    navigatedFromQuickGlance.value = false;
   }
 
   @override
@@ -355,12 +440,6 @@ class HomeController extends GetxController {
     _weatherTicker = Timer.periodic(const Duration(minutes: 10), (_) {
       _fetchAndSetWeather();
     });
-    // fetchRecentPlaces();
-    fetchSavedCount();
-    fetchSavedPlaces();
-    fetchSavedCount();
-    // fetchReservationPlaces();
-    // fetchReservationCount();
   }
 
   @override
@@ -384,7 +463,6 @@ class HomeController extends GetxController {
     if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
       await _fetchWeatherFor(manualLat.value!, manualLng.value!);
       await refreshIdeas();
-      // await fetchTop5Places(search: searchText.value);
       return;
     }
     final hasLocation = await _ensureLocationPermission();
@@ -395,7 +473,6 @@ class HomeController extends GetxController {
     final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     await _fetchWeatherFor(pos.latitude, pos.longitude);
     await refreshIdeas();
-    // await fetchTop5Places(search: searchText.value);
   }
 
   Future<bool> _ensureLocationPermission() async {
@@ -469,18 +546,6 @@ class HomeController extends GetxController {
     }
   }
 
-  String get _apiPlaceType {
-    final i = selectedCategory.indexWhere((e) => e.value);
-    switch (i) {
-      case 0: return 'restaurant';
-      case 1: return 'cafe';
-      case 2: return 'bar';
-      case 3: return 'activities';
-      case 4: return 'services';
-      default: return 'services';
-    }
-  }
-
   double parseMinutes(String? s) {
     if (s == null) return 0;
     final m = RegExp(r'(\d+)').firstMatch(s);
@@ -488,7 +553,6 @@ class HomeController extends GetxController {
     return double.tryParse(m.group(1)!) ?? 0.0;
   }
 
-  // Updated fetchTop5Places to include search and filters
   Future<void> fetchTop5Places({String? search}) async {
     top5Loading.value = true;
     try {
@@ -519,10 +583,12 @@ class HomeController extends GetxController {
       final bool vegetarian = selectedFilter[4].value;
       final bool bookable = selectedFilter[5].value;
 
+      final category = _currentCategory;
+
       final res = await _service.top5PlaceList(
         lat,
         lng,
-        _apiPlaceType,
+        category,
         search: search,
         radius: radius,
         maxTime: maxTime,
@@ -536,14 +602,6 @@ class HomeController extends GetxController {
         final map = jsonDecode(res.body) as Map<String, dynamic>;
         final list = Top5PlaceList.fromJson(map);
         top5Places.assignAll(list.places ?? <Places>[]);
-
-        // NEW: lazily fetch AI summaries for visible places (cache)
-        /*for (final p in top5Places) {
-          final id = p.placeId ?? '';
-          if (id.isNotEmpty && !aiSummaries.containsKey(id)) {
-            _fetchAiForPlace(id);
-          }
-        }*/
       } else if (res.statusCode == 403) {
         final Map<String, dynamic> json = jsonDecode(res.body);
         if (json['error'] == 'You have reached your plan limit for places.') {
@@ -562,7 +620,6 @@ class HomeController extends GetxController {
     }
   }
 
-  // NEW: per-place AI summary fetch + cache
   Future<void> _fetchAiForPlace(String placeId) async {
     try {
       final res = await _service.placeDetailsWithAi(placeId);
@@ -573,12 +630,9 @@ class HomeController extends GetxController {
             .toList();
         aiSummaries[placeId] = summary;
       }
-    } catch (_) {
-      // silent fail; UI will simply show fallback text
-    }
+    } catch (_) {}
   }
 
-  // NEW: helper to format up to 2 summary items as comma-separated text
   String aiSummaryTextFor(String? placeId) {
     if (placeId == null || placeId.isEmpty) return '';
     final list = aiSummaries[placeId] ?? const <String>[];
@@ -631,23 +685,19 @@ class HomeController extends GetxController {
     await fetchTop5Places(search: searchText.value);
   }
 
-  // New: Handle search submission
   void performSearch(String query) {
     searchText.value = query;
     fetchTop5Places(search: query);
   }
 
-  // New: Handle idea click
   void onIdeaClicked(String idea) {
     Get.toNamed('/search', arguments: {'searchText': idea});
   }
 
-  // New: Place details
   final RxMap<dynamic, dynamic> placeDetails = {}.obs;
   final RxMap<dynamic, dynamic> placeAiDetails = {}.obs;
   final RxBool detailsLoading = false.obs;
 
-  /// UPDATED: pass user's coordinates to place-details API
   Future<void> fetchPlaceDetails(String placeId) async {
     if (placeId.isEmpty) return;
     if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
@@ -694,10 +744,20 @@ class HomeController extends GetxController {
     }
   }
 
-
-  /// Recents
-  Future<void> submitActionPlaces(String placeId, double latitude, double longitude, String placeName, double rating, String directionUrl, String phone, String email, String website, String priceCurrency, String activityType, String image) async {
-    // Use specific loading state based on type
+  Future<void> submitActionPlaces(
+      String placeId,
+      double latitude,
+      double longitude,
+      String placeName,
+      double rating,
+      String directionUrl,
+      String phone,
+      String email,
+      String website,
+      String priceCurrency,
+      String activityType,
+      String image,
+      ) async {
     if (activityType == 'saved' || activityType == 'saved-delete') {
       savedLoading.value = true;
       savedError.value = '';
@@ -722,7 +782,20 @@ class HomeController extends GetxController {
         lng = pos.longitude;
       }
 
-      final res = await _service.actionPlaces(placeId, latitude, longitude, placeName, rating, directionUrl, phone, email, website, priceCurrency, activityType, image);
+      final res = await _service.actionPlaces(
+        placeId,
+        latitude,
+        longitude,
+        placeName,
+        rating,
+        directionUrl,
+        phone,
+        email,
+        website,
+        priceCurrency,
+        activityType,
+        image,
+      );
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         Get.snackbar('Success', 'Action completed successfully');
@@ -746,34 +819,15 @@ class HomeController extends GetxController {
     }
   }
 
-  // Check if a place is saved
   bool isPlaceSaved(String? placeId) {
     if (placeId == null || placeId.isEmpty) return false;
     return savedPlaces.any((place) => place.placeId == placeId);
   }
 
-  // Fetch saved places
   Future<void> fetchSavedPlaces() async {
     savedLoading.value = true;
     savedError.value = '';
     try {
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          savedError.value = 'Location permission denied.';
-          savedPlaces.clear();
-          savedLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
       final res = await _service.actionPlacesDetails();
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
@@ -792,56 +846,19 @@ class HomeController extends GetxController {
     }
   }
 
-  // Fetch saved places count
-  Future<void> fetchSavedCount() async {
-    try {
-      savedCountLoading.value = true;
-
-      double lat, lng;
-      if (manualOverride.value && manualLat.value != null && manualLng.value != null) {
-        lat = manualLat.value!;
-        lng = manualLng.value!;
-      } else {
-        final hasLoc = await _ensureLocationPermission();
-        if (!hasLoc) {
-          savedCount.value = 0;
-          savedCountLoading.value = false;
-          return;
-        }
-        final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-        lat = pos.latitude;
-        lng = pos.longitude;
-      }
-
-      final res = await _service.actionPlacesDetails();
-      if (res.statusCode == 200) {
-        final map = jsonDecode(res.body) as Map<String, dynamic>;
-        final list = (map['places'] as List?) ?? const [];
-        savedCount.value = list.length;
-      } else {
-        savedCount.value = 0;
-      }
-    } catch (_) {
-      savedCount.value = 0;
-    } finally {
-      savedCountLoading.value = false;
-    }
-  }
-
   Future<void> openGoogleMapsAppDirections({
     required double originLat,
     required double originLng,
     required double destLat,
     required double destLng,
-    String travelMode = 'walking', // walking | driving | bicycling | transit
+    String travelMode = 'walking',
   }) async {
-    // Android: google.navigation (opens the app)
     if (!kIsWeb && Platform.isAndroid) {
       final modeChar = switch (travelMode) {
         'walking' => 'w',
         'bicycling' => 'b',
         'transit' => 'r',
-        _ => 'd', // driving
+        _ => 'd',
       };
       final androidUri = Uri.parse('google.navigation:q=$destLat,$destLng&mode=$modeChar');
       if (await canLaunchUrl(androidUri)) {
@@ -850,7 +867,6 @@ class HomeController extends GetxController {
       }
     }
 
-    // iOS: comgooglemaps scheme (opens Google Maps app if installed)
     if (!kIsWeb && Platform.isIOS) {
       final iosUri = Uri.parse(
         'comgooglemaps://?saddr=$originLat,$originLng&daddr=$destLat,$destLng&directionsmode=$travelMode',
@@ -861,7 +877,6 @@ class HomeController extends GetxController {
       }
     }
 
-    // Fallback: universal link (opens Google Maps app if possible, else browser)
     final webUri = Uri.parse(
       'https://www.google.com/maps/dir/?api=1'
           '&origin=$originLat,$originLng'
@@ -871,7 +886,6 @@ class HomeController extends GetxController {
     await launchUrl(webUri, mode: LaunchMode.externalApplication);
   }
 
-// Convenience wrapper that reuses your existing origin logic
   Future<void> openDirectionsTo({
     required double destLat,
     required double destLng,
@@ -904,14 +918,12 @@ class HomeController extends GetxController {
   Future<void> openGoogleAppSearch(String query) async {
     final encoded = Uri.encodeComponent(query.trim());
 
-    // ⛔ iOS: Cannot open Google App directly
     if (!kIsWeb && Platform.isIOS) {
       final fallback = Uri.parse("https://www.google.com/search?q=$encoded");
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
       return;
     }
 
-    // ANDROID: Attempt to open Google App directly
     final googleAppIntent = Uri.parse(
         "intent://www.google.com/search?q=$encoded#Intent;"
             "package=com.google.android.googlequicksearchbox;"
@@ -928,15 +940,12 @@ class HomeController extends GetxController {
       if (!canOpenGoogleApp) {
         throw "Google App not available";
       }
-
     } catch (_) {
-      // Fallback → open Google search in browser or Chrome
       final fallback = Uri.parse("https://www.google.com/search?q=$encoded");
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
     }
   }
 }
-
 
 class CategoryNode {
   final String id;
