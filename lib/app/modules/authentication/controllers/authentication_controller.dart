@@ -28,7 +28,7 @@ class AuthenticationController extends GetxController {
 
   final ApiService _service = ApiService();
   var isLoading = false.obs;
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   // === OTP state ===
   final otpList = List<String>.filled(6, '').obs;
@@ -47,7 +47,7 @@ class AuthenticationController extends GetxController {
     await _storage.write(key: 'refresh_token', value: refreshToken);
   }
 
-  // Login Method
+  // ===== LOGIN =====
   Future<void> login(String email, String password) async {
     isLoading.value = true;
 
@@ -65,18 +65,26 @@ class AuthenticationController extends GetxController {
 
         await storeTokens(accessToken, refreshToken);
 
+        // 🔐 Save Remember Me choice for future app launches
+        await _storage.write(
+          key: 'remember_me',
+          value: rememberMeController.value ? 'true' : 'false',
+        );
+
         print(':::::::::responseBody:::::::::$responseBody');
         print(':::::::::accessToken:::::::::$accessToken');
         print(':::::::::refreshToken:::::::::$refreshToken');
 
         Get.snackbar('Success', 'Logged in Successfully');
 
-        // ⬇️ NEW: decide where to go based on current plan
+        // Decide where to go based on current plan
         await _checkUserSubscriptionAndNavigate();
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Login failed',
-            responseBody['message'] ?? 'Please use Correct UserName and Password');
+        Get.snackbar(
+          'Login failed',
+          responseBody['message'] ?? 'Please use Correct UserName and Password',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -86,8 +94,8 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  // Sign Up Method
-  Future<void> signUpSendOtp (String email) async {
+  // ===== SIGN UP (SEND OTP) =====
+  Future<void> signUpSendOtp(String email) async {
     isLoading.value = true;
 
     try {
@@ -104,10 +112,13 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 
-        Get.to(() => MailVerificationView(email: email,));
+        Get.to(() => MailVerificationView(email: email));
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Sign up failed', responseBody['message'] ?? 'Please use Correct email');
+        Get.snackbar(
+          'Sign up failed',
+          responseBody['message'] ?? 'Please use Correct email',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -117,11 +128,11 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  Future<void> signUpOtpVerification (String email, String otp) async {
+  Future<void> signUpOtpVerification(String email, String otp) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.signUpOtpVerification(email,otp);
+      final http.Response response = await _service.signUpOtpVerification(email, otp);
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -134,10 +145,13 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 
-        Get.to(() => SignUpForm2View(email: email,));
+        Get.to(() => SignUpForm2View(email: email));
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Sign up failed', responseBody['message'] ?? 'Please use Correct email');
+        Get.snackbar(
+          'Sign up failed',
+          responseBody['message'] ?? 'Please use Correct email',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -147,11 +161,18 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  Future<void> signUp (String fullName, String email, String password, String confirmPassword) async {
+  // ===== SIGN UP (FINAL) =====
+  Future<void> signUp(
+      String fullName,
+      String email,
+      String password,
+      String confirmPassword,
+      ) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.signUp(fullName,email,password,confirmPassword);
+      final http.Response response =
+      await _service.signUp(fullName, email, password, confirmPassword);
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -164,16 +185,22 @@ class AuthenticationController extends GetxController {
 
         await storeTokens(accessToken, refreshToken);
 
+        // 🟢 For new sign ups we always remember the user
+        await _storage.write(key: 'remember_me', value: 'true');
+
         print(':::::::::responseBody:::::::::$responseBody');
         print(':::::::::accessToken:::::::::$accessToken');
         print(':::::::::refreshToken:::::::::$refreshToken');
 
         Get.snackbar('Success', 'Account created Successfully');
 
-        Get.off(() => SubscriptionView());
+        await _checkUserSubscriptionAndNavigate();
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Sign up failed', responseBody['message'] ?? 'Please use Correct password');
+        Get.snackbar(
+          'Sign up failed',
+          responseBody['message'] ?? 'Please use Correct password',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -183,26 +210,21 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  // Google Sign In
+  // ===== GOOGLE SIGN IN =====
   Future<UserCredential> signInWithGoogle() async {
-    // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
     final GoogleSignInAuthentication? googleAuth =
     await googleUser?.authentication;
 
-    // Create a new credential
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
-    // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
-  Future<void> googleSignIn () async {
+  Future<void> googleSignIn() async {
     isLoading.value = true;
 
     try {
@@ -231,18 +253,22 @@ class AuthenticationController extends GetxController {
 
         await storeTokens(accessToken, refreshToken);
 
+        // 🟢 Keep Google users logged in by default
+        await _storage.write(key: 'remember_me', value: 'true');
+
         print(':::::::::responseBody:::::::::$responseBody');
         print(':::::::::accessToken:::::::::$accessToken');
         print(':::::::::refreshToken:::::::::$refreshToken');
 
         Get.snackbar('Success', 'Google sign in successful');
 
-        // ⬇️ NEW: route according to plan (BASIC/PREMIUM → Dashboard)
         await _checkUserSubscriptionAndNavigate();
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Google Sign In Failed',
-            responseBody['message'] ?? 'Please use correct gmail');
+        Get.snackbar(
+          'Google Sign In Failed',
+          responseBody['message'] ?? 'Please use correct gmail',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -252,8 +278,8 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  // Forgot Password Method
-  Future<void> resetPasswordSendOtp (String email) async {
+  // ===== FORGOT / RESET PASSWORD =====
+  Future<void> resetPasswordSendOtp(String email) async {
     isLoading.value = true;
 
     try {
@@ -270,10 +296,13 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 
-        Get.to(() => OtpVerificationsView(email: email,));
+        Get.to(() => OtpVerificationsView(email: email));
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Reset password failed', responseBody['message'] ?? 'Please use Correct email');
+        Get.snackbar(
+          'Reset password failed',
+          responseBody['message'] ?? 'Please use Correct email',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -283,11 +312,12 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  Future<void> resetPasswordOtpVerification (String email, String otp) async {
+  Future<void> resetPasswordOtpVerification(String email, String otp) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.resetPasswordOtpVerification(email,otp);
+      final http.Response response =
+      await _service.resetPasswordOtpVerification(email, otp);
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -300,10 +330,13 @@ class AuthenticationController extends GetxController {
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 
-        Get.to(() => CreateNewPasswordView(email: email,));
+        Get.to(() => CreateNewPasswordView(email: email));
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Reset password failed', responseBody['message'] ?? 'Please use Correct email');
+        Get.snackbar(
+          'Reset password failed',
+          responseBody['message'] ?? 'Please use Correct email',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -313,11 +346,16 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  Future<void> resetPassword (String email, String password, String confirmPassword) async {
+  Future<void> resetPassword(
+      String email,
+      String password,
+      String confirmPassword,
+      ) async {
     isLoading.value = true;
 
     try {
-      final http.Response response = await _service.resetPassword(email,password,confirmPassword);
+      final http.Response response =
+      await _service.resetPassword(email, password, confirmPassword);
 
       print(':::::::::RESPONSE:::::::::${response.body.toString()}');
       print(':::::::::CODE:::::::::${response.statusCode}');
@@ -333,7 +371,10 @@ class AuthenticationController extends GetxController {
         Get.off(() => PasswordChangeView());
       } else {
         final responseBody = jsonDecode(response.body);
-        Get.snackbar('Reset password failed', responseBody['message'] ?? 'Please use Correct password');
+        Get.snackbar(
+          'Reset password failed',
+          responseBody['message'] ?? 'Please use Correct password',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
@@ -343,6 +384,7 @@ class AuthenticationController extends GetxController {
     }
   }
 
+  // ===== SUBSCRIPTION CHECK =====
   Future<void> _checkUserSubscriptionAndNavigate() async {
     try {
       final response = await _service.getCurrentActivePlan();
@@ -351,30 +393,27 @@ class AuthenticationController extends GetxController {
         final Map<String, dynamic> body =
         jsonDecode(response.body) as Map<String, dynamic>;
 
-        // "plan_details" contains the actual plan info
         final planDetails = body['plan_details'] as Map<String, dynamic>?;
 
         final String planName =
         (planDetails?['name'] ?? '').toString().toUpperCase();
 
-        // If BASIC or PREMIUM → go straight to Dashboard
+        await _storage.write(key: 'current_plan', value: planName);
+
         if (planName == 'BASIC' || planName == 'PREMIUM') {
-          Get.offAll(() => DashboardView());
+          Get.offAll(() => const DashboardView());
           return;
         }
 
-        // Any other plan (e.g., FREE / no plan) → show Subscription screen
-        Get.offAll(() => SubscriptionView());
+        Get.offAll(() => const SubscriptionView());
       } else {
-        // If API failed, fallback to Subscription screen
         print(
             'Failed to fetch current plan: ${response.statusCode} ${response.body}');
-        Get.offAll(() => SubscriptionView());
+        Get.offAll(() => const SubscriptionView());
       }
     } catch (e) {
       print('Error checking current plan: $e');
-      // On error, still let the user pick a plan
-      Get.offAll(() => SubscriptionView());
+      Get.offAll(() => const SubscriptionView());
     }
   }
 
@@ -391,30 +430,23 @@ class AuthenticationController extends GetxController {
   }
 
   // ---- OTP editing logic ----
-
-  /// Call this from TextField.onChanged of field [index].
-  /// Handles single char entry and multi-char paste starting at [index].
   void updateOTP(int index, String value) {
     if (value.isEmpty) {
-      // cleared current field
       otpList[index] = '';
       otpControllers[index].text = '';
       return;
     }
 
-    // If user pasted multiple digits in a single field
     final digits = value.replaceAll(RegExp(r'\D'), '');
     if (digits.length > 1) {
       _applyPastedDigits(index, digits);
       return;
     }
 
-    // Normal single-digit input
     final ch = digits[0];
     otpList[index] = ch;
     _setControllerText(index, ch);
 
-    // Move to next focus if not last
     if (index < focusNodes.length - 1) {
       focusNodes[index + 1].requestFocus();
       otpControllers[index + 1].selection =
@@ -424,7 +456,6 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  /// Call this from a RawKeyboardListener onKey when backspace pressed and current is empty.
   void handleBackspaceWhenEmpty(int index) {
     if (index > 0) {
       focusNodes[index - 1].requestFocus();
@@ -433,19 +464,16 @@ class AuthenticationController extends GetxController {
     }
   }
 
-  /// Clear all boxes.
   void clear() {
     for (var i = 0; i < otpControllers.length; i++) {
       otpControllers[i].clear();
       otpList[i] = '';
     }
-    // Move focus to first box
     if (focusNodes.isNotEmpty) {
       focusNodes.first.requestFocus();
     }
   }
 
-  /// Programmatically set the full OTP (e.g., from an autofill) and focus last box.
   void setOtp(String code) {
     final digits = code.replaceAll(RegExp(r'\D'), '').split('');
     clear();
@@ -474,7 +502,6 @@ class AuthenticationController extends GetxController {
   }
 
   void _setControllerText(int index, String value) {
-    // Avoid triggering extra onChanged cycles by directly setting text and selection.
     otpControllers[index]
       ..text = value
       ..selection = TextSelection.collapsed(offset: value.length);

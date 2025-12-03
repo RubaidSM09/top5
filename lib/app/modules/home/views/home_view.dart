@@ -336,6 +336,7 @@ class HomeView extends GetView<HomeController> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 16.w,
                       children: [
                         QuickGlanceCard(
@@ -414,6 +415,7 @@ class HomeView extends GetView<HomeController> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             spacing: 16.w,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: parents.map((node) {
                               final bool isSelected = selectedParent?.id == node.id;
                               return QuickGlanceCategoryCard(
@@ -651,7 +653,7 @@ class HomeAppBar extends StatelessWidget {
                 'assets/images/home/profile_pic.jpg',
               )
                   : NetworkImage(
-                'http://10.10.13.99:8090${profileController.image.value}',
+                'http://206.162.244.150:8001${profileController.image.value}',
               ) as ImageProvider,
             ),
           ),
@@ -943,7 +945,7 @@ class QuickGlanceCard extends StatelessWidget {
           ),
         ),
 
-        SizedBox(height: 4.h,),
+        /*SizedBox(height: 4.h,),
 
         Row(
           spacing: 6.w,
@@ -961,7 +963,7 @@ class QuickGlanceCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        ),*/
       ],
     );
   }
@@ -1020,15 +1022,18 @@ class QuickGlanceCategoryCard extends StatelessWidget {
 
         SizedBox(height: 12.h,),
 
-        Text(
-          text,
-          style: h3.copyWith(
-            color: AppColors.homeBlack,
-            fontSize: 16.sp,
+        SizedBox(
+          width: 96.w,
+          child: Text(
+            text,
+            style: h3.copyWith(
+              color: AppColors.homeBlack,
+              fontSize: 16.sp,
+            ),
           ),
         ),
 
-        SizedBox(height: 4.h,),
+        /*SizedBox(height: 4.h,),
 
         Row(
           spacing: 6.w,
@@ -1046,7 +1051,7 @@ class QuickGlanceCategoryCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        ),*/
       ],
     );
   }

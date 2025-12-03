@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
@@ -17,6 +18,7 @@ import 'package:top5/app/modules/profile/views/reservation_list_view.dart';
 import 'package:top5/app/modules/profile/views/saved_list_view.dart';
 import 'package:top5/app/modules/profile/views/send_feedback_view.dart';
 import 'package:top5/app/modules/profile/views/terms_of_services_view.dart';
+import 'package:top5/app/modules/subscription/views/subscription_view.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
 import 'package:top5/common/widgets/custom_button.dart';
@@ -67,19 +69,38 @@ class ProfileView extends GetView<ProfileController> {
                           )
                               :
                           NetworkImage(
-                            'http://10.10.13.99:8090${profileController.image.value}',
+                            'http://206.162.244.150:8001${profileController.image.value}',
                           ) as ImageProvider,
                         ),
 
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 12.h,
+                          // spacing: 0.h,
                           children: [
                             Text(
                               profileController.fullName.value,
                               style: h1.copyWith(
                                 color: AppColors.profileBlack,
                                 fontSize: 22.sp,
+                              ),
+                            ),
+
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h,),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50.r),
+                                border: Border.all(
+                                  color: AppColors.profileGreen,
+                                  width: 0.5.r,
+                                ),
+                                color: AppColors.profileSearchBg,
+                              ),
+                              child: Text(
+                                '${profileController.currentPlan.value} User',
+                                style: h3.copyWith(
+                                  color: AppColors.profileGreen,
+                                  fontSize: 10.sp,
+                                ),
                               ),
                             ),
 
@@ -812,6 +833,59 @@ class ProfileView extends GetView<ProfileController> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+
+                SizedBox(height: 24.h),
+
+                Text(
+                  'Preferences'.tr,
+                  style: h2.copyWith(
+                    color: AppColors.profileBlack,
+                    fontSize: 24.sp,
+                  ),
+                ),
+
+                SizedBox(height: 16.h),
+
+                GestureDetector(
+                  onTap: () => Get.to(SubscriptionView()),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h,),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.r),
+                      border: Border.all(
+                        color: AppColors.searchGray,
+                        width: 0.75.r,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          spacing: 6.w,
+                          children: [
+                            SvgPicture.asset(
+                              'assets/images/profile/explore_our_plans.svg',
+                            ),
+                  
+                            Text(
+                              'Explore Our Plans',
+                              style: h4.copyWith(
+                                color: AppColors.profileBlack,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                  
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 24.r,
+                          color: AppColors.profileBlack,
+                        )
+                      ],
+                    ),
                   ),
                 ),
 

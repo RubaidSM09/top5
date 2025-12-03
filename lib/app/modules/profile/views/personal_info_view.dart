@@ -44,7 +44,7 @@ class PersonalInfoView extends GetView {
                     )
                         :
                     NetworkImage(
-                      'http://10.10.13.99:8090${profileController.image.value}',
+                      'http://206.162.244.150:8001${profileController.image.value}',
                     ),
                   ),
                     

@@ -28,6 +28,7 @@ class ProfileController extends GetxController {
   var email = ''.obs;
   var phone = ''.obs;
   var image = ''.obs;
+  var currentPlan = ''.obs;
 
   var savedPlaces = <ActionPlacesDetails>[].obs;
   var recentPlaces = <ActionPlacesDetails>[].obs;
@@ -48,11 +49,13 @@ class ProfileController extends GetxController {
       String? _email = responseData['user']['email'];
       String? _phone= responseData['user']['phone'];
       String? _image = responseData['user']['image'];
+      String? _currentPlan = await _storage.read(key: 'current_plan');
 
       fullName.value = _fullName ?? '';
       email.value = _email ?? '';
       phone.value = _phone ?? '';
       image.value = _image ?? '';
+      currentPlan.value = _currentPlan ?? '';
     }
   }
 
