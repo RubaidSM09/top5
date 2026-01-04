@@ -192,6 +192,18 @@ class SearchView extends GetView<SearchController> {
                               ? AppColors.homeWhite
                               : AppColors.homeGray,
                         ),
+                        CategorySelectionCardSearch(
+                          text: 'Super-shops'.tr,
+                          icon: 'assets/images/home/services.svg',
+                          selectedCategory: controller.selectedCategory,
+                          index: 5,
+                          color: controller.selectedCategory[5].value
+                              ? AppColors.homeGreen
+                              : AppColors.homeInactiveBg,
+                          textColor: controller.selectedCategory[5].value
+                              ? AppColors.homeWhite
+                              : AppColors.homeGray,
+                        ),
                       ],
                     ),
                   );
@@ -204,30 +216,43 @@ class SearchView extends GetView<SearchController> {
                       c.selectedCategory[3].value;
                   final bool showServices = c.showServicesDropdown.value &&
                       c.selectedCategory[4].value;
+                  final bool showSuperShops = c.showSuperShopsDropdown.value &&
+                      c.selectedCategory[5].value;
 
-                  if (!showActivities && !showServices) {
+                  if (!showActivities && !showServices && !showSuperShops) {
                     return const SizedBox.shrink();
                   }
 
                   final bool isActivities = showActivities;
+                  final bool isServices = showServices;
                   final List<CategoryNode> parents = isActivities
                       ? c.activitiesCategories
-                      : c.servicesCategories;
+                      : isServices
+                      ? c.servicesCategories
+                      : c.superShopsCategories;
 
                   final CategoryNode? selectedParent = isActivities
                       ? c.selectedActivitiesParent.value
-                      : c.selectedServicesParent.value;
+                      : isServices
+                      ? c.selectedServicesParent.value
+                      : c.selectedSuperShopsParent.value;
 
                   final CategoryNode? selectedChild = isActivities
                       ? c.selectedActivitiesChild.value
-                      : c.selectedServicesChild.value;
+                      : isServices
+                      ? c.selectedServicesChild.value
+                      : c.selectedSuperShopsChild.value;
 
                   // Background color similar to selected category chip
                   final Color bgColor = isActivities
                       ? (c.selectedCategory[3].value
                       ? AppColors.homeGreen
                       : AppColors.homeInactiveBg)
-                      : (c.selectedCategory[4].value
+                      : isServices
+                      ? (c.selectedCategory[4].value
+                      ? AppColors.homeGreen
+                      : AppColors.homeInactiveBg)
+                      : (c.selectedCategory[5].value
                       ? AppColors.homeGreen
                       : AppColors.homeInactiveBg);
 
@@ -262,8 +287,10 @@ class SearchView extends GetView<SearchController> {
                               onTap: () {
                                 if (isActivities) {
                                   c.selectActivitiesParent(node);
-                                } else {
+                                } else if (isServices) {
                                   c.selectServicesParent(node);
+                                } else {
+                                  c.selectSuperShopsParent(node);
                                 }
                               },
                               child: Container(
@@ -310,8 +337,10 @@ class SearchView extends GetView<SearchController> {
                                 onTap: () {
                                   if (isActivities) {
                                     c.selectActivitiesChild(node);
-                                  } else {
+                                  } else if (isServices) {
                                     c.selectServicesChild(node);
+                                  } else {
+                                    c.selectSuperShopsChild(node);
                                   }
                                 },
                                 child: Container(
@@ -587,7 +616,7 @@ class SearchAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'http://206.162.244.150:8001${profileController.image.value}',
+              'http://10.10.13.99:8005${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),

@@ -8,7 +8,7 @@ import 'package:http_parser/http_parser.dart';
 class ApiService {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  final String baseUrl = "http://206.162.244.150:8001";
+  final String baseUrl = "http://10.10.13.99:8005";
 
   // login method
   Future<http.Response> login (String email, String password) async {
@@ -623,7 +623,7 @@ class ApiService {
     };
 
     final Map<String, dynamic> body = {
-      "plan_id": planId.toString(),
+      "plan_id": planId,
     };
 
     return await http.post(

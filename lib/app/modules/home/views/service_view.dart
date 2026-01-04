@@ -112,6 +112,15 @@ class ServiceView extends GetView<HomeController> {
                                     textColor: c.selectedCategory[4].value ? AppColors.homeWhite : AppColors.homeGray,
                                     page: 'Service',
                                   ),
+                                  CategorySelectionCard(
+                                    text: 'Super-shops'.tr,
+                                    icon: 'assets/images/home/services.svg',
+                                    selectedCategory: c.selectedCategory,
+                                    index: 5,
+                                    color: c.selectedCategory[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                                    textColor: c.selectedCategory[5].value ? AppColors.homeWhite : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
                                 ],
                               ),
                             ),
@@ -121,19 +130,23 @@ class ServiceView extends GetView<HomeController> {
                               final c = Get.find<HomeController>();
                               final bool showActivities = c.showActivitiesDropdownService.value && c.selectedCategory[3].value;
                               final bool showServices = c.showServicesDropdownService.value && c.selectedCategory[4].value;
+                              final bool showSuperShops = c.showSuperShopsDropdownService.value && c.selectedCategory[5].value;
 
-                              if (!showActivities && !showServices) {
+                              if (!showActivities && !showServices && !showSuperShops) {
                                 return const SizedBox.shrink();
                               }
 
                               final bool isActivities = showActivities;
-                              final List<CategoryNode> parents = isActivities ? c.activitiesCategories : c.servicesCategories;
-                              final CategoryNode? selectedParent = isActivities ? c.selectedActivitiesParent.value : c.selectedServicesParent.value;
-                              final CategoryNode? selectedChild = isActivities ? c.selectedActivitiesChild.value : c.selectedServicesChild.value;
+                              final bool isServices = showServices;
+                              final List<CategoryNode> parents = isActivities ? c.activitiesCategories : isServices ? c.servicesCategories : c.superShopsCategories;
+                              final CategoryNode? selectedParent = isActivities ? c.selectedActivitiesParent.value : isServices ? c.selectedServicesParent.value : c.selectedSuperShopsParent.value;
+                              final CategoryNode? selectedChild = isActivities ? c.selectedActivitiesChild.value : isServices ? c.selectedServicesChild.value : c.selectedSuperShopsChild.value;
 
                               final Color bgColor = isActivities
                                   ? (c.selectedCategory[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg)
-                                  : (c.selectedCategory[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg);
+                                  : isServices
+                                  ? (c.selectedCategory[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg)
+                                  : (c.selectedCategory[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg);
 
                               final Color chipBgActive = AppColors.homeWhite;
                               final Color chipBgInactive = bgColor.withOpacity(0.85);
@@ -160,8 +173,10 @@ class ServiceView extends GetView<HomeController> {
                                           onTap: () {
                                             if (isActivities) {
                                               c.selectActivitiesParent(node);
-                                            } else {
+                                            } else if (isServices) {
                                               c.selectServicesParent(node);
+                                            } else {
+                                              c.selectSuperShopsParent(node);
                                             }
                                           },
                                           child: Container(
@@ -195,8 +210,10 @@ class ServiceView extends GetView<HomeController> {
                                             onTap: () {
                                               if (isActivities) {
                                                 c.selectActivitiesChild(node, refreshIdeasFlag: false);
-                                              } else {
+                                              } else if (isServices) {
                                                 c.selectServicesChild(node, refreshIdeasFlag: false);
+                                              } else {
+                                                c.selectSuperShopsChild(node, refreshIdeasFlag: false);
                                               }
                                               c.fetchTop5Places(search: c.searchText.value);
                                             },
@@ -602,7 +619,7 @@ class ServiceAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'http://206.162.244.150:8001${profileController.image.value}',
+              'http://10.10.13.99:8005${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),
@@ -1271,7 +1288,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                               vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
-                              color: status == 'Open'
+                              color: status == 'Open' || status == 'Ouvrir'
                                   ? AppColors.serviceSearchBg
                                   : AppColors
                                   .profileDeleteButtonColor,
@@ -1281,7 +1298,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                             child: Text(
                               status,
                               style: h3.copyWith(
-                                color: status == 'Open'
+                                color: status == 'Open' || status == 'Ouvrir'
                                     ? AppColors.servicePromoGreen
                                     : AppColors
                                     .profileDeleteButtonTextColor,

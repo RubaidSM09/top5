@@ -16,8 +16,7 @@ class SearchController extends GetxController {
   RxList<RxBool> isRemoved =
       [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxList<RxBool> selectedCategory =
-      [true.obs, false.obs, false.obs, false.obs, false.obs]
-          .obs; // Restaurant, Cafes, Bars, Activities, Services
+      [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs; // Restaurant, Cafes, Bars, Activities, Services
   RxList<RxBool> selectedFilter = [
     true.obs,
     false.obs,
@@ -130,6 +129,43 @@ class SearchController extends GetxController {
     ),
   ];
 
+  final List<CategoryNode> superShopsCategories = const [
+    CategoryNode(
+      id: 'super_shops_big_retails',
+      label: 'Big Retails',
+      children: [
+        CategoryNode(id: 'shopping_mall', label: 'Shopping Mall'),
+        CategoryNode(id: 'department_store', label: 'Department Store'),
+        CategoryNode(id: 'store', label: 'Store'),
+        CategoryNode(id: 'supermarket', label: 'Super Market'),
+      ],
+    ),
+    CategoryNode(
+      id: 'super_shops_everyday_convenience',
+      label: 'Everyday / Convenience',
+      children: [
+        CategoryNode(id: 'convenience_store', label: 'Convenience Store'),
+        CategoryNode(id: 'home_goods_store', label: 'Home Goods Store'),
+        CategoryNode(id: 'furniture_store', label: 'Furniture Store'),
+        CategoryNode(id: 'hardware_store', label: 'Hardware Store'),
+        CategoryNode(id: 'electronics_store', label: 'Electronics Store'),
+        CategoryNode(id: 'gas_station', label: 'Gas Station'),
+      ],
+    ),
+    CategoryNode(
+      id: 'super_shops_specialty_retail',
+      label: 'Specialty Retail',
+      children: [
+        CategoryNode(id: 'clothing_store', label: 'Clothing Store'),
+        CategoryNode(id: 'shoe_store', label: 'Shoe Store'),
+        CategoryNode(id: 'jewelry_store', label: 'Jewelry Store'),
+        CategoryNode(id: 'book_store', label: 'Book Store'),
+        CategoryNode(id: 'florist', label: 'Florist'),
+        CategoryNode(id: 'pet_store', label: 'Pet Store'),
+      ],
+    ),
+  ];
+
   // State for selected sub / sub-sub categories (Search)
   final Rx<CategoryNode?> selectedActivitiesParent =
   Rx<CategoryNode?>(null);
@@ -139,10 +175,15 @@ class SearchController extends GetxController {
   Rx<CategoryNode?>(null);
   final Rx<CategoryNode?> selectedServicesChild =
   Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsParent =
+  Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsChild =
+  Rx<CategoryNode?>(null);
 
   // Whether dropdown is open (Search)
   final RxBool showActivitiesDropdown = false.obs;
   final RxBool showServicesDropdown = false.obs;
+  final RxBool showSuperShopsDropdown = false.obs;
 
   /// State for API + results
   final ApiService _api = ApiService();
@@ -194,6 +235,7 @@ class SearchController extends GetxController {
     // Toggle dropdown visibility for Activities / Services (Search)
     showActivitiesDropdown.value = (index == 3);
     showServicesDropdown.value = (index == 4);
+    showSuperShopsDropdown.value = (index == 5);
 
     // Reset selections when leaving a section
     if (index != 3) {
@@ -203,6 +245,10 @@ class SearchController extends GetxController {
     if (index != 4) {
       selectedServicesParent.value = null;
       selectedServicesChild.value = null;
+    }
+    if (index != 5) {
+      selectedSuperShopsParent.value = null;
+      selectedSuperShopsChild.value = null;
     }
 
     // ✅ IMPORTANT: Only fetch immediately for Restaurant / Cafes / Bars
@@ -221,6 +267,7 @@ class SearchController extends GetxController {
 
   void selectActivitiesChild(CategoryNode node) {
     selectedActivitiesChild.value = node;
+    _closeAllCategoryDropdowns();
     // Now that a specific sub-sub-category is chosen, refresh results.
     fetchTop5();
   }
@@ -232,6 +279,19 @@ class SearchController extends GetxController {
 
   void selectServicesChild(CategoryNode node) {
     selectedServicesChild.value = node;
+    _closeAllCategoryDropdowns();
+    // Now that a specific sub-sub-category is chosen, refresh results.
+    fetchTop5();
+  }
+
+  void selectSuperShopsParent(CategoryNode node) {
+    selectedSuperShopsParent.value = node;
+    selectedSuperShopsChild.value = null;
+  }
+
+  void selectSuperShopsChild(CategoryNode node) {
+    selectedSuperShopsChild.value = node;
+    _closeAllCategoryDropdowns();
     // Now that a specific sub-sub-category is chosen, refresh results.
     fetchTop5();
   }
@@ -257,6 +317,11 @@ class SearchController extends GetxController {
           return selectedServicesChild.value!.id;
         }
         return 'services';
+      case 5:
+        if (selectedSuperShopsChild.value != null) {
+          return selectedSuperShopsChild.value!.id;
+        }
+        return 'super_shops';
       default:
         return 'restaurant';
     }
@@ -474,6 +539,13 @@ class SearchController extends GetxController {
     } catch (_) {
       return null;
     }
+  }
+
+  void _closeAllCategoryDropdowns() {
+    // Home header dropdowns
+    showActivitiesDropdown.value = false;
+    showServicesDropdown.value = false;
+    showSuperShopsDropdown.value = false;
   }
 
   void _wireChipListeners() {

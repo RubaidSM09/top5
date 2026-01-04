@@ -23,7 +23,7 @@ class HomeController extends GetxController {
   Timer? _weatherTicker;
 
   // UI state
-  RxList<RxBool> selectedCategory = [true.obs, false.obs, false.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedCategory = [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxList<RxBool> selectedFilter   = [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxBool isListView = true.obs;
   RxList<RxBool> selectedLocations = [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
@@ -135,23 +135,65 @@ class HomeController extends GetxController {
     ),
   ];
 
+  final List<CategoryNode> superShopsCategories = const [
+    CategoryNode(
+      id: 'super_shops_big_retails',
+      label: 'Big Retails',
+      children: [
+        CategoryNode(id: 'shopping_mall', label: 'Shopping Mall'),
+        CategoryNode(id: 'department_store', label: 'Department Store'),
+        CategoryNode(id: 'store', label: 'Store'),
+        CategoryNode(id: 'supermarket', label: 'Super Market'),
+      ],
+    ),
+    CategoryNode(
+      id: 'super_shops_everyday_convenience',
+      label: 'Everyday / Convenience',
+      children: [
+        CategoryNode(id: 'convenience_store', label: 'Convenience Store'),
+        CategoryNode(id: 'home_goods_store', label: 'Home Goods Store'),
+        CategoryNode(id: 'furniture_store', label: 'Furniture Store'),
+        CategoryNode(id: 'hardware_store', label: 'Hardware Store'),
+        CategoryNode(id: 'electronics_store', label: 'Electronics Store'),
+        CategoryNode(id: 'gas_station', label: 'Gas Station'),
+      ],
+    ),
+    CategoryNode(
+      id: 'super_shops_specialty_retail',
+      label: 'Specialty Retail',
+      children: [
+        CategoryNode(id: 'clothing_store', label: 'Clothing Store'),
+        CategoryNode(id: 'shoe_store', label: 'Shoe Store'),
+        CategoryNode(id: 'jewelry_store', label: 'Jewelry Store'),
+        CategoryNode(id: 'book_store', label: 'Book Store'),
+        CategoryNode(id: 'florist', label: 'Florist'),
+        CategoryNode(id: 'pet_store', label: 'Pet Store'),
+      ],
+    ),
+  ];
+
   // state for selected sub / sub-sub categories
   final Rx<CategoryNode?> selectedActivitiesParent = Rx<CategoryNode?>(null);
   final Rx<CategoryNode?> selectedActivitiesChild  = Rx<CategoryNode?>(null);
   final Rx<CategoryNode?> selectedServicesParent   = Rx<CategoryNode?>(null);
   final Rx<CategoryNode?> selectedServicesChild    = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsParent   = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsChild    = Rx<CategoryNode?>(null);
 
   // === FOR HOME VIEW (existing) ===
   final RxBool showActivitiesDropdown = false.obs;
   final RxBool showServicesDropdown   = false.obs;
+  final RxBool showSuperShopsDropdown   = false.obs;
 
   // === NEW: FOR SERVICE VIEW ONLY (independent) ===
   final RxBool showActivitiesDropdownService = false.obs;
   final RxBool showServicesDropdownService   = false.obs;
+  final RxBool showSuperShopsDropdownService   = false.obs;
 
   // whether quick-glance subcategories are visible (below Quick Glance cards)
   final RxBool showActivitiesQuickGlance = false.obs;
   final RxBool showServicesQuickGlance   = false.obs;
+  final RxBool showSuperShopsQuickGlance   = false.obs;
 
   final ApiService _service = ApiService();
 
@@ -256,7 +298,12 @@ class HomeController extends GetxController {
         if (selectedServicesChild.value != null) {
           return selectedServicesChild.value!.id;
         }
-        return 'services';
+        return 'super_shops';
+      case 5:
+        if (selectedSuperShopsChild.value != null) {
+          return selectedSuperShopsChild.value!.id;
+        }
+        return 'super_shops';
       default:
         return 'services';
     }
@@ -276,6 +323,8 @@ class HomeController extends GetxController {
         return 'activities';
       case 4:
         return 'services';
+      case 5:
+        return 'super_shops';
       default:
         return 'services';
     }
@@ -289,6 +338,7 @@ class HomeController extends GetxController {
   // *** CHANGED: added flag to avoid idea generation from Quick Glance
   void selectActivitiesChild(CategoryNode node, {bool refreshIdeasFlag = true}) {
     selectedActivitiesChild.value = node;
+    _closeAllCategoryDropdowns();
     if (refreshIdeasFlag) {
       refreshIdeas();
     }
@@ -302,6 +352,21 @@ class HomeController extends GetxController {
   // *** CHANGED: added flag to avoid idea generation from Quick Glance
   void selectServicesChild(CategoryNode node, {bool refreshIdeasFlag = true}) {
     selectedServicesChild.value = node;
+    _closeAllCategoryDropdowns();
+    if (refreshIdeasFlag) {
+      refreshIdeas();
+    }
+  }
+
+  void selectSuperShopsParent(CategoryNode node) {
+    selectedSuperShopsParent.value = node;
+    selectedSuperShopsChild.value = null;
+  }
+
+  // *** CHANGED: added flag to avoid idea generation from Quick Glance
+  void selectSuperShopsChild(CategoryNode node, {bool refreshIdeasFlag = true}) {
+    selectedSuperShopsChild.value = node;
+    _closeAllCategoryDropdowns();
     if (refreshIdeasFlag) {
       refreshIdeas();
     }
@@ -315,7 +380,8 @@ class HomeController extends GetxController {
     // do NOT refresh ideas (keep the current ones).
     final currentIndex = selectedCategory.indexWhere((e) => e.value);
     if ((currentIndex == 3 && selectedActivitiesChild.value == null) ||
-        (currentIndex == 4 && selectedServicesChild.value == null)) {
+        (currentIndex == 4 && selectedServicesChild.value == null) ||
+        (currentIndex == 5 && selectedSuperShopsChild.value == null)) {
       return;
     }
 
@@ -353,6 +419,7 @@ class HomeController extends GetxController {
   void onCategoryChangedHome(int index) {
     showActivitiesQuickGlance.value = false;
     showServicesQuickGlance.value   = false;
+    showSuperShopsQuickGlance.value   = false;
 
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
@@ -361,6 +428,7 @@ class HomeController extends GetxController {
     // Use Home-specific dropdown flags
     showActivitiesDropdown.value = (index == 3);
     showServicesDropdown.value   = (index == 4);
+    showSuperShopsDropdown.value   = (index == 5);
 
     if (index != 3) {
       selectedActivitiesParent.value = null;
@@ -369,6 +437,10 @@ class HomeController extends GetxController {
     if (index != 4) {
       selectedServicesParent.value = null;
       selectedServicesChild.value  = null;
+    }
+    if (index != 5) {
+      selectedSuperShopsParent.value = null;
+      selectedSuperShopsChild.value  = null;
     }
 
     refreshIdeas();
@@ -377,6 +449,7 @@ class HomeController extends GetxController {
   void onCategoryChangedService(int index) {
     showActivitiesQuickGlance.value = false;
     showServicesQuickGlance.value   = false;
+    showSuperShopsQuickGlance.value   = false;
 
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
@@ -385,6 +458,7 @@ class HomeController extends GetxController {
     // Use Service-specific dropdown flags
     showActivitiesDropdownService.value = (index == 3);
     showServicesDropdownService.value   = (index == 4);
+    showSuperShopsDropdownService.value   = (index == 5);
 
     if (index != 3) {
       selectedActivitiesParent.value = null;
@@ -394,12 +468,18 @@ class HomeController extends GetxController {
       selectedServicesParent.value = null;
       selectedServicesChild.value  = null;
     }
+    if (index != 5) {
+      selectedSuperShopsParent.value = null;
+      selectedSuperShopsChild.value  = null;
+    }
 
     if (index <= 2) {
       fetchTop5Places(search: searchText.value);
     } else if (index == 3 && selectedActivitiesChild.value != null) {
       fetchTop5Places(search: searchText.value);
     } else if (index == 4 && selectedServicesChild.value != null) {
+      fetchTop5Places(search: searchText.value);
+    } else if (index == 5 && selectedSuperShopsChild.value != null) {
       fetchTop5Places(search: searchText.value);
     }
   }
@@ -414,13 +494,17 @@ class HomeController extends GetxController {
     // Reset BOTH Home and Service dropdowns
     showActivitiesDropdown.value = false;
     showServicesDropdown.value   = false;
+    showSuperShopsDropdown.value   = false;
     showActivitiesDropdownService.value = false;
     showServicesDropdownService.value   = false;
+    showSuperShopsDropdownService.value   = false;
 
     selectedActivitiesParent.value = null;
     selectedActivitiesChild.value  = null;
     selectedServicesParent.value   = null;
     selectedServicesChild.value    = null;
+    selectedSuperShopsParent.value   = null;
+    selectedSuperShopsChild.value    = null;
 
     navigatedFromQuickGlance.value = false;
   }
@@ -542,6 +626,7 @@ class HomeController extends GetxController {
       case 2: return 'Bars';
       case 3: return 'Activities';
       case 4: return 'Services';
+      case 5: return 'Super-shops';
       default: return 'Services';
     }
   }
@@ -844,6 +929,18 @@ class HomeController extends GetxController {
     } finally {
       savedLoading.value = false;
     }
+  }
+
+  void _closeAllCategoryDropdowns() {
+    // Home header dropdowns
+    showActivitiesDropdown.value = false;
+    showServicesDropdown.value = false;
+    showSuperShopsDropdown.value = false;
+
+    // Service header dropdowns
+    showActivitiesDropdownService.value = false;
+    showServicesDropdownService.value = false;
+    showSuperShopsDropdownService.value = false;
   }
 
   Future<void> openGoogleMapsAppDirections({

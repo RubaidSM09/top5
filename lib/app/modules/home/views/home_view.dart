@@ -105,6 +105,16 @@ class HomeView extends GetView<HomeController> {
                             textColor: controller.selectedCategory[4].value ? AppColors.homeWhite : AppColors.homeGray,
                             page: 'Home',
                           ),
+
+                          CategorySelectionCard(
+                            text: 'Super-shops'.tr,
+                            icon: 'assets/images/home/services.svg',
+                            selectedCategory: controller.selectedCategory,
+                            index: 5,
+                            color: controller.selectedCategory[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                            textColor: controller.selectedCategory[5].value ? AppColors.homeWhite : AppColors.homeGray,
+                            page: 'Home',
+                          ),
                         ],
                       ),
                     );
@@ -117,29 +127,42 @@ class HomeView extends GetView<HomeController> {
                         c.showActivitiesDropdown.value && c.selectedCategory[3].value;
                     final bool showServices =
                         c.showServicesDropdown.value && c.selectedCategory[4].value;
+                    final bool showSuperShops =
+                        c.showSuperShopsDropdown.value && c.selectedCategory[5].value;
 
-                    if (!showActivities && !showServices) {
+                    if (!showActivities && !showServices && !showSuperShops) {
                       return const SizedBox.shrink();
                     }
 
                     final bool isActivities = showActivities;
+                    final bool isServices = showServices;
                     final List<CategoryNode> parents = isActivities
                         ? c.activitiesCategories
-                        : c.servicesCategories;
+                        : isServices
+                        ? c.servicesCategories
+                        : c.superShopsCategories;
 
                     final CategoryNode? selectedParent = isActivities
                         ? c.selectedActivitiesParent.value
-                        : c.selectedServicesParent.value;
+                        : isServices
+                        ? c.selectedServicesParent.value
+                        : c.selectedSuperShopsParent.value;
 
                     final CategoryNode? selectedChild = isActivities
                         ? c.selectedActivitiesChild.value
-                        : c.selectedServicesChild.value;
+                        : isServices
+                        ? c.selectedServicesChild.value
+                        : c.selectedSuperShopsChild.value;
 
                     final Color bgColor = isActivities
                         ? (c.selectedCategory[3].value
                         ? AppColors.homeGreen
                         : AppColors.homeInactiveBg)
-                        : (c.selectedCategory[4].value
+                        : isServices
+                        ? (c.selectedCategory[4].value
+                        ? AppColors.homeGreen
+                        : AppColors.homeInactiveBg)
+                        : (c.selectedCategory[5].value
                         ? AppColors.homeGreen
                         : AppColors.homeInactiveBg);
 
@@ -172,8 +195,10 @@ class HomeView extends GetView<HomeController> {
                                 onTap: () {
                                   if (isActivities) {
                                     c.selectActivitiesParent(node);
-                                  } else {
+                                  } else if (isServices) {
                                     c.selectServicesParent(node);
+                                  } else {
+                                    c.selectSuperShopsParent(node);
                                   }
                                 },
                                 child: Container(
@@ -218,8 +243,10 @@ class HomeView extends GetView<HomeController> {
                                     if (isActivities) {
                                       // header → allow ideas
                                       c.selectActivitiesChild(node, refreshIdeasFlag: true);
-                                    } else {
+                                    } else if (isServices) {
                                       c.selectServicesChild(node, refreshIdeasFlag: true);
+                                    } else {
+                                      c.selectSuperShopsChild(node, refreshIdeasFlag: true);
                                     }
                                   },
                                   child: Container(
@@ -262,60 +289,62 @@ class HomeView extends GetView<HomeController> {
                   Obx(() {
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      child: Row(
-                        spacing: 10.w,
-                        children: [
-                          FilterSelectionCard(
-                            text: 'Open now'.tr,
-                            selectedFilter: controller.selectedFilter,
-                            index: 0,
-                            color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                          FilterSelectionCard(
-                            text: '10 min',
-                            selectedFilter: controller.selectedFilter,
-                            index: 1,
-                            color: controller.selectedFilter[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                          FilterSelectionCard(
-                            text: profileController.selectedDistanceUnit[0].value
-                                ? '1 km'
-                                : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                            selectedFilter: controller.selectedFilter,
-                            index: 2,
-                            color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                          FilterSelectionCard(
-                            text: 'Outdoor'.tr,
-                            selectedFilter: controller.selectedFilter,
-                            index: 3,
-                            color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                          FilterSelectionCard(
-                            text: 'Vegetarian'.tr,
-                            selectedFilter: controller.selectedFilter,
-                            index: 4,
-                            color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                          FilterSelectionCard(
-                            text: 'Bookable'.tr,
-                            selectedFilter: controller.selectedFilter,
-                            index: 5,
-                            color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
-                            textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray,
-                            page: 'Home',
-                          ),
-                        ],
+                      child: IntrinsicHeight(
+                        child: Row(
+                          spacing: 10.w,
+                          children: [
+                            FilterSelectionCard(
+                              text: 'Open now'.tr,
+                              selectedFilter: controller.selectedFilter,
+                              index: 0,
+                              color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                            FilterSelectionCard(
+                              text: '10 min',
+                              selectedFilter: controller.selectedFilter,
+                              index: 1,
+                              color: controller.selectedFilter[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                            FilterSelectionCard(
+                              text: profileController.selectedDistanceUnit[0].value
+                                  ? '1 km'
+                                  : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                              selectedFilter: controller.selectedFilter,
+                              index: 2,
+                              color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                            FilterSelectionCard(
+                              text: 'Outdoor'.tr,
+                              selectedFilter: controller.selectedFilter,
+                              index: 3,
+                              color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                            FilterSelectionCard(
+                              text: 'Vegetarian'.tr,
+                              selectedFilter: controller.selectedFilter,
+                              index: 4,
+                              color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                            FilterSelectionCard(
+                              text: 'Bookable'.tr,
+                              selectedFilter: controller.selectedFilter,
+                              index: 5,
+                              color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg,
+                              textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray,
+                              page: 'Home',
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }),
@@ -374,6 +403,13 @@ class HomeView extends GetView<HomeController> {
                           selectedCategory: controller.selectedCategory,
                           index: 3,
                         ),
+                        QuickGlanceCard(
+                          image: 'assets/images/home/super_shops.jpg',
+                          text: 'Super-shops'.tr,
+                          rating: 4.6,
+                          selectedCategory: controller.selectedCategory,
+                          index: 5,
+                        ),
                       ],
                     ),
                   ),
@@ -383,27 +419,37 @@ class HomeView extends GetView<HomeController> {
                     final c = Get.find<HomeController>();
                     final bool showActivities = c.showActivitiesQuickGlance.value;
                     final bool showServices   = c.showServicesQuickGlance.value;
+                    final bool showSuperShops   = c.showSuperShopsQuickGlance.value;
 
-                    if (!showActivities && !showServices) {
+                    if (!showActivities && !showServices && !showSuperShops) {
                       return const SizedBox.shrink();
                     }
 
                     final bool isActivities = showActivities;
+                    final bool isServices = showServices;
                     final List<CategoryNode> parents = isActivities
                         ? c.activitiesCategories
-                        : c.servicesCategories;
+                        : isServices
+                        ? c.servicesCategories
+                        : c.superShopsCategories;
 
                     final CategoryNode? selectedParent = isActivities
                         ? c.selectedActivitiesParent.value
-                        : c.selectedServicesParent.value;
+                        : isServices
+                        ? c.selectedServicesParent.value
+                        : c.selectedSuperShopsParent.value;
 
                     final CategoryNode? selectedChild = isActivities
                         ? c.selectedActivitiesChild.value
-                        : c.selectedServicesChild.value;
+                        : isServices
+                        ? c.selectedServicesChild.value
+                        : c.selectedSuperShopsChild.value;
 
                     final String bgImage = isActivities
                         ? 'assets/images/home/activities.jpg'
-                        : 'assets/images/home/services.jpg';
+                        : isServices
+                        ? 'assets/images/home/services.jpg'
+                        : 'assets/images/home/super_shops.jpg';
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,8 +472,10 @@ class HomeView extends GetView<HomeController> {
                                 onTap: () {
                                   if (isActivities) {
                                     c.selectActivitiesParent(node);
-                                  } else {
+                                  } else if (isServices) {
                                     c.selectServicesParent(node);
+                                  } else {
+                                    c.selectSuperShopsParent(node);
                                   }
                                 },
                               );
@@ -459,10 +507,14 @@ class HomeView extends GetView<HomeController> {
                                       // mark that ServiceView was opened from Quick Glance
                                       c.navigatedFromQuickGlance.value = true;
                                       c.onCategoryChangedService(3);
-                                    } else {
+                                    } else if (isServices) {
                                       c.selectServicesChild(node, refreshIdeasFlag: false);
                                       c.navigatedFromQuickGlance.value = true;
                                       c.onCategoryChangedService(4);
+                                    } else {
+                                      c.selectSuperShopsChild(node, refreshIdeasFlag: false);
+                                      c.navigatedFromQuickGlance.value = true;
+                                      c.onCategoryChangedService(5);
                                     }
                                     Get.to(ServiceView(appBarTitle: node.label.tr));
                                   },
@@ -653,7 +705,7 @@ class HomeAppBar extends StatelessWidget {
                 'assets/images/home/profile_pic.jpg',
               )
                   : NetworkImage(
-                'http://206.162.244.150:8001${profileController.image.value}',
+                'http://10.10.13.99:8005${profileController.image.value}',
               ) as ImageProvider,
             ),
           ),
@@ -798,6 +850,7 @@ class HomeSearchBar extends StatelessWidget {
                     Text(
                       'Set your location'.tr,
                       style: h4.copyWith(color: AppColors.homeGray, fontSize: 10.sp),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
@@ -857,6 +910,7 @@ class FilterSelectionCard extends StatelessWidget {
               color: textColor,
               fontSize: 12.sp,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
@@ -899,6 +953,7 @@ class QuickGlanceCard extends StatelessWidget {
               // *** IMPORTANT: do NOT touch top selectedCategory, do NOT call onCategoryChangedHome
               c.showActivitiesQuickGlance.value = true;
               c.showServicesQuickGlance.value   = false;
+              c.showSuperShopsQuickGlance.value   = false;
               c.selectedActivitiesParent.value  = null;
               c.selectedActivitiesChild.value   = null;
             }
@@ -907,8 +962,18 @@ class QuickGlanceCard extends StatelessWidget {
               // *** IMPORTANT: do NOT touch top selectedCategory, do NOT call onCategoryChangedHome
               c.showServicesQuickGlance.value   = true;
               c.showActivitiesQuickGlance.value = false;
+              c.showSuperShopsQuickGlance.value   = false;
               c.selectedServicesParent.value    = null;
               c.selectedServicesChild.value     = null;
+            }
+
+            else if (index == 5) {
+              // *** IMPORTANT: do NOT touch top selectedCategory, do NOT call onCategoryChangedHome
+              c.showSuperShopsQuickGlance.value = true;
+              c.showServicesQuickGlance.value   = false;
+              c.showActivitiesQuickGlance.value = false;
+              c.selectedSuperShopsParent.value    = null;
+              c.selectedSuperShopsChild.value     = null;
             }
           },
           child: Container(

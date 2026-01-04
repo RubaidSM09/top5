@@ -190,6 +190,8 @@ class SubscriptionController extends GetxController {
 
       final response = await _apiService.subscriptionCheckout(planId);
 
+      print(response.statusCode);
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> body =
         jsonDecode(response.body) as Map<String, dynamic>;

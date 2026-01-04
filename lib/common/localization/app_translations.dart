@@ -274,7 +274,7 @@ class AppTranslations extends Translations {
       'Activities': 'Activités',
       'Services': 'Services',
       'Inspire me': 'Inspire-moi',
-      'Set your location': 'Définissez votre emplacement',
+      'Set your location': 'Définissez votre\nemplacement',
       'Open now': 'Ouvert maintenant',
       'Open Now': 'Ouvert Maintenant',
       'Outdoor': 'De plein air',
