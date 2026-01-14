@@ -523,7 +523,7 @@ class DetailsAppBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => Get.back(),
+          onTap: () => Navigator.pop(context),
           child: Container(
             padding: EdgeInsets.all(6.r),
             decoration: BoxDecoration(

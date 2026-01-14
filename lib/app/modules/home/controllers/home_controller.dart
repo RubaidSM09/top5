@@ -12,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:top5/app/modules/subscription/views/subscription_dialog_view.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../common/localization/localization_controller.dart';
 import '../../../data/model/action_places_details.dart';
 import '../../../data/model/time_date.dart';
 import '../../../data/model/top_5_place_list.dart';
@@ -22,11 +23,47 @@ class HomeController extends GetxController {
   Timer? _minuteTicker;
   Timer? _weatherTicker;
 
+  // ===================== SEARCH (NEW / FIXED) =====================
+  /// Keep ONE controller in HomeController (do NOT create it in the widget).
+  final TextEditingController searchController = TextEditingController();
+
+  /// Hint text shown when [searchController.text] is empty.
+  final RxString searchHint = 'Search here'.obs;
+
+  /// last searched text
+  final RxString searchText = ''.obs;
+
+  final LocalizationController localizationController = Get.find<LocalizationController>();
+
+  void setSearchHint(String hint) {
+    searchHint.value = hint;
+  }
+
+  void clearSearch() {
+    searchText.value = '';
+    searchController.clear();
+  }
+
+  void performSearch(String query) {
+    final v = query.trim();
+    searchText.value = v;
+
+    // keep the searched value visible inside the field
+    searchController.text = v;
+    searchController.selection = TextSelection.collapsed(offset: v.length);
+
+    fetchTop5Places(search: v);
+  }
+  // ===============================================================
+
   // UI state
-  RxList<RxBool> selectedCategory = [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
-  RxList<RxBool> selectedFilter   = [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedCategory =
+      [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedFilter =
+      [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxBool isListView = true.obs;
-  RxList<RxBool> selectedLocations = [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+  RxList<RxBool> selectedLocations =
+      [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   final double dragSensitivity = 600;
   final RxDouble sheetPosition = 0.48.obs;
   final RxBool isMoreDetails = false.obs;
@@ -40,29 +77,29 @@ class HomeController extends GetxController {
       id: 'activities_must_see_culture',
       label: 'Must-See & Culture',
       children: [
-        CategoryNode(id: 'museum',   label: 'Museum'),
-        CategoryNode(id: 'park',     label: 'Park'),
-        CategoryNode(id: 'church',   label: 'Church'),
-        CategoryNode(id: 'mosque',   label: 'Mosque'),
-        CategoryNode(id: 'synagogue',label: 'Synagogue'),
+        CategoryNode(id: 'museum', label: 'Museum'),
+        CategoryNode(id: 'park', label: 'Park'),
+        CategoryNode(id: 'church', label: 'Church'),
+        CategoryNode(id: 'mosque', label: 'Mosque'),
+        CategoryNode(id: 'synagogue', label: 'Synagogue'),
       ],
     ),
     CategoryNode(
       id: 'activities_entertainment_nightlife',
       label: 'Entertainment & Nightlife',
       children: [
-        CategoryNode(id: 'night_club',    label: 'Night Club'),
+        CategoryNode(id: 'night_club', label: 'Night Club'),
         CategoryNode(id: 'movie_theater', label: 'Movie Theater'),
-        CategoryNode(id: 'casino',        label: 'Casino'),
-        CategoryNode(id: 'stadium',       label: 'Stadium'),
+        CategoryNode(id: 'casino', label: 'Casino'),
+        CategoryNode(id: 'stadium', label: 'Stadium'),
       ],
     ),
     CategoryNode(
       id: 'activities_local_experiences',
       label: 'Local Experiences',
       children: [
-        CategoryNode(id: 'park',          label: 'Park'),
-        CategoryNode(id: 'museum',        label: 'Museum'),
+        CategoryNode(id: 'park', label: 'Park'),
+        CategoryNode(id: 'museum', label: 'Museum'),
         CategoryNode(id: 'travel_agency', label: 'Travel Agency'),
       ],
     ),
@@ -70,7 +107,7 @@ class HomeController extends GetxController {
       id: 'activities_day_trips_parks',
       label: 'Day Trips & Parks',
       children: [
-        CategoryNode(id: 'park',   label: 'Park'),
+        CategoryNode(id: 'park', label: 'Park'),
         CategoryNode(id: 'museum', label: 'Museum'),
       ],
     ),
@@ -124,13 +161,13 @@ class HomeController extends GetxController {
       id: 'services_health_wellness',
       label: 'Health & Wellness',
       children: [
-        CategoryNode(id: 'doctor',         label: 'Doctor'),
-        CategoryNode(id: 'hospital',       label: 'Hospital'),
-        CategoryNode(id: 'pharmacy',       label: 'Pharmacy'),
-        CategoryNode(id: 'physiotherapist',label: 'Physiotherapist'),
-        CategoryNode(id: 'health',         label: 'Health Service'),
-        CategoryNode(id: 'dentist',        label: 'Dentist'),
-        CategoryNode(id: 'spa',            label: 'Spa'),
+        CategoryNode(id: 'doctor', label: 'Doctor'),
+        CategoryNode(id: 'hospital', label: 'Hospital'),
+        CategoryNode(id: 'pharmacy', label: 'Pharmacy'),
+        CategoryNode(id: 'physiotherapist', label: 'Physiotherapist'),
+        CategoryNode(id: 'health', label: 'Health Service'),
+        CategoryNode(id: 'dentist', label: 'Dentist'),
+        CategoryNode(id: 'spa', label: 'Spa'),
       ],
     ),
   ];
@@ -174,26 +211,26 @@ class HomeController extends GetxController {
 
   // state for selected sub / sub-sub categories
   final Rx<CategoryNode?> selectedActivitiesParent = Rx<CategoryNode?>(null);
-  final Rx<CategoryNode?> selectedActivitiesChild  = Rx<CategoryNode?>(null);
-  final Rx<CategoryNode?> selectedServicesParent   = Rx<CategoryNode?>(null);
-  final Rx<CategoryNode?> selectedServicesChild    = Rx<CategoryNode?>(null);
-  final Rx<CategoryNode?> selectedSuperShopsParent   = Rx<CategoryNode?>(null);
-  final Rx<CategoryNode?> selectedSuperShopsChild    = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedActivitiesChild = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesParent = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedServicesChild = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsParent = Rx<CategoryNode?>(null);
+  final Rx<CategoryNode?> selectedSuperShopsChild = Rx<CategoryNode?>(null);
 
   // === FOR HOME VIEW (existing) ===
   final RxBool showActivitiesDropdown = false.obs;
-  final RxBool showServicesDropdown   = false.obs;
-  final RxBool showSuperShopsDropdown   = false.obs;
+  final RxBool showServicesDropdown = false.obs;
+  final RxBool showSuperShopsDropdown = false.obs;
 
   // === NEW: FOR SERVICE VIEW ONLY (independent) ===
   final RxBool showActivitiesDropdownService = false.obs;
-  final RxBool showServicesDropdownService   = false.obs;
-  final RxBool showSuperShopsDropdownService   = false.obs;
+  final RxBool showServicesDropdownService = false.obs;
+  final RxBool showSuperShopsDropdownService = false.obs;
 
   // whether quick-glance subcategories are visible (below Quick Glance cards)
   final RxBool showActivitiesQuickGlance = false.obs;
-  final RxBool showServicesQuickGlance   = false.obs;
-  final RxBool showSuperShopsQuickGlance   = false.obs;
+  final RxBool showServicesQuickGlance = false.obs;
+  final RxBool showSuperShopsQuickGlance = false.obs;
 
   final ApiService _service = ApiService();
 
@@ -217,11 +254,9 @@ class HomeController extends GetxController {
   final RxnDouble userLat = RxnDouble(null);
   final RxnDouble userLng = RxnDouble(null);
 
-  // Search state
-  final RxString searchText = ''.obs;
-
   // cache AI summaries by placeId
-  final RxMap<String, List<String>> aiSummaries = <String, List<String>>{}.obs;
+  final RxMap<String, List<String>> aiSummaries =
+      <String, List<String>>{}.obs;
 
   final RxBool recentLoading = false.obs;
   final RxString recentError = ''.obs;
@@ -253,7 +288,10 @@ class HomeController extends GetxController {
       return Icons.flash_on;
     } else if (w.contains('snow')) {
       return Icons.ac_unit;
-    } else if (w.contains('fog') || w.contains('mist') || w.contains('haze') || w.contains('smoke')) {
+    } else if (w.contains('fog') ||
+        w.contains('mist') ||
+        w.contains('haze') ||
+        w.contains('smoke')) {
       return Icons.blur_on;
     } else {
       return Icons.wb_cloudy;
@@ -278,7 +316,7 @@ class HomeController extends GetxController {
   final RxBool ideasLoading = false.obs;
   final RxList<String> ideas = <String>[].obs;
 
-  /// Category used by ideas & Top 5 API. For Activities/Services we use
+  /// Category used by ideas & Top 5 API. For Activities/Services/Super-shops we use
   /// the selected sub-sub-category ID when available.
   String get _currentCategory {
     final i = selectedCategory.indexWhere((e) => e.value);
@@ -298,7 +336,7 @@ class HomeController extends GetxController {
         if (selectedServicesChild.value != null) {
           return selectedServicesChild.value!.id;
         }
-        return 'super_shops';
+        return 'services';
       case 5:
         if (selectedSuperShopsChild.value != null) {
           return selectedSuperShopsChild.value!.id;
@@ -376,7 +414,7 @@ class HomeController extends GetxController {
   String get _fallbackTimeStr => DateFormat('hh:mm a').format(DateTime.now());
 
   Future<void> refreshIdeas() async {
-    // If we are on Activities or Services but no sub-sub-category selected,
+    // If we are on Activities/Services/Super-shops but no sub-sub-category selected,
     // do NOT refresh ideas (keep the current ones).
     final currentIndex = selectedCategory.indexWhere((e) => e.value);
     if ((currentIndex == 3 && selectedActivitiesChild.value == null) ||
@@ -385,15 +423,17 @@ class HomeController extends GetxController {
       return;
     }
 
-    final wd = (weatherDesc.value.isNotEmpty ? weatherDesc.value : weather.value).toLowerCase();
+    final wd = (weatherDesc.value.isNotEmpty ? weatherDesc.value : weather.value)
+        .toLowerCase();
     final day = (serverDay.value.isNotEmpty ? serverDay.value : _fallbackDayName);
     final tStr = (serverTimeStr.value.isNotEmpty ? serverTimeStr.value : _fallbackTimeStr);
     final temp = tempC.value;
     final category = _currentCategory;
+    final language = localizationController.selectedLanguage.value;
 
     ideasLoading.value = true;
     try {
-      final res = await _service.generateIdeas(wd, day, tStr, temp, category);
+      final res = await _service.generateIdeas(wd, day, tStr, temp, category, language);
       if (res.statusCode == 200 || res.statusCode == 201) {
         final json = jsonDecode(res.body) as Map<String, dynamic>;
         final List<dynamic> raw = (json['ideas_list'] ?? []) as List<dynamic>;
@@ -418,8 +458,8 @@ class HomeController extends GetxController {
 
   void onCategoryChangedHome(int index) {
     showActivitiesQuickGlance.value = false;
-    showServicesQuickGlance.value   = false;
-    showSuperShopsQuickGlance.value   = false;
+    showServicesQuickGlance.value = false;
+    showSuperShopsQuickGlance.value = false;
 
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
@@ -427,20 +467,20 @@ class HomeController extends GetxController {
 
     // Use Home-specific dropdown flags
     showActivitiesDropdown.value = (index == 3);
-    showServicesDropdown.value   = (index == 4);
-    showSuperShopsDropdown.value   = (index == 5);
+    showServicesDropdown.value = (index == 4);
+    showSuperShopsDropdown.value = (index == 5);
 
     if (index != 3) {
       selectedActivitiesParent.value = null;
-      selectedActivitiesChild.value  = null;
+      selectedActivitiesChild.value = null;
     }
     if (index != 4) {
       selectedServicesParent.value = null;
-      selectedServicesChild.value  = null;
+      selectedServicesChild.value = null;
     }
     if (index != 5) {
       selectedSuperShopsParent.value = null;
-      selectedSuperShopsChild.value  = null;
+      selectedSuperShopsChild.value = null;
     }
 
     refreshIdeas();
@@ -448,8 +488,8 @@ class HomeController extends GetxController {
 
   void onCategoryChangedService(int index) {
     showActivitiesQuickGlance.value = false;
-    showServicesQuickGlance.value   = false;
-    showSuperShopsQuickGlance.value   = false;
+    showServicesQuickGlance.value = false;
+    showSuperShopsQuickGlance.value = false;
 
     for (int i = 0; i < selectedCategory.length; i++) {
       selectedCategory[i].value = (i == index);
@@ -457,20 +497,20 @@ class HomeController extends GetxController {
 
     // Use Service-specific dropdown flags
     showActivitiesDropdownService.value = (index == 3);
-    showServicesDropdownService.value   = (index == 4);
-    showSuperShopsDropdownService.value   = (index == 5);
+    showServicesDropdownService.value = (index == 4);
+    showSuperShopsDropdownService.value = (index == 5);
 
     if (index != 3) {
       selectedActivitiesParent.value = null;
-      selectedActivitiesChild.value  = null;
+      selectedActivitiesChild.value = null;
     }
     if (index != 4) {
       selectedServicesParent.value = null;
-      selectedServicesChild.value  = null;
+      selectedServicesChild.value = null;
     }
     if (index != 5) {
       selectedSuperShopsParent.value = null;
-      selectedSuperShopsChild.value  = null;
+      selectedSuperShopsChild.value = null;
     }
 
     if (index <= 2) {
@@ -493,18 +533,18 @@ class HomeController extends GetxController {
 
     // Reset BOTH Home and Service dropdowns
     showActivitiesDropdown.value = false;
-    showServicesDropdown.value   = false;
-    showSuperShopsDropdown.value   = false;
+    showServicesDropdown.value = false;
+    showSuperShopsDropdown.value = false;
     showActivitiesDropdownService.value = false;
-    showServicesDropdownService.value   = false;
-    showSuperShopsDropdownService.value   = false;
+    showServicesDropdownService.value = false;
+    showSuperShopsDropdownService.value = false;
 
     selectedActivitiesParent.value = null;
-    selectedActivitiesChild.value  = null;
-    selectedServicesParent.value   = null;
-    selectedServicesChild.value    = null;
-    selectedSuperShopsParent.value   = null;
-    selectedSuperShopsChild.value    = null;
+    selectedActivitiesChild.value = null;
+    selectedServicesParent.value = null;
+    selectedServicesChild.value = null;
+    selectedSuperShopsParent.value = null;
+    selectedSuperShopsChild.value = null;
 
     navigatedFromQuickGlance.value = false;
   }
@@ -513,6 +553,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     _tick();
+
     final firstDelay = Duration(seconds: 60 - DateTime.now().second);
     _minuteTicker = Timer(firstDelay, () {
       now.value = DateTime.now();
@@ -520,6 +561,7 @@ class HomeController extends GetxController {
         now.value = DateTime.now();
       });
     });
+
     _fetchAndSetWeather();
     _weatherTicker = Timer.periodic(const Duration(minutes: 10), (_) {
       _fetchAndSetWeather();
@@ -530,16 +572,26 @@ class HomeController extends GetxController {
   void onClose() {
     _minuteTicker?.cancel();
     _weatherTicker?.cancel();
+
+    // NEW: dispose the controller here (since it's owned by HomeController)
+    searchController.dispose();
+
     super.onClose();
   }
 
+  // NOTE: kept as-is to avoid touching your UI usage.
+  // Your view uses controller.formatted.value in a few places.
   RxString get formatted {
     final d = DateFormat('EEE', 'en_US').format(now.value);
-    final t = DateFormat('h:mma', 'en_US').format(now.value).replaceAll(' ', '').toLowerCase();
+    final t = DateFormat('h:mma', 'en_US')
+        .format(now.value)
+        .replaceAll(' ', '')
+        .toLowerCase();
     return '$d, $t'.obs;
   }
 
-  String get tempText => tempC.value == 0.0 && weather.isEmpty ? '—' : '${tempC.value.toStringAsFixed(0)}°C';
+  String get tempText =>
+      tempC.value == 0.0 && weather.isEmpty ? '—' : '${tempC.value.toStringAsFixed(0)}°C';
 
   void _tick() => now.value = DateTime.now();
 
@@ -566,7 +618,8 @@ class HomeController extends GetxController {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
       return false;
     }
     return true;
@@ -602,7 +655,8 @@ class HomeController extends GetxController {
     if (parts.length != 2) {
       throw FormatException("Invalid input format. Example: '1 km' or '20 m'");
     }
-    final double value = double.tryParse(parts[0]) ?? (throw FormatException("Invalid number"));
+    final double value =
+        double.tryParse(parts[0]) ?? (throw FormatException("Invalid number"));
     final String unit = parts[1].toLowerCase();
     double meters;
     switch (unit) {
@@ -621,13 +675,20 @@ class HomeController extends GetxController {
   String get currentCategoryLabel {
     final i = selectedCategory.indexWhere((e) => e.value);
     switch (i) {
-      case 0: return 'Restaurant';
-      case 1: return 'Cafes';
-      case 2: return 'Bars';
-      case 3: return 'Activities';
-      case 4: return 'Services';
-      case 5: return 'Super-shops';
-      default: return 'Services';
+      case 0:
+        return 'Restaurant';
+      case 1:
+        return 'Cafes';
+      case 2:
+        return 'Bars';
+      case 3:
+        return 'Activities';
+      case 4:
+        return 'Services';
+      case 5:
+        return 'Super-shops';
+      default:
+        return 'Services';
     }
   }
 
@@ -663,7 +724,7 @@ class HomeController extends GetxController {
       // Apply filters
       final bool openNow = selectedFilter[0].value;
       final String? maxTime = selectedFilter[1].value ? '10m' : null;
-      final double? radius = selectedFilter[2].value ? 1000 : null; // 1 km in meters
+      final double? radius = selectedFilter[2].value ? 500 : null; // (your comment says 1km, but 500m)
       final bool outdoor = selectedFilter[3].value;
       final bool vegetarian = selectedFilter[4].value;
       final bool bookable = selectedFilter[5].value;
@@ -710,7 +771,8 @@ class HomeController extends GetxController {
       final res = await _service.placeDetailsWithAi(placeId);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
-        final List<String> summary = (data['ai_summary'] as List<dynamic>? ?? [])
+        final List<String> summary =
+        (data['ai_summary'] as List<dynamic>? ?? [])
             .map((e) => e.toString())
             .toList();
         aiSummaries[placeId] = summary;
@@ -737,11 +799,11 @@ class HomeController extends GetxController {
         final Map<String, dynamic> json = jsonDecode(res.body);
         final TimeDate td = TimeDate.fromJson(json);
 
-        weather.value      = td.data?.weather ?? '';
-        weatherDesc.value  = td.data?.weatherDescription ?? '';
-        tempC.value        = (td.data?.tempCelsius ?? 0).toDouble();
-        serverDay.value    = td.data?.dayName ?? '';
-        serverTimeStr.value= td.data?.timeStr ?? '';
+        weather.value = td.data?.weather ?? '';
+        weatherDesc.value = td.data?.weatherDescription ?? '';
+        tempC.value = (td.data?.tempCelsius ?? 0).toDouble();
+        serverDay.value = td.data?.dayName ?? '';
+        serverTimeStr.value = td.data?.timeStr ?? '';
       } else if (res.statusCode == 403) {
         final Map<String, dynamic> json = jsonDecode(res.body);
         if (json['error'] == 'You have reached your plan limit for places.') {
@@ -768,11 +830,6 @@ class HomeController extends GetxController {
     await _fetchWeatherFor(lat, lng);
     await refreshIdeas();
     await fetchTop5Places(search: searchText.value);
-  }
-
-  void performSearch(String query) {
-    searchText.value = query;
-    fetchTop5Places(search: query);
   }
 
   void onIdeaClicked(String idea) {
@@ -1022,10 +1079,10 @@ class HomeController extends GetxController {
     }
 
     final googleAppIntent = Uri.parse(
-        "intent://www.google.com/search?q=$encoded#Intent;"
-            "package=com.google.android.googlequicksearchbox;"
-            "scheme=https;"
-            "end"
+      "intent://www.google.com/search?q=$encoded#Intent;"
+          "package=com.google.android.googlequicksearchbox;"
+          "scheme=https;"
+          "end",
     );
 
     try {

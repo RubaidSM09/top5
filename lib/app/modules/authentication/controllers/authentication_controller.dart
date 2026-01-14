@@ -95,7 +95,7 @@ class AuthenticationController extends GetxController {
   }
 
   // ===== SIGN UP (SEND OTP) =====
-  Future<void> signUpSendOtp(String email) async {
+  Future<void> signUpSendOtp(BuildContext context, String email) async {
     isLoading.value = true;
 
     try {
@@ -110,7 +110,16 @@ class AuthenticationController extends GetxController {
 
         print(':::::::::responseBody:::::::::$responseBody');
 
-        Get.snackbar(responseBody['status'], responseBody['message']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(responseBody['message']),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Get.snackbar(responseBody['status'], responseBody['message']);
 
         Get.to(() => MailVerificationView(email: email));
       } else {
@@ -142,6 +151,8 @@ class AuthenticationController extends GetxController {
         final responseBody = jsonDecode(response.body);
 
         print(':::::::::responseBody:::::::::$responseBody');
+
+        clear();
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 
@@ -187,6 +198,7 @@ class AuthenticationController extends GetxController {
 
         // 🟢 For new sign ups we always remember the user
         await _storage.write(key: 'remember_me', value: 'true');
+        await _storage.write(key: 'account_type', value: 'email');
 
         print(':::::::::responseBody:::::::::$responseBody');
         print(':::::::::accessToken:::::::::$accessToken');
@@ -231,6 +243,8 @@ class AuthenticationController extends GetxController {
       UserCredential userCredential = await signInWithGoogle();
       final user = userCredential.user;
 
+      print(user);
+
       if (user == null || user.email == null) {
         Get.snackbar('Error', "Google sign-in failed. Please try again.");
         return;
@@ -255,6 +269,8 @@ class AuthenticationController extends GetxController {
 
         // 🟢 Keep Google users logged in by default
         await _storage.write(key: 'remember_me', value: 'true');
+        await _storage.write(key: 'account_type', value: 'google');
+        // await _storage.write(key: 'google_photo_url', value: user.photoURL)
 
         print(':::::::::responseBody:::::::::$responseBody');
         print(':::::::::accessToken:::::::::$accessToken');
@@ -323,10 +339,14 @@ class AuthenticationController extends GetxController {
       print(':::::::::CODE:::::::::${response.statusCode}');
       print(':::::::::REQUEST:::::::::${response.request}');
 
+      print(response.statusCode);
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseBody = jsonDecode(response.body);
 
         print(':::::::::responseBody:::::::::$responseBody');
+
+        clear();
 
         Get.snackbar(responseBody['status'], responseBody['message']);
 

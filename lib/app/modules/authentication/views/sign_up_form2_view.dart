@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -22,18 +23,25 @@ class SignUpForm2View extends GetView<AuthenticationController> {
   final TextEditingController _fullNameController = TextEditingController();
 
   Future<void> _handleSignUp() async {
-    if (_fullNameController.text.trim().isEmpty) {
+    final name = _fullNameController.text.trim();
+
+    // ✅ Name validation HERE
+    if (name.isEmpty || !RegExp(r'^[A-Za-z ]+$').hasMatch(name)) {
       Get.snackbar(
         'Error',
-        'Please provide full name',
+        'Name can contain only letters and spaces',
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
-    print(_fullNameController.text.trim());
+    // Optional: normalize spaces
+    final cleanName = name.replaceAll(RegExp(r'\s+'), ' ');
 
-    Get.to(() => SignUpForm3View(email: email, fullName: _fullNameController.text.trim(),));
+    Get.to(() => SignUpForm3View(
+      email: email,
+      fullName: cleanName,
+    ));
   }
 
   @override
@@ -81,6 +89,11 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                           controller: _fullNameController,
                           prefixIcon: 'assets/images/authentication/full_name.png',
                           isObscureText: false.obs,
+                          keyboardType: TextInputType.name,
+                          textCapitalization: TextCapitalization.words,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z ]")),
+                          ],
                         ),
 
                         SizedBox(height: 444.h,),
@@ -95,7 +108,7 @@ class SignUpForm2View extends GetView<AuthenticationController> {
                               textColor: AppColors.authenticationButtonTextColor2,
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.back(),
+                              onTap: () => Navigator.pop(context),
                             ),
 
                             CustomButton(

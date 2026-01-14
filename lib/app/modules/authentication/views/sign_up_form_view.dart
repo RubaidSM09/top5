@@ -15,10 +15,10 @@ import '../../../../common/widgets/custom_text_field.dart';
 class SignUpFormView extends GetView<AuthenticationController> {
   SignUpFormView({super.key});
 
-  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final AuthenticationController _controller = Get.find<AuthenticationController>();
   final TextEditingController _emailController = TextEditingController();
 
-  Future<void> _handleSignUpSendOtp() async {
+  Future<void> _handleSignUpSendOtp(BuildContext context) async {
     if (_emailController.text.trim().isEmpty) {
       Get.snackbar(
         'Error',
@@ -29,7 +29,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
     }
 
     try {
-      await _controller.signUpSendOtp(_emailController.text.trim());
+      await _controller.signUpSendOtp(context, _emailController.text.trim());
     } catch (e) {
       print('Error logging in: $e');
       Get.snackbar(
@@ -143,7 +143,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                               textColor: AppColors.authenticationButtonTextColor2,
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.back(),
+                              onTap: () => Navigator.pop(context),
                             ),
 
                             CustomButton(
@@ -151,7 +151,7 @@ class SignUpFormView extends GetView<AuthenticationController> {
                               paddingLeft: 60,
                               paddingRight: 60,
                               onTap: () {
-                                _handleSignUpSendOtp();
+                                _handleSignUpSendOtp(context);
                               },
                             ),
                           ],

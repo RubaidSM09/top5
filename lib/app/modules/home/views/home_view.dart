@@ -282,7 +282,7 @@ class HomeView extends GetView<HomeController> {
 
                   SizedBox(height: 24.h,),
 
-                  HomeSearchBar(searchBarText: 'Inspire me'.tr,),
+                  HomeSearchBar(),
 
                   SizedBox(height: 16.38.h,),
 
@@ -705,7 +705,7 @@ class HomeAppBar extends StatelessWidget {
                 'assets/images/home/profile_pic.jpg',
               )
                   : NetworkImage(
-                'http://10.10.13.99:8005${profileController.image.value}',
+                'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
               ) as ImageProvider,
             ),
           ),
@@ -778,89 +778,87 @@ class CategorySelectionCard extends StatelessWidget {
 }
 
 class HomeSearchBar extends StatelessWidget {
-  final String searchBarText;
-
-  const HomeSearchBar({
-    required this.searchBarText,
-    super.key,
-  });
+  const HomeSearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController controller = TextEditingController(text: searchBarText);
     final homeController = Get.find<HomeController>();
     final voice = Get.put(VoiceService());
 
     Future<void> _handleVoice() async {
       final text = await voice.listenOnce();
-      if (text == null || text.isEmpty) {
+      if (text == null || text.trim().isEmpty) {
         Get.snackbar('Voice', 'Didn\'t catch that. Please try again.');
         return;
       }
-      controller.text = text;
       homeController.performSearch(text);
     }
 
-    return TextFormField(
-      controller: controller,
-      onFieldSubmitted: (value) {
-        homeController.performSearch(value);
-      },
-      decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h,),
-        filled: true,
-        fillColor: AppColors.homeSearchBg,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide: const BorderSide(color: AppColors.top5Transparent),
-        ),
-        hintText: searchBarText,
-        hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
-        prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
-        suffixIcon: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8.w,
-          children: [
-            GestureDetector(
-              onTap: _handleVoice,
-              child: Image.asset('assets/images/home/voice.png', scale: 4),
-            ),
-            Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
-            GestureDetector(
-              onTap: () => Get.to(SetYourLocationView()),
-              child: Container(
-                padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(
-                  color: AppColors.homeWhite,
-                  borderRadius: BorderRadius.circular(50.r),
-                ),
-                child: Row(
-                  spacing: 2.w,
-                  children: [
-                    SvgPicture.asset('assets/images/home/set_your_location.svg'),
-                    Text(
-                      'Set your location'.tr,
-                      style: h4.copyWith(color: AppColors.homeGray, fontSize: 10.sp),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+    return Obx(() {
+      return TextFormField(
+        controller: homeController.searchController, // ✅ persistent
+        textInputAction: TextInputAction.search,
+        onFieldSubmitted: (value) => homeController.performSearch(value),
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+          filled: true,
+          fillColor: AppColors.homeSearchBg,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+
+          // ✅ hint shows when controller is empty
+          hintText: homeController.searchHint.value,
+          hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+
+          prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
+          suffixIcon: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: _handleVoice,
+                child: Image.asset('assets/images/home/voice.png', scale: 4),
+              ),
+              SizedBox(width: 8.w),
+              Container(width: 1.w, height: 20.h, color: AppColors.homeSearchBarLineColor),
+              SizedBox(width: 8.w),
+              GestureDetector(
+                onTap: () => Get.to(SetYourLocationView()),
+                child: Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.homeWhite,
+                    borderRadius: BorderRadius.circular(50.r),
+                  ),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset('assets/images/home/set_your_location.svg'),
+                      SizedBox(width: 2.w),
+                      Text(
+                        'Change location'.tr,
+                        style: h4.copyWith(color: AppColors.homeGray, fontSize: 10.sp),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            SizedBox(width: 20.w),
-          ],
+              SizedBox(width: 20.w),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

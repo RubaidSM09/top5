@@ -14,12 +14,12 @@ import '../../../../common/widgets/custom_text_field.dart';
 class ChangePasswordView extends GetView {
   ChangePasswordView({super.key});
 
-  final ProfileController _controller = Get.put(ProfileController());
+  final ProfileController _controller = Get.find<ProfileController>();
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  Future<void> _handleChangePassword() async {
+  Future<void> _handleChangePassword(BuildContext context) async {
     if (_currentPasswordController.text.trim().isEmpty || _newPasswordController.text.trim().isEmpty || _confirmPasswordController.text.trim().isEmpty) {
       Get.snackbar(
         'Error',
@@ -39,7 +39,18 @@ class ChangePasswordView extends GetView {
     }
 
     try {
-      await _controller.changePassword(_currentPasswordController.text.trim(),_newPasswordController.text.trim(),_confirmPasswordController.text.trim());
+      final success = await _controller.changePassword(_currentPasswordController.text.trim(),_newPasswordController.text.trim(),_confirmPasswordController.text.trim());
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Password changed successfully'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     } catch (e) {
       print('Error logging in: $e');
       Get.snackbar(
@@ -192,7 +203,7 @@ class ChangePasswordView extends GetView {
                 CustomButton(
                   text: 'Update Password'.tr,
                   onTap: () {
-                    _handleChangePassword();
+                    _handleChangePassword(context);
                   },
                 ),
 

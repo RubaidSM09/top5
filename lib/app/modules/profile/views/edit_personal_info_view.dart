@@ -148,7 +148,7 @@ class EditPersonalInfoView extends GetView {
                         if (local != null) {
                           avatarProvider = FileImage(local);
                         } else if (net.isNotEmpty) {
-                          avatarProvider = NetworkImage('http://10.10.13.99:8005$net');
+                          avatarProvider = NetworkImage('https://austin-ovisaclike-nonoptically.ngrok-free.dev$net');
                         } else {
                           avatarProvider = const AssetImage('assets/images/home/profile_pic.jpg');
                         }
@@ -156,14 +156,17 @@ class EditPersonalInfoView extends GetView {
                         return Stack(
                           clipBehavior: Clip.none,
                           children: [
-                            CircleAvatar(
-                              backgroundImage: avatarProvider,
-                              radius: 35.r,
+                            GestureDetector(
+                              onTap: form.pickAvatar,
+                              child: CircleAvatar(
+                                backgroundImage: avatarProvider,
+                                radius: 35.r,
+                              ),
                             ),
                             Positioned(
                               left: 62.w,
                               top: 45.h,
-                              child: InkWell(
+                              child: GestureDetector(
                                 onTap: form.pickAvatar,
                                 child: SvgPicture.asset('assets/images/profile/camera.svg'),
                               ),

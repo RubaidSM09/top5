@@ -52,7 +52,7 @@ class LogOutView extends GetView {
                     borderColor: AppColors.profileGray,
                     textColor: AppColors.profileBlack,
                     borderRadius: 6,
-                    onTap: () => Get.back(),
+                    onTap: () => Navigator.pop(context),
                   ),
                 ),
 

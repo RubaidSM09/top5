@@ -72,11 +72,13 @@ class CustomButton extends StatelessWidget {
                   icon
             ),
 
-            Text(
-              text,
-              style: h2.copyWith(
-                color: textColor,
-                fontSize: textSize.sp
+            Flexible(
+              child: Text(
+                text,
+                style: h2.copyWith(
+                  color: textColor,
+                  fontSize: textSize.sp
+                ),
               ),
             )
           ],

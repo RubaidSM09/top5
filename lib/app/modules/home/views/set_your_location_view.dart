@@ -80,7 +80,7 @@ class SetYourLocationView extends GetView<HomeController> {
                 top: 33.h,
                 left: 20.w,
                 child: GestureDetector(
-                  onTap: () => Get.back(),
+                  onTap: () => Navigator.pop(context),
                   child: Container(
                     padding: EdgeInsets.all(6.r),
                     decoration: BoxDecoration(
@@ -147,7 +147,7 @@ class SetYourLocationView extends GetView<HomeController> {
                               await controller.overrideLocationAndRefresh(
                                 pickedLat.value, pickedLng.value,
                               );
-                              Get.back(); // return to previous screen
+                              Navigator.pop(context); // return to previous screen
                             },
                           ),
                         ],

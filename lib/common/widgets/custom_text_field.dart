@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -31,6 +32,9 @@ class CustomTextField extends StatelessWidget {
   // ✅ NEW (optional): control keyboard action button (e.g., TextInputAction.search)
   final TextInputAction? textInputAction;
 
+  final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
+
   const CustomTextField({
     required this.hintText,
     this.prefixIcon = '',
@@ -50,6 +54,8 @@ class CustomTextField extends StatelessWidget {
     this.onSubmitted,      // NEW
     this.onPrefixTap,      // NEW
     this.textInputAction,  // NEW
+    this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none,
     super.key
   });
 
@@ -69,6 +75,9 @@ class CustomTextField extends StatelessWidget {
         // ✅ NEW
         onFieldSubmitted: onSubmitted,
         textInputAction: textInputAction,
+
+        inputFormatters: inputFormatters,
+        textCapitalization: textCapitalization,
 
         decoration: InputDecoration(
           contentPadding: padding,

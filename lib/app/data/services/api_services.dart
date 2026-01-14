@@ -8,7 +8,7 @@ import 'package:http_parser/http_parser.dart';
 class ApiService {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  final String baseUrl = "http://10.10.13.99:8005";
+  final String baseUrl = "https://austin-ovisaclike-nonoptically.ngrok-free.dev";
 
   // login method
   Future<http.Response> login (String email, String password) async {
@@ -406,7 +406,7 @@ class ApiService {
     );
   }
 
-  Future<http.Response> generateIdeas (String weatherDescription, String dayName, String timeStr, double tempCelsius, String category) async {
+  Future<http.Response> generateIdeas (String weatherDescription, String dayName, String timeStr, double tempCelsius, String category, String language) async {
     String? accessToken = await _storage.read(key: 'access_token');
 
     final Uri url = Uri.parse('$baseUrl/api/v1/home/generate-idea/');
@@ -422,6 +422,7 @@ class ApiService {
       "time_str": timeStr,
       "temp_celsius": tempCelsius,
       "category": category,
+      "language": language,
     };
 
     return await http.post(
@@ -646,5 +647,20 @@ class ApiService {
     };
 
     return http.get(uri, headers: headers);
+  }
+
+  Future<http.Response> downloadProfilePdf() async {
+    final token = await _storage.read(key: 'access_token');
+
+    final url = Uri.parse('$baseUrl/api/v1/home/download-profile-pdf/');
+
+    return await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+        // 'Accept': 'application/pdf',
+      },
+    );
   }
 }

@@ -58,62 +58,66 @@ class ProfileView extends GetView<ProfileController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      spacing: 16.w,
-                      children: [
-                        CircleAvatar(
-                          radius: 32.r,
-                          backgroundImage: profileController.image.value == '' ?
-                          const AssetImage(
-                            'assets/images/home/profile_pic.jpg',
-                          )
-                              :
-                          NetworkImage(
-                            'http://10.10.13.99:8005${profileController.image.value}',
-                          ) as ImageProvider,
-                        ),
-
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          // spacing: 0.h,
-                          children: [
-                            Text(
-                              profileController.fullName.value,
-                              style: h1.copyWith(
-                                color: AppColors.profileBlack,
-                                fontSize: 22.sp,
-                              ),
-                            ),
-
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h,),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50.r),
-                                border: Border.all(
-                                  color: AppColors.profileGreen,
-                                  width: 0.5.r,
+                    Flexible(
+                      child: Row(
+                        spacing: 16.w,
+                        children: [
+                          CircleAvatar(
+                            radius: 32.r,
+                            backgroundImage: profileController.image.value == '' ?
+                            const AssetImage(
+                              'assets/images/home/profile_pic.jpg',
+                            )
+                                :
+                            NetworkImage(
+                              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+                            ) as ImageProvider,
+                          ),
+                      
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              // spacing: 0.h,
+                              children: [
+                                Text(
+                                  profileController.fullName.value,
+                                  style: h1.copyWith(
+                                    color: AppColors.profileBlack,
+                                    fontSize: 22.sp,
+                                  ),
                                 ),
-                                color: AppColors.profileSearchBg,
-                              ),
-                              child: Text(
-                                '${profileController.currentPlan.value} User',
-                                style: h3.copyWith(
-                                  color: AppColors.profileGreen,
-                                  fontSize: 10.sp,
+                                                  
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h,),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50.r),
+                                    border: Border.all(
+                                      color: AppColors.profileGreen,
+                                      width: 0.5.r,
+                                    ),
+                                    color: AppColors.profileSearchBg,
+                                  ),
+                                  child: Text(
+                                    '${profileController.currentPlan.value} User',
+                                    style: h3.copyWith(
+                                      color: AppColors.profileGreen,
+                                      fontSize: 10.sp,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                                  
+                                Text(
+                                  profileController.email.value,
+                                  style: h4.copyWith(
+                                    color: AppColors.profileTextLight,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                              ],
                             ),
-
-                            Text(
-                              profileController.email.value,
-                              style: h4.copyWith(
-                                color: AppColors.profileTextLight,
-                                fontSize: 14.sp,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
 
                     CustomButton(
@@ -241,25 +245,26 @@ class ProfileView extends GetView<ProfileController> {
                         textColor: AppColors.profileBlack,
                         textSize: 14,
                         borderRadius: 6,
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: profileController.accountType.value == 'email' ? MainAxisAlignment.start : MainAxisAlignment.center,
                         onTap: () => Get.to(PersonalInfoView(profileController: profileController,)),
                       ),
                     ),
 
-                    Expanded(
-                      child: CustomButton(
-                        text: 'Change password'.tr,
-                        paddingTop: 6,
-                        paddingBottom: 6,
-                        icon: 'assets/images/profile/change_password.svg',
-                        color: AppColors.top5Transparent,
-                        borderColor: AppColors.profileGray,
-                        textColor: AppColors.profileBlack,
-                        textSize: 14,
-                        borderRadius: 6,
-                        onTap: () => Get.to(ChangePasswordView()),
+                    if (profileController.accountType.value == 'email')
+                      Expanded(
+                        child: CustomButton(
+                          text: 'Change password'.tr,
+                          paddingTop: 6,
+                          paddingBottom: 6,
+                          icon: 'assets/images/profile/change_password.svg',
+                          color: AppColors.top5Transparent,
+                          borderColor: AppColors.profileGray,
+                          textColor: AppColors.profileBlack,
+                          textSize: 14,
+                          borderRadius: 6,
+                          onTap: () => Get.to(ChangePasswordView()),
+                        ),
                       ),
-                    ),
                   ],
                 ),
 
@@ -301,11 +306,16 @@ class ProfileView extends GetView<ProfileController> {
                         spacing: 16.w,
                         children: [
                           SvgPicture.asset(
-                            'assets/images/profile/apple_id.svg',
+                            'assets/images/profile/${profileController.accountType.value}_id.svg',
                           ),
 
                           Text(
-                            'Apple Id'.tr,
+                            profileController.accountType.value == 'email'
+                                ? 'Email'
+                                : profileController.accountType.value == 'google'
+                                ? 'Google'
+                                : profileController.accountType.value == 'apple'
+                                ? 'Apple' : '',
                             style: h2.copyWith(
                               color: AppColors.profileBlack,
                               fontSize: 16.sp,
@@ -916,7 +926,9 @@ class ProfileView extends GetView<ProfileController> {
                         textSize: 14,
                         borderRadius: 6,
                         spaceBetweenIconText: 6,
-                        onTap: () {  },
+                        onTap: () async {
+                          await controller.openAppLocationSettings();
+                        },
                       ),
                     ),
 
@@ -931,8 +943,7 @@ class ProfileView extends GetView<ProfileController> {
                         textColor: AppColors.profileBlack,
                         textSize: 14,
                         borderRadius: 6,
-                        spaceBetweenIconText: 6,
-                        onTap: () {  },
+                        onTap: () => profileController.downloadMyDataPdf(),
                       ),
                     ),
                   ],

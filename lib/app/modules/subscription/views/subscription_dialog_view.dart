@@ -68,7 +68,7 @@ class SubscriptionDialogView extends GetView {
                     textColor: AppColors.profileWhite,
                     borderRadius: 6,
                     onTap: () {
-                      Get.back();
+                      Navigator.pop(context);
                       Get.to(SubscriptionView());
                     },
                   ),

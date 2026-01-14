@@ -52,6 +52,9 @@ dependencies:
   firebase_core: ^4.2.0
   google_sign_in: ^6.3.0
   firebase_auth: ^6.1.1
+  path_provider: ^2.1.5
+  open_filex: ^4.7.0
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:

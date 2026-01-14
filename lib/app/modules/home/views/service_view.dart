@@ -241,7 +241,7 @@ class ServiceView extends GetView<HomeController> {
                             }),
 
                             SizedBox(height: 24.h),
-                            HomeSearchBar(searchBarText: '“Search in $appBarTitle”'),
+                            HomeSearchBar(),
                             SizedBox(height: 16.38.h),
 
                             // Filters
@@ -582,7 +582,7 @@ class ServiceAppBar extends StatelessWidget {
           onTap: () {
             final c = Get.find<HomeController>();
             c.resetHeaderSelectionIfFromQuickGlance();
-            Get.back();
+            Navigator.pop(context);
           },
           child: Container(
             padding: EdgeInsets.all(6.r),
@@ -619,7 +619,7 @@ class ServiceAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'http://10.10.13.99:8005${profileController.image.value}',
+              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),

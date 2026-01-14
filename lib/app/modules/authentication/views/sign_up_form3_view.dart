@@ -140,7 +140,7 @@ class SignUpForm3View extends GetView<AuthenticationController> {
                               textColor: AppColors.authenticationButtonTextColor2,
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.back(),
+                              onTap: () => Navigator.pop(context),
                             ),
 
                             CustomButton(

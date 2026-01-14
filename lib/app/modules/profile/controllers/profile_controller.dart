@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:top5/app/data/model/action_places_details.dart';
 import 'package:top5/app/data/services/api_services.dart';
 import 'package:top5/app/modules/authentication/views/sign_in_view.dart';
@@ -29,6 +32,7 @@ class ProfileController extends GetxController {
   var phone = ''.obs;
   var image = ''.obs;
   var currentPlan = ''.obs;
+  var accountType = ''.obs;
 
   var savedPlaces = <ActionPlacesDetails>[].obs;
   var recentPlaces = <ActionPlacesDetails>[].obs;
@@ -50,12 +54,14 @@ class ProfileController extends GetxController {
       String? _phone= responseData['user']['phone'];
       String? _image = responseData['user']['image'];
       String? _currentPlan = await _storage.read(key: 'current_plan');
+      String? _accountType = await _storage.read(key: 'account_type');
 
       fullName.value = _fullName ?? '';
       email.value = _email ?? '';
       phone.value = _phone ?? '';
       image.value = _image ?? '';
       currentPlan.value = _currentPlan ?? '';
+      accountType.value = _accountType ?? '';
     }
   }
 
@@ -97,7 +103,7 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> changePassword (String currentPassword, String newPassword, String confirmPassword) async {
+  Future<bool> changePassword (String currentPassword, String newPassword, String confirmPassword) async {
     isLoading.value = true;
 
     try {
@@ -110,18 +116,49 @@ class ProfileController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseBody = jsonDecode(response.body);
 
+        Get.snackbar('Success', 'Password changed Successfully', snackPosition: SnackPosition.BOTTOM);
+
         print(':::::::::responseBody:::::::::$responseBody');
 
-        Get.snackbar('Success', 'Password changed Successfully');
-
-        Get.offAll(DashboardView());
+        // Get.offAll(DashboardView());
       } else {
         final responseBody = jsonDecode(response.body);
         Get.snackbar('Change password failed', responseBody['message'] ?? 'Please use Correct password');
       }
+      return response.statusCode == 200;
     } catch (e) {
       Get.snackbar('Error', 'An unexpected error occured');
       print('Error: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> downloadMyDataPdf() async {
+    isLoading.value = true;
+
+    try {
+      final response = await _service.downloadProfilePdf();
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+
+        // Save inside app documents directory (no permission needed)
+        final dir = await getApplicationDocumentsDirectory();
+        final filePath = '${dir.path}/user_profile_report.pdf';
+
+        final file = File(filePath);
+        await file.writeAsBytes(bytes, flush: true);
+
+        Get.snackbar('Downloaded', 'PDF saved successfully');
+        await OpenFilex.open(filePath); // auto open
+      } else {
+        Get.snackbar('Failed', 'Could not download PDF (${response.statusCode})');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Download failed: $e');
     } finally {
       isLoading.value = false;
     }
@@ -334,6 +371,10 @@ class ProfileController extends GetxController {
       Get.snackbar('Error', 'An unexpected error occured');
       print('Error: $e');
     }
+  }
+
+  Future<void> openAppLocationSettings() async {
+    await openAppSettings();
   }
 
   final count = 0.obs;

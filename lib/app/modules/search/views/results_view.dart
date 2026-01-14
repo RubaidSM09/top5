@@ -219,7 +219,7 @@ class ResultsAppBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () => Get.back(),
+          onTap: () => Navigator.pop(context),
           child: Container(
             padding: EdgeInsets.all(6.r),
             decoration: const BoxDecoration(
@@ -244,7 +244,7 @@ class ResultsAppBar extends StatelessWidget {
             )
                 :
             NetworkImage(
-              'http://10.10.13.99:8005${profileController.image.value}',
+              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
             ) as ImageProvider,
           ),
         )

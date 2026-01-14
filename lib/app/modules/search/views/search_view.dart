@@ -32,8 +32,10 @@ class SearchView extends GetView<SearchController> {
     // If navigated with pre-filled search text (from ideas, etc.)
     final args = Get.arguments as Map<String, dynamic>?;
     if (args != null && args['searchText'] != null) {
-      controller.setSearchQuery(args['searchText']);
-      controller.searchBarTextController.text = args['searchText'];
+      final args = Get.arguments as Map<String, dynamic>?;
+      if (args != null && args['searchText'] != null) {
+        controller.setSearchQuery(args['searchText'], fetchNow: true);
+      }
     }
 
     return Scaffold(
@@ -616,7 +618,7 @@ class SearchAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'http://10.10.13.99:8005${profileController.image.value}',
+              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),
@@ -637,72 +639,82 @@ class SearchBar extends StatelessWidget {
 
     Future<void> _handleVoice() async {
       final text = await voice.listenOnce();
-      if (text == null || text.isEmpty) {
+      if (text == null || text.trim().isEmpty) {
         Get.snackbar('Voice', 'Didn\'t catch that. Please try again.');
         return;
       }
-      searchBarText.text = text;
-      // keep both controllers in sync, like your typing flow
-      searchController.setSearchQuery(text);
+      // This will set the controller text + fetch
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (searchController.searchText.value != text) {
+          searchController.setSearchQuery(text, fetchNow: true);
+        }
+      });
+      // If you also want to keep Home search synced (optional)
       homeController.performSearch(text);
     }
 
-    return TextFormField(
-      controller: searchBarText,
-      onFieldSubmitted: (value) {
-        searchController.setSearchQuery(value.trim());
-        homeController.performSearch(value);
-      },
-      decoration: InputDecoration(
-        contentPadding:
-        EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
-        filled: true,
-        fillColor: AppColors.homeSearchBg,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide:
-          const BorderSide(color: AppColors.top5Transparent),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide:
-          const BorderSide(color: AppColors.top5Transparent),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.r),
-          borderSide:
-          const BorderSide(color: AppColors.top5Transparent),
-        ),
-        hintText: searchBarText.text,
-        hintStyle:
-        h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
-        prefixIcon:
-        Image.asset('assets/images/home/search.png', scale: 4),
+    return Obx(() {
+      return TextFormField(
+        controller: searchBarText,
+        onFieldSubmitted: (value) {
+          final v = value.trim();
+          if (v.isEmpty) return;
 
-        // ↓ Only this part changed: we call _handleVoice()
-        suffixIcon: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8.w,
-          children: [
-            GestureDetector(
-              onTap: _handleVoice,
-              child: Image.asset('assets/images/home/voice.png',
-                  scale: 4),
-            ),
-            Container(
+          // Make it TEXT (not hint) + fetch
+          searchController.setSearchQuery(v, fetchNow: true);
+
+          // Optional: keep home search synced
+          homeController.performSearch(v);
+        },
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 18.h),
+          filled: true,
+          fillColor: AppColors.homeSearchBg,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50.r),
+            borderSide: const BorderSide(color: AppColors.top5Transparent),
+          ),
+
+          // ✅ Correct: Hint stays constant
+          hintText: searchController.searchHint.value,
+          hintStyle: h4.copyWith(color: AppColors.homeGray, fontSize: 14.sp),
+
+          prefixIcon: Image.asset('assets/images/home/search.png', scale: 4),
+
+          suffixIcon: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: _handleVoice,
+                child: Image.asset('assets/images/home/voice.png', scale: 4),
+              ),
+              SizedBox(width: 8.w),
+              Container(
                 width: 1.w,
                 height: 20.h,
-                color: AppColors.homeSearchBarLineColor),
-            Image.asset('assets/images/home/filter.png', scale: 4),
-            Text('Filter'.tr,
-                style: h4.copyWith(
-                    color: AppColors.homeGray, fontSize: 12.sp)),
-            SizedBox(width: 20.w),
-          ],
+                color: AppColors.homeSearchBarLineColor,
+              ),
+              SizedBox(width: 8.w),
+              Image.asset('assets/images/home/filter.png', scale: 4),
+              Text(
+                'Filter'.tr,
+                style: h4.copyWith(color: AppColors.homeGray, fontSize: 12.sp),
+              ),
+              SizedBox(width: 20.w),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

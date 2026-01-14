@@ -21,7 +21,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
     super.key
   });
 
-  final AuthenticationController _controller = Get.put(AuthenticationController());
+  final AuthenticationController _controller = Get.find<AuthenticationController>();
 
   Future<void> _handleSignUpOtpVerification() async {
     if (_controller.otp.isEmpty) {
@@ -130,7 +130,7 @@ class MailVerificationView extends GetView<AuthenticationController> {
                               textColor: AppColors.authenticationButtonTextColor2,
                               paddingLeft: 60,
                               paddingRight: 60,
-                              onTap: () => Get.back(),
+                              onTap: () => Navigator.pop(context),
                             ),
 
                             CustomButton(
