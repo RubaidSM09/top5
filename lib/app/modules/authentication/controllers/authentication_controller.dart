@@ -75,6 +75,8 @@ class AuthenticationController extends GetxController {
         print(':::::::::accessToken:::::::::$accessToken');
         print(':::::::::refreshToken:::::::::$refreshToken');
 
+        await _storage.write(key: 'account_type', value: 'email');
+
         Get.snackbar('Success', 'Logged in Successfully');
 
         // Decide where to go based on current plan

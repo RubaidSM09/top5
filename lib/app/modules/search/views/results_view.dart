@@ -50,84 +50,86 @@ class ResultsView extends GetView<SearchController> {
                 Obx(() {
                   return SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      spacing: 10.w,
-                      children: [
-                        FilterSelectionCard(
-                          text: 'Open now'.tr,
-                          selectedFilter: controller.selectedFilter,
-                          index: 0,
-                          color: controller.selectedFilter[0].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[0].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                        FilterSelectionCard(
-                          text: '10 min',
-                          selectedFilter: controller.selectedFilter,
-                          index: 1,
-                          color: controller.selectedFilter[1].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[1].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                        FilterSelectionCard(
-                          text: Get.find<ProfileController>().selectedDistanceUnit[0].value
-                              ? '1 km'
-                              : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
-                          selectedFilter: controller.selectedFilter,
-                          index: 2,
-                          color: controller.selectedFilter[2].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[2].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                        FilterSelectionCard(
-                          text: 'Outdoor'.tr,
-                          selectedFilter: controller.selectedFilter,
-                          index: 3,
-                          color: controller.selectedFilter[3].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[3].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                        FilterSelectionCard(
-                          text: 'Vegetarian'.tr,
-                          selectedFilter: controller.selectedFilter,
-                          index: 4,
-                          color: controller.selectedFilter[4].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[4].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                        FilterSelectionCard(
-                          text: 'Bookable'.tr,
-                          selectedFilter: controller.selectedFilter,
-                          index: 5,
-                          color: controller.selectedFilter[5].value
-                              ? AppColors.homeGreen
-                              : AppColors.homeInactiveBg,
-                          textColor: controller.selectedFilter[5].value
-                              ? AppColors.homeWhite
-                              : AppColors.homeGray,
-                          page: 'Results',
-                        ),
-                      ],
+                    child: IntrinsicHeight(
+                      child: Row(
+                        spacing: 10.w,
+                        children: [
+                          FilterSelectionCard(
+                            text: 'Open now'.tr,
+                            selectedFilter: controller.selectedFilter,
+                            index: 0,
+                            color: controller.selectedFilter[0].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[0].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                          FilterSelectionCard(
+                            text: '10 min',
+                            selectedFilter: controller.selectedFilter,
+                            index: 1,
+                            color: controller.selectedFilter[1].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[1].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                          FilterSelectionCard(
+                            text: Get.find<ProfileController>().selectedDistanceUnit[0].value
+                                ? '1 km'
+                                : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                            selectedFilter: controller.selectedFilter,
+                            index: 2,
+                            color: controller.selectedFilter[2].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[2].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                          FilterSelectionCard(
+                            text: 'Outdoor'.tr,
+                            selectedFilter: controller.selectedFilter,
+                            index: 3,
+                            color: controller.selectedFilter[3].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[3].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                          FilterSelectionCard(
+                            text: 'Vegetarian'.tr,
+                            selectedFilter: controller.selectedFilter,
+                            index: 4,
+                            color: controller.selectedFilter[4].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[4].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                          FilterSelectionCard(
+                            text: 'Bookable'.tr,
+                            selectedFilter: controller.selectedFilter,
+                            index: 5,
+                            color: controller.selectedFilter[5].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[5].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),

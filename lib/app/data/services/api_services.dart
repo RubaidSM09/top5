@@ -663,4 +663,23 @@ class ApiService {
       },
     );
   }
+
+  // Refresh Access Token
+  Future<http.Response> refreshAccessToken(String refreshToken) async {
+    final Uri url = Uri.parse('$baseUrl/api/v1/user/token/refresh/');
+
+    final headers = <String, String>{
+      "Content-Type": "application/json",
+    };
+
+    final body = {
+      "refresh": refreshToken,
+    };
+
+    return await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(body),
+    );
+  }
 }

@@ -42,32 +42,36 @@ class LogOutView extends GetView {
 
             SizedBox(height: 30.h,),
 
-            Row(
-              spacing: 17.w,
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'Cancel'.tr,
-                    color: AppColors.top5Transparent,
-                    borderColor: AppColors.profileGray,
-                    textColor: AppColors.profileBlack,
-                    borderRadius: 6,
-                    onTap: () => Navigator.pop(context),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 17.w,
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: 'Cancel'.tr,
+                      color: AppColors.top5Transparent,
+                      borderColor: AppColors.profileGray,
+                      textColor: AppColors.profileBlack,
+                      borderRadius: 6,
+                      onTap: () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-
-                Expanded(
-                  child: CustomButton(
-                    text: 'Log Out'.tr,
-                    color: AppColors.profileDeleteButtonTextColor,
-                    textColor: AppColors.profileWhite,
-                    borderRadius: 6,
-                    onTap: () {
-                      profileController.userLogout();
-                    },
+              
+                  Expanded(
+                    child: CustomButton(
+                      text: 'Log Out'.tr,
+                      color: AppColors.profileDeleteButtonTextColor,
+                      textColor: AppColors.profileWhite,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      borderRadius: 6,
+                      onTap: () {
+                        profileController.userLogout();
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             )
           ],
         ),

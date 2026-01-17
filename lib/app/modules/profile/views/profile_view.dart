@@ -385,121 +385,126 @@ class ProfileView extends GetView<ProfileController> {
                             ),
 
                             Obx(() {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                spacing: 15.w,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      profileController.selectedDefaultFilters[0].value = true;
-                                      profileController.selectedDefaultFilters[1].value = false;
-                                      profileController.selectedDefaultFilters[2].value = false;
-                                      homeController.selectedFilter[0].value = true;
-                                      homeController.selectedFilter[1].value = false;
-                                      homeController.selectedFilter[2].value = false;
-                                      homeController.selectedFilter[3].value = false;
-                                      homeController.selectedFilter[4].value = false;
-                                      searchController.selectedFilter[0].value = true;
-                                      searchController.selectedFilter[1].value = false;
-                                      searchController.selectedFilter[2].value = false;
-                                      searchController.selectedFilter[3].value = false;
-                                      searchController.selectedFilter[4].value = false;
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w,
-                                        vertical: 6.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: profileController.selectedDefaultFilters[0].value
-                                            ? AppColors.profileGreen
-                                            : AppColors.profileInactiveBg,
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'Open Now'.tr,
-                                          style: h4.copyWith(
-                                            color: profileController.selectedDefaultFilters[0].value
-                                                ? AppColors.profileWhite
-                                                : AppColors.profileGray,
-                                            fontSize: 10.sp,
+                              return IntrinsicHeight(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 15.w,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        profileController.selectedDefaultFilters[0].value = true;
+                                        profileController.selectedDefaultFilters[1].value = false;
+                                        profileController.selectedDefaultFilters[2].value = false;
+                                        homeController.selectedFilter[0].value = true;
+                                        homeController.selectedFilter[1].value = false;
+                                        homeController.selectedFilter[2].value = false;
+                                        homeController.selectedFilter[3].value = false;
+                                        homeController.selectedFilter[4].value = false;
+                                        searchController.selectedFilter[0].value = true;
+                                        searchController.selectedFilter[1].value = false;
+                                        searchController.selectedFilter[2].value = false;
+                                        searchController.selectedFilter[3].value = false;
+                                        searchController.selectedFilter[4].value = false;
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 14.w,
+                                          vertical: 6.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: profileController.selectedDefaultFilters[0].value
+                                              ? AppColors.profileGreen
+                                              : AppColors.profileInactiveBg,
+                                          borderRadius: BorderRadius.circular(50),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            'Open Now'.tr,
+                                            style: h4.copyWith(
+                                              color: profileController.selectedDefaultFilters[0].value
+                                                  ? AppColors.profileWhite
+                                                  : AppColors.profileGray,
+                                              fontSize: 10.sp,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      profileController.selectedDefaultFilters[0].value = false;
-                                      profileController.selectedDefaultFilters[1].value = true;
-                                      profileController.selectedDefaultFilters[2].value = false;
-                                      homeController.selectedFilter[0].value = false;
-                                      homeController.selectedFilter[1].value = false;
-                                      homeController.selectedFilter[2].value = true;
-                                      homeController.selectedFilter[3].value = false;
-                                      homeController.selectedFilter[4].value = false;
-                                      searchController.selectedFilter[0].value = false;
-                                      searchController.selectedFilter[1].value = false;
-                                      searchController.selectedFilter[2].value = true;
-                                      searchController.selectedFilter[3].value = false;
-                                      searchController.selectedFilter[4].value = false;
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w,
-                                        vertical: 6.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: profileController.selectedDefaultFilters[1].value
-                                            ? AppColors.profileGreen
-                                            : AppColors.profileInactiveBg,
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '1 Km',
-                                          style: h4.copyWith(
-                                            color: profileController.selectedDefaultFilters[1].value
-                                                ? AppColors.profileWhite
-                                                : AppColors.profileGray,
-                                            fontSize: 10.sp,
+                                    
+                                    GestureDetector(
+                                      onTap: () {
+                                        profileController.selectedDefaultFilters[0].value = false;
+                                        profileController.selectedDefaultFilters[1].value = true;
+                                        profileController.selectedDefaultFilters[2].value = false;
+                                        homeController.selectedFilter[0].value = false;
+                                        homeController.selectedFilter[1].value = false;
+                                        homeController.selectedFilter[2].value = true;
+                                        homeController.selectedFilter[3].value = false;
+                                        homeController.selectedFilter[4].value = false;
+                                        searchController.selectedFilter[0].value = false;
+                                        searchController.selectedFilter[1].value = false;
+                                        searchController.selectedFilter[2].value = true;
+                                        searchController.selectedFilter[3].value = false;
+                                        searchController.selectedFilter[4].value = false;
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 14.w,
+                                          vertical: 6.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: profileController.selectedDefaultFilters[1].value
+                                              ? AppColors.profileGreen
+                                              : AppColors.profileInactiveBg,
+                                          borderRadius: BorderRadius.circular(50),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '1 Km',
+                                            style: h4.copyWith(
+                                              color: profileController.selectedDefaultFilters[1].value
+                                                  ? AppColors.profileWhite
+                                                  : AppColors.profileGray,
+                                              fontSize: 10.sp,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      profileController.selectedDefaultFilters[0].value = false;
-                                      profileController.selectedDefaultFilters[1].value = false;
-                                      profileController.selectedDefaultFilters[2].value = true;
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 14.w,
-                                        vertical: 6.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: profileController.selectedDefaultFilters[2].value
-                                            ? AppColors.profileGreen
-                                            : AppColors.profileInactiveBg,
-                                        borderRadius: BorderRadius.circular(50),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          '\$\$',
-                                          style: h4.copyWith(
-                                            color: profileController.selectedDefaultFilters[2].value
-                                                ? AppColors.profileWhite
-                                                : AppColors.profileGray,
-                                            fontSize: 10.sp,
+                                    
+                                    GestureDetector(
+                                      onTap: () {
+                                        profileController.selectedDefaultFilters[0].value = false;
+                                        profileController.selectedDefaultFilters[1].value = false;
+                                        profileController.selectedDefaultFilters[2].value = true;
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 14.w,
+                                          vertical: 6.h,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: profileController.selectedDefaultFilters[2].value
+                                              ? AppColors.profileGreen
+                                              : AppColors.profileInactiveBg,
+                                          borderRadius: BorderRadius.circular(50),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            '\$\$',
+                                            style: h4.copyWith(
+                                              color: profileController.selectedDefaultFilters[2].value
+                                                  ? AppColors.profileWhite
+                                                  : AppColors.profileGray,
+                                              fontSize: 10.sp,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               );
                             }),
                           ],
