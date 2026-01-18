@@ -7,6 +7,7 @@ import 'package:top5/app/modules/home/views/contact_us_view.dart';
 import 'package:top5/app/modules/home/views/google_map_webview.dart';
 import 'package:top5/common/app_colors.dart';
 import 'package:top5/common/custom_fonts.dart';
+import 'package:top5/common/localization/localization_controller.dart';
 import 'package:top5/common/widgets/custom_button.dart';
 import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
@@ -81,7 +82,7 @@ class SearchDetailsView extends GetView<SearchController> {
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchPlaceDetails(placeId);
+      controller.fetchPlaceDetails(placeId, Get.find<LocalizationController>().selectedLanguage.value);
       c.fetchSavedPlaces();
     });
 

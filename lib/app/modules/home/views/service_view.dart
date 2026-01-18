@@ -250,12 +250,108 @@ class ServiceView extends GetView<HomeController> {
                               child: Row(
                                 spacing: 10.w,
                                 children: [
-                                  FilterSelectionCard(text: 'Open now'.tr, selectedFilter: controller.selectedFilter, index: 0, color: controller.selectedFilter[0].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[0].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
-                                  FilterSelectionCard(text: '10 min', selectedFilter: controller.selectedFilter, index: 1, color: controller.selectedFilter[1].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[1].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
-                                  FilterSelectionCard(text: profileController.selectedDistanceUnit[0].value ? '1 km' : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles", selectedFilter: controller.selectedFilter, index: 2, color: controller.selectedFilter[2].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[2].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
-                                  FilterSelectionCard(text: 'Outdoor'.tr, selectedFilter: controller.selectedFilter, index: 3, color: controller.selectedFilter[3].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[3].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
-                                  FilterSelectionCard(text: 'Vegetarian'.tr, selectedFilter: controller.selectedFilter, index: 4, color: controller.selectedFilter[4].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[4].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
-                                  FilterSelectionCard(text: 'Bookable'.tr, selectedFilter: controller.selectedFilter, index: 5, color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
+                                  // 0) Open now
+                                  FilterSelectionCard(
+                                    text: 'Open now'.tr,
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 0,
+                                    color: controller.selectedFilter[0].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[0].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 1) 10 min
+                                  FilterSelectionCard(
+                                    text: '10 min',
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 1,
+                                    color: controller.selectedFilter[1].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[1].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 2) ✅ NEW: 5 min (after 10 min)
+                                  FilterSelectionCard(
+                                    text: '5 min',
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 2,
+                                    color: controller.selectedFilter[2].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[2].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 3) 1 km
+                                  FilterSelectionCard(
+                                    text: profileController.selectedDistanceUnit[0].value
+                                        ? '1 km'
+                                        : "${controller.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 3,
+                                    color: controller.selectedFilter[3].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[3].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 4) ✅ NEW: 0.5 km (after 1 km)
+                                  FilterSelectionCard(
+                                    text: profileController.selectedDistanceUnit[0].value
+                                        ? '0.5 km'
+                                        : "${controller.convertToMiles('0.5 km').toStringAsFixed(2)} miles",
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 4,
+                                    color: controller.selectedFilter[4].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[4].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 5) Outdoor
+                                  FilterSelectionCard(
+                                    text: 'Outdoor'.tr,
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 5,
+                                    color: controller.selectedFilter[5].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[5].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+
+                                  // 6) Vegetarian
+                                  FilterSelectionCard(
+                                    text: 'Vegetarian'.tr,
+                                    selectedFilter: controller.selectedFilter,
+                                    index: 6,
+                                    color: controller.selectedFilter[6].value
+                                        ? AppColors.homeGreen
+                                        : AppColors.homeInactiveBg,
+                                    textColor: controller.selectedFilter[6].value
+                                        ? AppColors.homeWhite
+                                        : AppColors.homeGray,
+                                    page: 'Service',
+                                  ),
+                                  // FilterSelectionCard(text: 'Bookable'.tr, selectedFilter: controller.selectedFilter, index: 5, color: controller.selectedFilter[5].value ? AppColors.homeGreen : AppColors.homeInactiveBg, textColor: controller.selectedFilter[5].value ? AppColors.homeWhite : AppColors.homeGray, page: 'Service'),
                                 ],
                               ),
                             ),
@@ -1106,7 +1202,7 @@ class Top5NearYouMapCard extends StatelessWidget {
           }
         }
 
-        if (status == 'Open') {
+        if (status == 'Open'.tr) {
           Get.to(
             DetailsView(
               serialNo: serialNo,
@@ -1288,7 +1384,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                               vertical: 6.h,
                             ),
                             decoration: BoxDecoration(
-                              color: status == 'Open' || status == 'Ouvrir'
+                              color: status == 'Open'.tr
                                   ? AppColors.serviceSearchBg
                                   : AppColors
                                   .profileDeleteButtonColor,
@@ -1298,7 +1394,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                             child: Text(
                               status,
                               style: h3.copyWith(
-                                color: status == 'Open' || status == 'Ouvrir'
+                                color: status == 'Open'.tr
                                     ? AppColors.servicePromoGreen
                                     : AppColors
                                     .profileDeleteButtonTextColor,
@@ -1317,7 +1413,7 @@ class Top5NearYouMapCard extends StatelessWidget {
                             spacing: 4.w,
                             children: [
                               Text(
-                                'Cuisine'.tr,
+                                'Category'.tr,
                                 style: h4.copyWith(
                                   color: AppColors.serviceGray,
                                   fontSize: 12.sp,

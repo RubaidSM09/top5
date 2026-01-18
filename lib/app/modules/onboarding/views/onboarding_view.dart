@@ -12,7 +12,12 @@ import 'package:top5/common/widgets/custom_button.dart';
 import '../controllers/onboarding_controller.dart';
 
 class OnboardingView extends GetView<OnboardingController> {
-  const OnboardingView({super.key});
+  final bool? isProfile;
+
+  const OnboardingView({
+    this.isProfile = false,
+    super.key
+  });
 
   String _stepTitle(int step) {
     switch (step) {
@@ -106,10 +111,11 @@ class OnboardingView extends GetView<OnboardingController> {
 
                 SizedBox(height: 35.h),
 
-                CustomButton(
-                  text: 'Skip',
-                  onTap: () => Get.offAll(SignUpView()),
-                ),
+                if(!isProfile!)
+                  CustomButton(
+                    text: 'Skip',
+                    onTap: () => Get.offAll(SignUpView()),
+                  ),
               ],
             ),
           ),

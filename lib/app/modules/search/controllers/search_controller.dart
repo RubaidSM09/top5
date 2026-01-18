@@ -27,12 +27,14 @@ class SearchController extends GetxController {
       [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
 
   RxList<RxBool> selectedFilter = [
-    true.obs,
-    false.obs,
-    false.obs,
-    false.obs,
-    false.obs,
-    false.obs
+    true.obs,  // 0 Open now
+    false.obs, // 1 10 min
+    false.obs, // 2 5 min  ✅ NEW
+    false.obs, // 3 1 km
+    false.obs, // 4 0.5 km ✅ NEW
+    false.obs, // 5 Outdoor
+    false.obs, // 6 Vegetarian
+    false.obs, // 7 Bookable
   ].obs;
 
   /// ========= Activities / Services category hierarchy (for Search) =========
@@ -354,20 +356,34 @@ class SearchController extends GetxController {
   bool? bookable
   }) _filtersFromChips() {
     final openNow = selectedFilter[0].value ? true : null;
+
     final tenMin = selectedFilter[1].value;
-    final oneKm = selectedFilter[2].value;
-    final outdoor = selectedFilter[3].value ? true : null;
-    final vegetarian = selectedFilter[4].value ? true : null;
-    final bookable = selectedFilter[5].value ? true : null;
+    final fiveMin = selectedFilter[2].value;
+
+    final oneKm = selectedFilter[3].value;
+    final halfKm = selectedFilter[4].value;
+
+    final outdoor = selectedFilter[5].value ? true : null;
+    final vegetarian = selectedFilter[6].value ? true : null;
+    final bookable = selectedFilter[7].value ? true : null;
 
     return (
     openNow: openNow,
-    radius: oneKm ? 500.0 : null,
-    maxTime: tenMin ? '10m' : null,
+
+    // ✅ radius: 1km > 0.5km priority
+    radius: oneKm
+        ? 500.0
+        : (halfKm ? 250.0 : null),
+
+    // ✅ time: 10m > 5m priority
+    maxTime: tenMin
+        ? '10m'
+        : (fiveMin ? '5m' : null),
+
     mode: null,
     outdoor: outdoor,
     vegetarian: vegetarian,
-    bookable: bookable
+    bookable: bookable,
     );
   }
 
@@ -454,9 +470,9 @@ class SearchController extends GetxController {
     }
   }
 
-  Future<void> _fetchAiForPlace(String placeId) async {
+  Future<void> _fetchAiForPlace(String placeId, String language) async {
     try {
-      final res = await _api.placeDetailsWithAi(placeId);
+      final res = await _api.placeDetailsWithAi(placeId, language);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
         final List<String> summary = (data['ai_summary'] as List<dynamic>? ?? [])
@@ -474,7 +490,7 @@ class SearchController extends GetxController {
     return list.take(2).join(', ');
   }
 
-  Future<void> fetchPlaceDetails(String placeId) async {
+  Future<void> fetchPlaceDetails(String placeId, String language) async {
     if (placeId.isEmpty) return;
     if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
 
@@ -510,7 +526,7 @@ class SearchController extends GetxController {
         Get.snackbar('Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
       }
 
-      final res2 = await _api.placeDetailsWithAi(placeId);
+      final res2 = await _api.placeDetailsWithAi(placeId, language);
       if (res2.statusCode == 200) {
         placeAiDetails.value = jsonDecode(res2.body);
       } else {

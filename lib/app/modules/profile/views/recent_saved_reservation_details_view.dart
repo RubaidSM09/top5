@@ -7,6 +7,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../common/app_colors.dart';
 import '../../../../common/custom_fonts.dart';
+import '../../../../common/localization/localization_controller.dart';
 import '../../../../common/widgets/custom_button.dart';
 import '../../../secrets/secrets.dart';
 import '../../home/controllers/home_controller.dart';
@@ -78,7 +79,7 @@ class RecentSavedReservationDetailsView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchPlaceDetails(placeId);
+      controller.fetchPlaceDetails(placeId, Get.find<LocalizationController>().selectedLanguage.value);
     });
 
     return Scaffold(

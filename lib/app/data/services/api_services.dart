@@ -523,7 +523,7 @@ class ApiService {
     );
   }
 
-  Future<http.Response> placeDetailsWithAi (String placeId,) async {
+  Future<http.Response> placeDetailsWithAi (String placeId, String language,) async {
     String? accessToken = await _storage.read(key: 'access_token');
 
     final Uri url = Uri.parse('$baseUrl/api/v1/home/place-details-with-ai/');
@@ -535,6 +535,7 @@ class ApiService {
 
     final Map<String, dynamic> body = {
       "place_id": placeId,
+      "language": language,
     };
 
     return await http.post(

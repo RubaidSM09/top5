@@ -60,7 +60,7 @@ class HomeController extends GetxController {
   RxList<RxBool> selectedCategory =
       [true.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxList<RxBool> selectedFilter =
-      [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
+      [false.obs, false.obs, false.obs, false.obs, false.obs, false.obs, false.obs, false.obs].obs;
   RxBool isListView = true.obs;
   RxList<RxBool> selectedLocations =
       [false.obs, false.obs, false.obs, false.obs, false.obs].obs;
@@ -582,11 +582,12 @@ class HomeController extends GetxController {
   // NOTE: kept as-is to avoid touching your UI usage.
   // Your view uses controller.formatted.value in a few places.
   RxString get formatted {
-    final d = DateFormat('EEE', 'en_US').format(now.value);
+    final d = _weekdayLabel(now.value);
     final t = DateFormat('h:mma', 'en_US')
         .format(now.value)
         .replaceAll(' ', '')
         .toLowerCase();
+
     return '$d, $t'.obs;
   }
 
@@ -723,11 +724,20 @@ class HomeController extends GetxController {
 
       // Apply filters
       final bool openNow = selectedFilter[0].value;
-      final String? maxTime = selectedFilter[1].value ? '10m' : null;
-      final double? radius = selectedFilter[2].value ? 500 : null; // (your comment says 1km, but 500m)
-      final bool outdoor = selectedFilter[3].value;
-      final bool vegetarian = selectedFilter[4].value;
-      final bool bookable = selectedFilter[5].value;
+
+      // time filters (10m first, then 5m if selected)
+      final String? maxTime = selectedFilter[1].value
+          ? '10m'
+          : (selectedFilter[2].value ? '5m' : null);
+
+      // radius filters (1km first, then 0.5km)
+      final double? radius = selectedFilter[3].value
+          ? 500
+          : (selectedFilter[4].value ? 250 : null);
+
+      final bool outdoor = selectedFilter[5].value;
+      final bool vegetarian = selectedFilter[6].value;
+      final bool bookable = selectedFilter[7].value;
 
       final category = _currentCategory;
 
@@ -766,9 +776,9 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> _fetchAiForPlace(String placeId) async {
+  Future<void> _fetchAiForPlace(String placeId, String language) async {
     try {
-      final res = await _service.placeDetailsWithAi(placeId);
+      final res = await _service.placeDetailsWithAi(placeId, language);
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
         final List<String> summary =
@@ -840,7 +850,7 @@ class HomeController extends GetxController {
   final RxMap<dynamic, dynamic> placeAiDetails = {}.obs;
   final RxBool detailsLoading = false.obs;
 
-  Future<void> fetchPlaceDetails(String placeId) async {
+  Future<void> fetchPlaceDetails(String placeId, String language) async {
     if (placeId.isEmpty) return;
     if (placeDetails['place_id'] == placeId && placeAiDetails['place_id'] == placeId) return;
 
@@ -873,7 +883,7 @@ class HomeController extends GetxController {
         Get.snackbar('Details', _safeMsg(res1.body) ?? 'Failed to fetch place details.');
       }
 
-      final res2 = await _service.placeDetailsWithAi(placeId);
+      final res2 = await _service.placeDetailsWithAi(placeId, language);
       if (res2.statusCode == 200) {
         placeAiDetails.value = jsonDecode(res2.body);
       } else {
@@ -1007,23 +1017,34 @@ class HomeController extends GetxController {
     required double destLng,
     String travelMode = 'walking',
   }) async {
+    // This URL supports custom origin on BOTH Android & iOS
+    final directionsUrl = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+          '&origin=$originLat,$originLng'
+          '&destination=$destLat,$destLng'
+          '&travelmode=$travelMode',
+    );
+
+    // ✅ Android: open in Google Maps app if available
     if (!kIsWeb && Platform.isAndroid) {
-      final modeChar = switch (travelMode) {
-        'walking' => 'w',
-        'bicycling' => 'b',
-        'transit' => 'r',
-        _ => 'd',
-      };
-      final androidUri = Uri.parse('google.navigation:q=$destLat,$destLng&mode=$modeChar');
-      if (await canLaunchUrl(androidUri)) {
-        await launchUrl(androidUri, mode: LaunchMode.externalApplication);
-        return;
-      }
+      final googleMapsAppUrl = Uri.parse(
+        'https://www.google.com/maps/dir/?api=1'
+            '&origin=$originLat,$originLng'
+            '&destination=$destLat,$destLng'
+            '&travelmode=$travelMode'
+            '&dir_action=navigate', // optional
+      );
+
+      await launchUrl(googleMapsAppUrl, mode: LaunchMode.externalApplication);
+      return;
     }
 
+    // ✅ iOS: your comgooglemaps scheme supports saddr/daddr (works)
     if (!kIsWeb && Platform.isIOS) {
       final iosUri = Uri.parse(
-        'comgooglemaps://?saddr=$originLat,$originLng&daddr=$destLat,$destLng&directionsmode=$travelMode',
+        'comgooglemaps://?saddr=$originLat,$originLng'
+            '&daddr=$destLat,$destLng'
+            '&directionsmode=$travelMode',
       );
       if (await canLaunchUrl(iosUri)) {
         await launchUrl(iosUri, mode: LaunchMode.externalApplication);
@@ -1031,13 +1052,8 @@ class HomeController extends GetxController {
       }
     }
 
-    final webUri = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1'
-          '&origin=$originLat,$originLng'
-          '&destination=$destLat,$destLng'
-          '&travelmode=$travelMode',
-    );
-    await launchUrl(webUri, mode: LaunchMode.externalApplication);
+    // fallback
+    await launchUrl(directionsUrl, mode: LaunchMode.externalApplication);
   }
 
   Future<void> openDirectionsTo({
@@ -1098,6 +1114,24 @@ class HomeController extends GetxController {
       final fallback = Uri.parse("https://www.google.com/search?q=$encoded");
       await launchUrl(fallback, mode: LaunchMode.externalApplication);
     }
+  }
+
+  String _weekdayLabel(DateTime date) {
+    final String lang = localizationController.selectedLanguage.value.toLowerCase();
+
+    // If your app uses something like 'fr' / 'french' / 'fr_FR', this covers all.
+    final bool isFrench = lang.startsWith('fr') || lang.contains('french');
+
+    if (!isFrench) {
+      // English default (what you already show)
+      return DateFormat('EEE', 'en_US').format(date);
+    }
+
+    // French short day labels (Mon..Sun): lun, mar, mer, jeu, ven, sam, dim
+    const frShort = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+    // DateTime.weekday: Mon=1..Sun=7
+    return frShort[date.weekday - 1];
   }
 }
 

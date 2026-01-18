@@ -76,7 +76,7 @@ class DetailsView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      controller.fetchPlaceDetails(placeId);
+      controller.fetchPlaceDetails(placeId, controller.localizationController.selectedLanguage.value);
       controller.fetchSavedPlaces();
     });
 
@@ -345,6 +345,7 @@ class DetailsView extends GetView<HomeController> {
                           color: AppColors.serviceWhite,
                           fontSize: 12.sp,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -381,7 +382,7 @@ class DetailsView extends GetView<HomeController> {
 
                       SizedBox(height: 24.h,),
 
-                      Text(
+                      /*Text(
                         'Best time / Busy now'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
@@ -414,10 +415,10 @@ class DetailsView extends GetView<HomeController> {
                         ],
                       ),
 
-                      SizedBox(height: 24.h,),
+                      SizedBox(height: 24.h,),*/
 
                       Text(
-                        'Top dishes / Amenities'.tr,
+                        'Place Types'.tr,
                         style: h2.copyWith(
                           color: AppColors.serviceBlack,
                           fontSize: 16.sp,

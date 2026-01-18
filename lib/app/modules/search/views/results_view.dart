@@ -54,6 +54,7 @@ class ResultsView extends GetView<SearchController> {
                       child: Row(
                         spacing: 10.w,
                         children: [
+                          // 0) Open now
                           FilterSelectionCard(
                             text: 'Open now'.tr,
                             selectedFilter: controller.selectedFilter,
@@ -66,6 +67,8 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 1) 10 min
                           FilterSelectionCard(
                             text: '10 min',
                             selectedFilter: controller.selectedFilter,
@@ -78,10 +81,10 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 2) ✅ NEW: 5 min
                           FilterSelectionCard(
-                            text: Get.find<ProfileController>().selectedDistanceUnit[0].value
-                                ? '1 km'
-                                : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
+                            text: '5 min',
                             selectedFilter: controller.selectedFilter,
                             index: 2,
                             color: controller.selectedFilter[2].value
@@ -92,8 +95,12 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 3) 1 km
                           FilterSelectionCard(
-                            text: 'Outdoor'.tr,
+                            text: Get.find<ProfileController>().selectedDistanceUnit[0].value
+                                ? '1 km'
+                                : "${homeController.convertToMiles('1 km').toStringAsFixed(2)} miles",
                             selectedFilter: controller.selectedFilter,
                             index: 3,
                             color: controller.selectedFilter[3].value
@@ -104,8 +111,12 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 4) ✅ NEW: 0.5 km
                           FilterSelectionCard(
-                            text: 'Vegetarian'.tr,
+                            text: Get.find<ProfileController>().selectedDistanceUnit[0].value
+                                ? '0.5 km'
+                                : "${homeController.convertToMiles('0.5 km').toStringAsFixed(2)} miles",
                             selectedFilter: controller.selectedFilter,
                             index: 4,
                             color: controller.selectedFilter[4].value
@@ -116,8 +127,10 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 5) Outdoor
                           FilterSelectionCard(
-                            text: 'Bookable'.tr,
+                            text: 'Outdoor'.tr,
                             selectedFilter: controller.selectedFilter,
                             index: 5,
                             color: controller.selectedFilter[5].value
@@ -128,6 +141,36 @@ class ResultsView extends GetView<SearchController> {
                                 : AppColors.homeGray,
                             page: 'Results',
                           ),
+
+                          // 6) Vegetarian
+                          FilterSelectionCard(
+                            text: 'Vegetarian'.tr,
+                            selectedFilter: controller.selectedFilter,
+                            index: 6,
+                            color: controller.selectedFilter[6].value
+                                ? AppColors.homeGreen
+                                : AppColors.homeInactiveBg,
+                            textColor: controller.selectedFilter[6].value
+                                ? AppColors.homeWhite
+                                : AppColors.homeGray,
+                            page: 'Results',
+                          ),
+
+                          // 7) Bookable (optional later)
+                          /*
+          FilterSelectionCard(
+            text: 'Bookable'.tr,
+            selectedFilter: controller.selectedFilter,
+            index: 7,
+            color: controller.selectedFilter[7].value
+                ? AppColors.homeGreen
+                : AppColors.homeInactiveBg,
+            textColor: controller.selectedFilter[7].value
+                ? AppColors.homeWhite
+                : AppColors.homeGray,
+            page: 'Results',
+          ),
+          */
                         ],
                       ),
                     ),

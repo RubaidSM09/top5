@@ -5,6 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:get/get.dart';
 import 'package:top5/app/modules/home/controllers/home_controller.dart';
+import 'package:top5/app/modules/onboarding/bindings/onboarding_binding.dart';
+import 'package:top5/app/modules/onboarding/views/onboarding_view.dart';
 import 'package:top5/app/modules/profile/views/change_password_view.dart';
 import 'package:top5/app/modules/profile/views/delete_account_view.dart';
 import 'package:top5/app/modules/profile/views/edit_personal_info_view.dart';
@@ -369,9 +371,16 @@ class ProfileView extends GetView<ProfileController> {
                           children: [
                             Row(
                               spacing: 6.w,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SvgPicture.asset(
-                                  'assets/images/profile/default_filters.svg',
+                                Column(
+                                  children: [
+                                    SizedBox(height: 5.h,),
+
+                                    SvgPicture.asset(
+                                      'assets/images/profile/default_filters.svg',
+                                    ),
+                                  ],
                                 ),
 
                                 Text(
@@ -379,6 +388,7 @@ class ProfileView extends GetView<ProfileController> {
                                   style: h4.copyWith(
                                     color: AppColors.profileBlack,
                                     fontSize: 16.sp,
+                                    // fontSize: localizationController.selectedLanguage.value.toLowerCase() == "english" ? 16.sp : 12.sp,
                                   ),
                                 ),
                               ],
@@ -525,10 +535,17 @@ class ProfileView extends GetView<ProfileController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               spacing: 6.w,
                               children: [
-                                SvgPicture.asset(
-                                  'assets/images/profile/dietary.svg',
+                                Column(
+                                  children: [
+                                    SizedBox(height: 5.h,),
+
+                                    SvgPicture.asset(
+                                      'assets/images/profile/dietary.svg',
+                                    ),
+                                  ],
                                 ),
 
                                 Text(
@@ -536,6 +553,7 @@ class ProfileView extends GetView<ProfileController> {
                                   style: h4.copyWith(
                                     color: AppColors.profileBlack,
                                     fontSize: 16.sp,
+                                    // fontSize: localizationController.selectedLanguage.value.toLowerCase() == "english" ? 16.sp : 11.sp,
                                   ),
                                 ),
                               ],
@@ -1050,6 +1068,21 @@ class ProfileView extends GetView<ProfileController> {
                   textColor: AppColors.profileBlack,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   onTap: () => Get.to(const PrivacyPolicyView()),
+                ),
+
+                SizedBox(height: 16.h),
+
+                CustomButton(
+                  text: 'Watch Tutorial'.tr,
+                  prefixIcon: 'assets/images/profile/arrow_next.svg',
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                  borderRadius: 6,
+                  color: AppColors.top5Transparent,
+                  borderColor: AppColors.profileGray,
+                  textColor: AppColors.profileBlack,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  onTap: () => Get.to(const OnboardingView(isProfile: true,), binding: OnboardingBinding()),
                 ),
 
                 SizedBox(height: 24.h),
