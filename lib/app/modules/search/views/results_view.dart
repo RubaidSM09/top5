@@ -289,7 +289,7 @@ class ResultsAppBar extends StatelessWidget {
             )
                 :
             NetworkImage(
-              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+              'https://backend.top5app.fr${profileController.image.value}',
             ) as ImageProvider,
           ),
         )

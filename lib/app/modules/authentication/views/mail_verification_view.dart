@@ -113,7 +113,9 @@ class MailVerificationView extends GetView<AuthenticationController> {
                               paddingBottom: 5,
                               textSize: 14,
                               borderRadius: 24,
-                              onTap: () {  },
+                              onTap: () {
+                                _controller.signUpSendOtp(context, email);
+                              },
                             ),
                           ],
                         ),

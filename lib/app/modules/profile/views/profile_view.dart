@@ -72,7 +72,7 @@ class ProfileView extends GetView<ProfileController> {
                             )
                                 :
                             NetworkImage(
-                              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+                              'https://backend.top5app.fr${profileController.image.value}',
                             ) as ImageProvider,
                           ),
                       

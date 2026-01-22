@@ -58,7 +58,7 @@ class SearchView extends GetView<SearchController> {
 
                 SizedBox(height: 12.h),
 
-                Text(
+                /*Text(
                   'Recent searches'.tr,
                   style: h2.copyWith(
                       color: AppColors.searchBlack, fontSize: 20.sp),
@@ -118,7 +118,7 @@ class SearchView extends GetView<SearchController> {
                   ),
                 ),
 
-                SizedBox(height: 20.h),
+                SizedBox(height: 20.h),*/
 
                 Text(
                   'By category'.tr,
@@ -662,7 +662,7 @@ class SearchAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+              'https://backend.top5app.fr${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),

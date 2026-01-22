@@ -44,7 +44,7 @@ class PersonalInfoView extends GetView {
                     )
                         :
                     NetworkImage(
-                      'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+                      'https://backend.top5app.fr${profileController.image.value}',
                     ),
                   ),
                     

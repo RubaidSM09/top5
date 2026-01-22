@@ -29,6 +29,19 @@ class ChangePasswordView extends GetView {
       return;
     }
 
+    final strength = validateStrongPassword(_newPasswordController.text.trim());
+    if (!strength.isValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(strength.message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (_newPasswordController.text.trim() != _confirmPasswordController.text.trim()) {
       Get.snackbar(
         'Error',
@@ -224,4 +237,44 @@ class ChangePasswordView extends GetView {
       ),
     );
   }
+}
+
+
+class PasswordValidationResult {
+  final bool isValid;
+  final String message;
+  const PasswordValidationResult(this.isValid, this.message);
+}
+
+PasswordValidationResult validateStrongPassword(String password) {
+  final p = password.trim();
+
+  const minLen = 8;
+  final hasUpper = RegExp(r'[A-Z]').hasMatch(p);
+  final hasLower = RegExp(r'[a-z]').hasMatch(p);
+  final hasDigit = RegExp(r'\d').hasMatch(p);
+  final hasSpecial =
+  RegExp(r'[!@#$%^&*(),.?":{}|<>_\-\\/\[\]~`+=;]').hasMatch(p);
+  final hasSpace = RegExp(r'\s').hasMatch(p);
+
+  if (p.length < minLen) {
+    return const PasswordValidationResult(false, 'Password must be at least 8 characters');
+  }
+  if (hasSpace) {
+    return const PasswordValidationResult(false, 'Password must not contain spaces');
+  }
+  if (!hasUpper) {
+    return const PasswordValidationResult(false, 'Add at least 1 uppercase letter (A-Z)');
+  }
+  if (!hasLower) {
+    return const PasswordValidationResult(false, 'Add at least 1 lowercase letter (a-z)');
+  }
+  if (!hasDigit) {
+    return const PasswordValidationResult(false, 'Add at least 1 number (0-9)');
+  }
+  if (!hasSpecial) {
+    return const PasswordValidationResult(false, 'Add at least 1 special character (!@#...)');
+  }
+
+  return const PasswordValidationResult(true, 'Strong password');
 }

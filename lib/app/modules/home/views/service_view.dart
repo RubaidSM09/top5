@@ -715,7 +715,7 @@ class ServiceAppBar extends StatelessWidget {
               'assets/images/home/profile_pic.jpg',
             )
                 : NetworkImage(
-              'https://austin-ovisaclike-nonoptically.ngrok-free.dev${profileController.image.value}',
+              'https://backend.top5app.fr${profileController.image.value}',
             ) as ImageProvider,
           ),
         ),
