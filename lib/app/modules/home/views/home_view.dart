@@ -731,7 +731,7 @@ class HomeAppBar extends StatelessWidget {
                 'assets/images/home/profile_pic.jpg',
               )
                   : NetworkImage(
-                'https://backend.top5app.fr${profileController.image.value}',
+                'https://backend.top5app.fr/${profileController.image.value}',
               ) as ImageProvider,
             ),
           ),

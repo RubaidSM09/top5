@@ -44,7 +44,7 @@ class PersonalInfoView extends GetView {
                     )
                         :
                     NetworkImage(
-                      'https://backend.top5app.fr${profileController.image.value}',
+                      'https://backend.top5app.fr/${profileController.image.value}',
                     ),
                   ),
                     

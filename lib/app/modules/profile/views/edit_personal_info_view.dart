@@ -148,7 +148,7 @@ class EditPersonalInfoView extends GetView {
                         if (local != null) {
                           avatarProvider = FileImage(local);
                         } else if (net.isNotEmpty) {
-                          avatarProvider = NetworkImage('https://backend.top5app.fr$net');
+                          avatarProvider = NetworkImage('https://backend.top5app.fr/$net');
                         } else {
                           avatarProvider = const AssetImage('assets/images/home/profile_pic.jpg');
                         }
