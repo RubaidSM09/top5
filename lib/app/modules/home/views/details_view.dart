@@ -56,15 +56,35 @@ class DetailsView extends GetView<HomeController> {
     await c.openDirectionsTo(destLat: destLat, destLng: destLng, travelMode: 'walking');
   }
 
-  Future<void> _toggleSave(String phone, String email, String website) async {
+  Future<void> _toggleSave(String? phone, String? email, String? website) async {
     final c = Get.find<HomeController>();
-    c.fetchSavedPlaces();
+
+    // Ensure list is up-to-date before checking
+    await c.fetchSavedPlaces();
+
+    final safePhone = phone ?? '';
+    final safeEmail = email ?? '';
+    final safeWebsite = website ?? '';
+
     final activityType = c.isPlaceSaved(placeId) ? 'saved-delete' : 'saved';
 
-    await c.submitActionPlaces(placeId, destLat, destLng, title, rating, directionUrl, phone, email, website, '€€.', activityType, image);
-    await c.fetchSavedPlaces(); // Refresh saved places list
-    // await c.fetchSavedCount();
-    isSaved.value = c.isPlaceSaved(placeId); // Update reactive isSaved
+    await c.submitActionPlaces(
+      placeId,
+      destLat,
+      destLng,
+      title,
+      rating,
+      directionUrl,
+      safePhone,
+      safeEmail,
+      safeWebsite,
+      '€€.',
+      activityType,
+      image,
+    );
+
+    await c.fetchSavedPlaces();
+    isSaved.value = c.isPlaceSaved(placeId);
   }
 
   Future<void> _searchOnGoogle() async {
@@ -143,8 +163,12 @@ class DetailsView extends GetView<HomeController> {
                             ),
 
                             GestureDetector(
-                              onTap: () {
-                                _toggleSave(controller.placeDetails['phone'], '', controller.placeDetails['website'],);
+                              onTap: () async {
+                                await _toggleSave(
+                                  controller.placeDetails['phone'] as String?,
+                                  null,
+                                  controller.placeDetails['website'] as String?,
+                                );
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(
