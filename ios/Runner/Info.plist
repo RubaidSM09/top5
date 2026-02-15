@@ -45,5 +45,36 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleTypeRole</key>
+          <string>Editor</string>
+          <key>CFBundleURLSchemes</key>
+          <array>
+            <string>com.googleusercontent.apps.227747847887-fi0nl7p5mlol593r5t6oqncfkjt3qk9a</string>
+          </array>
+        </dict>
+      </array>
+
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We use your location to show nearby places and recommendations.</string>
+
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We use the microphone for voice features.</string>
+
+	<key>NSSpeechRecognitionUsageDescription</key>
+    <string>We use speech recognition to let you search by voice.</string>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>We use your photo library to let you choose a profile picture.</string>
+
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>We may save images to your photo library when you choose to download or share.</string>
+
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>comgooglemaps</string>
+    </array>
 </dict>
 </plist>

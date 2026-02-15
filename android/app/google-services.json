@@ -7,18 +7,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:227747847887:android:5e95fe9e3246cdb9c661ba",
+        "mobilesdk_app_id": "1:227747847887:android:cb06ecb46b1eb14fc661ba",
         "android_client_info": {
-          "package_name": "com.topfive.top5"
+          "package_name": "com.topfivelocal.top5"
         }
       },
       "oauth_client": [
         {
-          "client_id": "227747847887-5rcro4s6jb9gvfipcc4m2hme1kdjb6n9.apps.googleusercontent.com",
+          "client_id": "227747847887-bi18r5qj51amssk30t8q9u288954bdgg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.topfive.top5",
-            "certificate_hash": "2eb672641969662665dd7e2451c5f2f1543e4ca1"
+            "package_name": "com.topfivelocal.top5",
+            "certificate_hash": "4f25abfe8a455239fb78d843c034f4c94527cfc2"
+          }
+        },
+        {
+          "client_id": "227747847887-j2ugmqbkppeuj5cspq2vutfsh22ehp54.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.topfivelocal.top5",
+            "certificate_hash": "381885ae741f47cc03ad139daabd8acf75726ffa"
           }
         },
         {

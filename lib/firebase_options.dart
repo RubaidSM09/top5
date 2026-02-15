@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAjQSYHhORzow5mLl36UHOPrwM30KFCjtI',
-    appId: '1:227747847887:android:5e95fe9e3246cdb9c661ba',
+    appId: '1:227747847887:android:cb06ecb46b1eb14fc661ba',
     messagingSenderId: '227747847887',
     projectId: 'top5-d04a7',
     storageBucket: 'top5-d04a7.firebasestorage.app',
@@ -59,13 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCke5mOAUVSgNLOENg-9zlJYkn8Of5ssuU',
-    appId: '1:227747847887:ios:8f5abe49dd4a4c8ac661ba',
+    appId: '1:227747847887:ios:f6df4f9445f55ff5c661ba',
     messagingSenderId: '227747847887',
     projectId: 'top5-d04a7',
     storageBucket: 'top5-d04a7.firebasestorage.app',
-    androidClientId: '227747847887-o6864lomogk3ljrsnf1chnhvmt8kkt61.apps.googleusercontent.com',
-    iosClientId: '227747847887-6hgmp6aerl9obfi2ql7m32ijnci272km.apps.googleusercontent.com',
-    iosBundleId: 'com.topfive.top5',
+    androidClientId: '227747847887-5rcro4s6jb9gvfipcc4m2hme1kdjb6n9.apps.googleusercontent.com',
+    iosClientId: '227747847887-fi0nl7p5mlol593r5t6oqncfkjt3qk9a.apps.googleusercontent.com',
+    iosBundleId: 'com.topfivelocal.top5',
   );
 
 }

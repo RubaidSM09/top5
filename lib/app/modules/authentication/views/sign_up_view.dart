@@ -61,7 +61,9 @@ class SignUpView extends GetView {
                             text: 'Continue with Apple'.tr,
                             icon: 'assets/images/authentication/apple.svg',
                             color: AppColors.authenticationBlack,
-                            onTap: () {  },
+                            onTap: () {
+                              authController.appleSignIn();
+                            },
                           ),
 
                           SizedBox(height: 16.h),

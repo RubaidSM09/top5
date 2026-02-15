@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:top5/app/modules/authentication/views/password_change_view.dart';
 import 'package:top5/app/modules/authentication/views/sign_up_form2_view.dart';
 import 'package:top5/app/modules/dashboard/views/dashboard_view.dart';
@@ -293,6 +294,131 @@ class AuthenticationController extends GetxController {
       print('Error: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> appleSignIn() async {
+    isLoading.value = true;
+
+    try {
+      // ── 1. Perform Sign in with Apple ──
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        // Optional: nonce for security (recommended)
+        // nonce: generateNonce(),  // implement if you want replay protection
+      );
+
+      print('Rubaid');
+
+      // ── 2. Create OAuth credential for Firebase ──
+      final oauthCredential = OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        // accessToken: appleCredential.authorizationCode,   // usually not needed
+        // rawNonce: yourNonceIfUsed,
+      );
+
+      // ── 3. Sign in to Firebase ──
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+
+      final firebaseUser = userCredential.user;
+      if (firebaseUser == null) {
+        throw Exception("Apple sign-in failed - no user returned");
+      }
+
+      // Optional: Update display name on first sign-in (Apple only gives name once)
+      if (appleCredential.givenName != null || appleCredential.familyName != null) {
+        String fullName = [
+          appleCredential.givenName ?? '',
+          appleCredential.familyName ?? ''
+        ].join(' ').trim();
+
+        if (fullName.isNotEmpty) {
+          await firebaseUser.updateDisplayName(fullName);
+        }
+      }
+
+      // ── 4. Handle your app logic (similar to Google) ──
+      // You now have firebaseUser.uid, firebaseUser.email, firebaseUser.displayName, etc.
+
+      print('Apple Sign-In Success: ${firebaseUser.uid} | ${firebaseUser.email}');
+
+      // Decide what to do next:
+      // Option A: Auto-create/log in user in your backend using Firebase UID
+      // Option B: Call your own backend to create/sync user (recommended)
+
+      await _handleSuccessfulSocialLogin(
+        uid: firebaseUser.uid,
+        email: firebaseUser.email ?? '',
+        fullName: firebaseUser.displayName ?? 'Apple User',
+        provider: 'apple',
+      );
+
+      Get.snackbar('Success', 'Signed in with Apple');
+
+      await _checkUserSubscriptionAndNavigate();  // your existing method
+
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // User canceled or other Apple error
+      print(e);
+      if (e.code != AuthorizationErrorCode.canceled) {
+        Get.snackbar('Apple Sign-In Error', e.message ?? 'Failed to sign in');
+      }
+    } on FirebaseAuthException catch (e) {
+      print(e);
+      String message = 'Authentication failed';
+      if (e.code == 'account-exists-with-different-credential') {
+        message = 'Account exists with different sign-in method';
+      } else if (e.code == 'operation-not-allowed') {
+        message = 'Apple sign-in is not enabled in Firebase';
+      }
+      Get.snackbar('Error', message);
+      print('Firebase Apple Error: ${e.code} - ${e.message}');
+    } catch (e) {
+      Get.snackbar('Error', 'An unexpected error occurred');
+      print('Apple Sign-In Error: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> _handleSuccessfulSocialLogin({
+    required String uid,
+    required String email,
+    required String fullName,
+    required String provider,
+  }) async {
+    try {
+      // Option: Call your backend to create / sync user
+      final response = await _service.socialSignIn(
+        email,
+        fullName,
+        provider,  // 'apple'
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final body = jsonDecode(response.body);
+
+        // Assuming your backend returns access/refresh tokens
+        final accessToken = body['access'] ?? body['token']?['access'];
+        final refreshToken = body['refresh'] ?? body['token']?['refresh'];
+
+        if (accessToken != null && refreshToken != null) {
+          await storeTokens(accessToken, refreshToken);
+          await _storage.write(key: 'account_type', value: provider);
+          await _storage.write(key: 'remember_me', value: 'true');
+        }
+      } else {
+        // Handle backend error
+        print('Backend sync failed: ${response.body}');
+      }
+
+      // Fallback: store Firebase UID or something
+      await _storage.write(key: 'firebase_uid', value: uid);
+    } catch (e) {
+      print('Backend sync error: $e');
     }
   }
 
